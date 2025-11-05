@@ -1,0 +1,4 @@
+#!/bin/bash
+
+hedera restart
+msol TempUSDC && ntester tests/TempUSDC  && msol PriceOracle && msol Issuer && msol Lender && ntester tests/setup && ntester tests/Issuer

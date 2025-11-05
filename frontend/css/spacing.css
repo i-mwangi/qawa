@@ -1,0 +1,709 @@
+/**
+ * Spacing and Whitespace System
+ * Comprehensive spacing utilities using 8px grid system
+ * Part of the UI/UX Redesign - Task 9
+ * 
+ * This file implements:
+ * - Consistent spacing scale application to all components
+ * - Content container width optimization
+ * - Information density balancing
+ * 
+ * Requirements: 8.1, 8.2, 8.3, 8.4, 8.5
+ */
+
+/* ============================================
+   SPACING UTILITY CLASSES (8px Grid System)
+   Requirement: 8.1
+   ============================================ */
+
+/* Margin Utilities */
+.m-0 { margin: var(--space-0); }
+.m-1 { margin: var(--space-1); }
+.m-2 { margin: var(--space-2); }
+.m-3 { margin: var(--space-3); }
+.m-4 { margin: var(--space-4); }
+.m-5 { margin: var(--space-5); }
+.m-6 { margin: var(--space-6); }
+.m-7 { margin: var(--space-7); }
+.m-8 { margin: var(--space-8); }
+.m-9 { margin: var(--space-9); }
+.m-10 { margin: var(--space-10); }
+.m-12 { margin: var(--space-12); }
+.m-16 { margin: var(--space-16); }
+
+/* Margin Top */
+.mt-0 { margin-top: var(--space-0); }
+.mt-1 { margin-top: var(--space-1); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-3 { margin-top: var(--space-3); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-5 { margin-top: var(--space-5); }
+.mt-6 { margin-top: var(--space-6); }
+.mt-7 { margin-top: var(--space-7); }
+.mt-8 { margin-top: var(--space-8); }
+.mt-9 { margin-top: var(--space-9); }
+.mt-10 { margin-top: var(--space-10); }
+.mt-12 { margin-top: var(--space-12); }
+.mt-16 { margin-top: var(--space-16); }
+
+/* Margin Bottom */
+.mb-0 { margin-bottom: var(--space-0); }
+.mb-1 { margin-bottom: var(--space-1); }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-3 { margin-bottom: var(--space-3); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-5 { margin-bottom: var(--space-5); }
+.mb-6 { margin-bottom: var(--space-6); }
+.mb-7 { margin-bottom: var(--space-7); }
+.mb-8 { margin-bottom: var(--space-8); }
+.mb-9 { margin-bottom: var(--space-9); }
+.mb-10 { margin-bottom: var(--space-10); }
+.mb-12 { margin-bottom: var(--space-12); }
+.mb-16 { margin-bottom: var(--space-16); }
+
+/* Margin Left */
+.ml-0 { margin-left: var(--space-0); }
+.ml-1 { margin-left: var(--space-1); }
+.ml-2 { margin-left: var(--space-2); }
+.ml-3 { margin-left: var(--space-3); }
+.ml-4 { margin-left: var(--space-4); }
+.ml-5 { margin-left: var(--space-5); }
+.ml-6 { margin-left: var(--space-6); }
+.ml-7 { margin-left: var(--space-7); }
+.ml-8 { margin-left: var(--space-8); }
+.ml-9 { margin-left: var(--space-9); }
+.ml-10 { margin-left: var(--space-10); }
+.ml-12 { margin-left: var(--space-12); }
+.ml-16 { margin-left: var(--space-16); }
+
+/* Margin Right */
+.mr-0 { margin-right: var(--space-0); }
+.mr-1 { margin-right: var(--space-1); }
+.mr-2 { margin-right: var(--space-2); }
+.mr-3 { margin-right: var(--space-3); }
+.mr-4 { margin-right: var(--space-4); }
+.mr-5 { margin-right: var(--space-5); }
+.mr-6 { margin-right: var(--space-6); }
+.mr-7 { margin-right: var(--space-7); }
+.mr-8 { margin-right: var(--space-8); }
+.mr-9 { margin-right: var(--space-9); }
+.mr-10 { margin-right: var(--space-10); }
+.mr-12 { margin-right: var(--space-12); }
+.mr-16 { margin-right: var(--space-16); }
+
+/* Margin Horizontal (Left + Right) */
+.mx-0 { margin-left: var(--space-0); margin-right: var(--space-0); }
+.mx-1 { margin-left: var(--space-1); margin-right: var(--space-1); }
+.mx-2 { margin-left: var(--space-2); margin-right: var(--space-2); }
+.mx-3 { margin-left: var(--space-3); margin-right: var(--space-3); }
+.mx-4 { margin-left: var(--space-4); margin-right: var(--space-4); }
+.mx-5 { margin-left: var(--space-5); margin-right: var(--space-5); }
+.mx-6 { margin-left: var(--space-6); margin-right: var(--space-6); }
+.mx-8 { margin-left: var(--space-8); margin-right: var(--space-8); }
+.mx-10 { margin-left: var(--space-10); margin-right: var(--space-10); }
+.mx-12 { margin-left: var(--space-12); margin-right: var(--space-12); }
+.mx-16 { margin-left: var(--space-16); margin-right: var(--space-16); }
+.mx-auto { margin-left: auto; margin-right: auto; }
+
+/* Margin Vertical (Top + Bottom) */
+.my-0 { margin-top: var(--space-0); margin-bottom: var(--space-0); }
+.my-1 { margin-top: var(--space-1); margin-bottom: var(--space-1); }
+.my-2 { margin-top: var(--space-2); margin-bottom: var(--space-2); }
+.my-3 { margin-top: var(--space-3); margin-bottom: var(--space-3); }
+.my-4 { margin-top: var(--space-4); margin-bottom: var(--space-4); }
+.my-5 { margin-top: var(--space-5); margin-bottom: var(--space-5); }
+.my-6 { margin-top: var(--space-6); margin-bottom: var(--space-6); }
+.my-8 { margin-top: var(--space-8); margin-bottom: var(--space-8); }
+.my-10 { margin-top: var(--space-10); margin-bottom: var(--space-10); }
+.my-12 { margin-top: var(--space-12); margin-bottom: var(--space-12); }
+.my-16 { margin-top: var(--space-16); margin-bottom: var(--space-16); }
+
+/* Padding Utilities */
+.p-0 { padding: var(--space-0); }
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+.p-5 { padding: var(--space-5); }
+.p-6 { padding: var(--space-6); }
+.p-7 { padding: var(--space-7); }
+.p-8 { padding: var(--space-8); }
+.p-9 { padding: var(--space-9); }
+.p-10 { padding: var(--space-10); }
+.p-12 { padding: var(--space-12); }
+.p-16 { padding: var(--space-16); }
+
+/* Padding Top */
+.pt-0 { padding-top: var(--space-0); }
+.pt-1 { padding-top: var(--space-1); }
+.pt-2 { padding-top: var(--space-2); }
+.pt-3 { padding-top: var(--space-3); }
+.pt-4 { padding-top: var(--space-4); }
+.pt-5 { padding-top: var(--space-5); }
+.pt-6 { padding-top: var(--space-6); }
+.pt-7 { padding-top: var(--space-7); }
+.pt-8 { padding-top: var(--space-8); }
+.pt-9 { padding-top: var(--space-9); }
+.pt-10 { padding-top: var(--space-10); }
+.pt-12 { padding-top: var(--space-12); }
+.pt-16 { padding-top: var(--space-16); }
+
+/* Padding Bottom */
+.pb-0 { padding-bottom: var(--space-0); }
+.pb-1 { padding-bottom: var(--space-1); }
+.pb-2 { padding-bottom: var(--space-2); }
+.pb-3 { padding-bottom: var(--space-3); }
+.pb-4 { padding-bottom: var(--space-4); }
+.pb-5 { padding-bottom: var(--space-5); }
+.pb-6 { padding-bottom: var(--space-6); }
+.pb-7 { padding-bottom: var(--space-7); }
+.pb-8 { padding-bottom: var(--space-8); }
+.pb-9 { padding-bottom: var(--space-9); }
+.pb-10 { padding-bottom: var(--space-10); }
+.pb-12 { padding-bottom: var(--space-12); }
+.pb-16 { padding-bottom: var(--space-16); }
+
+/* Padding Left */
+.pl-0 { padding-left: var(--space-0); }
+.pl-1 { padding-left: var(--space-1); }
+.pl-2 { padding-left: var(--space-2); }
+.pl-3 { padding-left: var(--space-3); }
+.pl-4 { padding-left: var(--space-4); }
+.pl-5 { padding-left: var(--space-5); }
+.pl-6 { padding-left: var(--space-6); }
+.pl-7 { padding-left: var(--space-7); }
+.pl-8 { padding-left: var(--space-8); }
+.pl-9 { padding-left: var(--space-9); }
+.pl-10 { padding-left: var(--space-10); }
+.pl-12 { padding-left: var(--space-12); }
+.pl-16 { padding-left: var(--space-16); }
+
+/* Padding Right */
+.pr-0 { padding-right: var(--space-0); }
+.pr-1 { padding-right: var(--space-1); }
+.pr-2 { padding-right: var(--space-2); }
+.pr-3 { padding-right: var(--space-3); }
+.pr-4 { padding-right: var(--space-4); }
+.pr-5 { padding-right: var(--space-5); }
+.pr-6 { padding-right: var(--space-6); }
+.pr-7 { padding-right: var(--space-7); }
+.pr-8 { padding-right: var(--space-8); }
+.pr-9 { padding-right: var(--space-9); }
+.pr-10 { padding-right: var(--space-10); }
+.pr-12 { padding-right: var(--space-12); }
+.pr-16 { padding-right: var(--space-16); }
+
+/* Padding Horizontal (Left + Right) */
+.px-0 { padding-left: var(--space-0); padding-right: var(--space-0); }
+.px-1 { padding-left: var(--space-1); padding-right: var(--space-1); }
+.px-2 { padding-left: var(--space-2); padding-right: var(--space-2); }
+.px-3 { padding-left: var(--space-3); padding-right: var(--space-3); }
+.px-4 { padding-left: var(--space-4); padding-right: var(--space-4); }
+.px-5 { padding-left: var(--space-5); padding-right: var(--space-5); }
+.px-6 { padding-left: var(--space-6); padding-right: var(--space-6); }
+.px-8 { padding-left: var(--space-8); padding-right: var(--space-8); }
+.px-10 { padding-left: var(--space-10); padding-right: var(--space-10); }
+.px-12 { padding-left: var(--space-12); padding-right: var(--space-12); }
+.px-16 { padding-left: var(--space-16); padding-right: var(--space-16); }
+
+/* Padding Vertical (Top + Bottom) */
+.py-0 { padding-top: var(--space-0); padding-bottom: var(--space-0); }
+.py-1 { padding-top: var(--space-1); padding-bottom: var(--space-1); }
+.py-2 { padding-top: var(--space-2); padding-bottom: var(--space-2); }
+.py-3 { padding-top: var(--space-3); padding-bottom: var(--space-3); }
+.py-4 { padding-top: var(--space-4); padding-bottom: var(--space-4); }
+.py-5 { padding-top: var(--space-5); padding-bottom: var(--space-5); }
+.py-6 { padding-top: var(--space-6); padding-bottom: var(--space-6); }
+.py-8 { padding-top: var(--space-8); padding-bottom: var(--space-8); }
+.py-10 { padding-top: var(--space-10); padding-bottom: var(--space-10); }
+.py-12 { padding-top: var(--space-12); padding-bottom: var(--space-12); }
+.py-16 { padding-top: var(--space-16); padding-bottom: var(--space-16); }
+
+/* ============================================
+   GAP UTILITIES (for Flexbox and Grid)
+   Requirement: 8.1, 8.3
+   ============================================ */
+
+.gap-0 { gap: var(--space-0); }
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-5 { gap: var(--space-5); }
+.gap-6 { gap: var(--space-6); }
+.gap-8 { gap: var(--space-8); }
+.gap-10 { gap: var(--space-10); }
+.gap-12 { gap: var(--space-12); }
+.gap-16 { gap: var(--space-16); }
+
+/* Row Gap */
+.row-gap-0 { row-gap: var(--space-0); }
+.row-gap-1 { row-gap: var(--space-1); }
+.row-gap-2 { row-gap: var(--space-2); }
+.row-gap-3 { row-gap: var(--space-3); }
+.row-gap-4 { row-gap: var(--space-4); }
+.row-gap-5 { row-gap: var(--space-5); }
+.row-gap-6 { row-gap: var(--space-6); }
+.row-gap-8 { row-gap: var(--space-8); }
+.row-gap-10 { row-gap: var(--space-10); }
+.row-gap-12 { row-gap: var(--space-12); }
+
+/* Column Gap */
+.col-gap-0 { column-gap: var(--space-0); }
+.col-gap-1 { column-gap: var(--space-1); }
+.col-gap-2 { column-gap: var(--space-2); }
+.col-gap-3 { column-gap: var(--space-3); }
+.col-gap-4 { column-gap: var(--space-4); }
+.col-gap-5 { column-gap: var(--space-5); }
+.col-gap-6 { column-gap: var(--space-6); }
+.col-gap-8 { column-gap: var(--space-8); }
+.col-gap-10 { column-gap: var(--space-10); }
+.col-gap-12 { column-gap: var(--space-12); }
+
+/* ============================================
+   CONTENT CONTAINERS
+   Requirements: 8.2
+   ============================================ */
+
+/* Main content container with max-width 1600px and proper padding */
+.container {
+  width: 100%;
+  max-width: var(--container-max); /* 1600px */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-8); /* 32px */
+  padding-right: var(--space-8); /* 32px */
+}
+
+/* Container variants */
+.container-fluid {
+  width: 100%;
+  padding-left: var(--space-8);
+  padding-right: var(--space-8);
+}
+
+.container-narrow {
+  max-width: var(--content-narrow); /* 640px */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-8);
+  padding-right: var(--space-8);
+}
+
+.container-normal {
+  max-width: var(--content-normal); /* 768px */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-8);
+  padding-right: var(--space-8);
+}
+
+.container-wide {
+  max-width: var(--content-wide); /* 1024px */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-8);
+  padding-right: var(--space-8);
+}
+
+/* Responsive container padding */
+@media (max-width: 768px) {
+  .container,
+  .container-fluid,
+  .container-narrow,
+  .container-normal,
+  .container-wide {
+    padding-left: var(--space-6); /* 24px on tablet */
+    padding-right: var(--space-6);
+  }
+}
+
+@media (max-width: 480px) {
+  .container,
+  .container-fluid,
+  .container-narrow,
+  .container-normal,
+  .container-wide {
+    padding-left: var(--space-4); /* 16px on mobile */
+    padding-right: var(--space-4);
+  }
+}
+
+/* ============================================
+   SECTION SPACING
+   Requirements: 8.3, 8.4
+   ============================================ */
+
+/* Page sections with proper vertical spacing */
+.section {
+  padding-top: var(--space-12); /* 48px */
+  padding-bottom: var(--space-12);
+}
+
+.section-sm {
+  padding-top: var(--space-8); /* 32px */
+  padding-bottom: var(--space-8);
+}
+
+.section-lg {
+  padding-top: var(--space-16); /* 64px */
+  padding-bottom: var(--space-16);
+}
+
+.section-xl {
+  padding-top: var(--space-20); /* 80px */
+  padding-bottom: var(--space-20);
+}
+
+/* Section with separator */
+.section-divider {
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: var(--space-8);
+  margin-bottom: var(--space-8);
+}
+
+/* ============================================
+   CONTENT SPACING
+   Requirements: 8.3, 8.4, 8.5
+   ============================================ */
+
+/* Content blocks with breathing room */
+.content-block {
+  margin-bottom: var(--space-8);
+}
+
+.content-block:last-child {
+  margin-bottom: 0;
+}
+
+/* Form groups with proper spacing */
+.form-section-spacing {
+  margin-bottom: var(--space-8);
+}
+
+.form-section-spacing:last-child {
+  margin-bottom: 0;
+}
+
+/* Card grids with consistent gaps */
+.grid-spacing {
+  display: grid;
+  gap: var(--space-6); /* 24px */
+}
+
+.grid-spacing-sm {
+  gap: var(--space-4); /* 16px */
+}
+
+.grid-spacing-lg {
+  gap: var(--space-8); /* 32px */
+}
+
+/* List spacing */
+.list-spacing > * + * {
+  margin-top: var(--space-4);
+}
+
+.list-spacing-sm > * + * {
+  margin-top: var(--space-2);
+}
+
+.list-spacing-lg > * + * {
+  margin-top: var(--space-6);
+}
+
+/* Stack layout with consistent spacing */
+.stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.stack-1 { gap: var(--space-1); }
+.stack-2 { gap: var(--space-2); }
+.stack-3 { gap: var(--space-3); }
+.stack-4 { gap: var(--space-4); }
+.stack-5 { gap: var(--space-5); }
+.stack-6 { gap: var(--space-6); }
+.stack-8 { gap: var(--space-8); }
+.stack-10 { gap: var(--space-10); }
+.stack-12 { gap: var(--space-12); }
+
+/* Inline layout with consistent spacing */
+.inline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.inline-1 { gap: var(--space-1); }
+.inline-2 { gap: var(--space-2); }
+.inline-3 { gap: var(--space-3); }
+.inline-4 { gap: var(--space-4); }
+.inline-5 { gap: var(--space-5); }
+.inline-6 { gap: var(--space-6); }
+.inline-8 { gap: var(--space-8); }
+
+/* ============================================
+   INFORMATION DENSITY BALANCING
+   Requirements: 8.3, 8.4, 8.5
+   ============================================ */
+
+/* Dense sections - reduced spacing for data-heavy areas */
+.density-dense {
+  --local-spacing: var(--space-2);
+}
+
+.density-dense .card,
+.density-dense .form-group,
+.density-dense .content-block {
+  margin-bottom: var(--local-spacing);
+}
+
+.density-dense .card {
+  padding: var(--space-4);
+}
+
+/* Normal density - default spacing */
+.density-normal {
+  --local-spacing: var(--space-4);
+}
+
+/* Comfortable density - increased spacing for readability */
+.density-comfortable {
+  --local-spacing: var(--space-6);
+}
+
+.density-comfortable .card,
+.density-comfortable .form-group,
+.density-comfortable .content-block {
+  margin-bottom: var(--local-spacing);
+}
+
+.density-comfortable .card {
+  padding: var(--space-8);
+}
+
+/* Spacious density - maximum breathing room */
+.density-spacious {
+  --local-spacing: var(--space-8);
+}
+
+.density-spacious .card,
+.density-spacious .form-group,
+.density-spacious .content-block {
+  margin-bottom: var(--local-spacing);
+}
+
+.density-spacious .card {
+  padding: var(--space-10);
+}
+
+/* ============================================
+   DASHBOARD LAYOUT SPACING
+   Requirements: 8.2, 8.3, 8.5
+   ============================================ */
+
+/* Dashboard container */
+.dashboard-container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-8);
+}
+
+/* Dashboard grid layout */
+.dashboard-grid {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+/* Dashboard sections */
+.dashboard-section {
+  margin-bottom: var(--space-10);
+}
+
+.dashboard-section:last-child {
+  margin-bottom: 0;
+}
+
+.dashboard-section-header {
+  margin-bottom: var(--space-6);
+}
+
+.dashboard-section-title {
+  margin-bottom: var(--space-2);
+}
+
+/* Stats grid */
+.stats-grid {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  margin-bottom: var(--space-8);
+}
+
+/* Two-column layout */
+.two-column-layout {
+  display: grid;
+  gap: var(--space-8);
+  grid-template-columns: 280px 1fr;
+}
+
+@media (max-width: 1024px) {
+  .two-column-layout {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+}
+
+/* Three-column layout */
+.three-column-layout {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 1200px) {
+  .three-column-layout {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .three-column-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   RESPONSIVE SPACING ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Reduce section spacing on tablet */
+  .section {
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-8);
+  }
+  
+  .section-lg {
+    padding-top: var(--space-12);
+    padding-bottom: var(--space-12);
+  }
+  
+  .section-xl {
+    padding-top: var(--space-16);
+    padding-bottom: var(--space-16);
+  }
+  
+  /* Reduce dashboard spacing */
+  .dashboard-container {
+    padding: var(--space-6) var(--space-6);
+  }
+  
+  .dashboard-section {
+    margin-bottom: var(--space-8);
+  }
+  
+  /* Reduce grid gaps */
+  .grid-spacing {
+    gap: var(--space-4);
+  }
+  
+  .dashboard-grid,
+  .stats-grid {
+    gap: var(--space-4);
+  }
+}
+
+@media (max-width: 480px) {
+  /* Further reduce spacing on mobile */
+  .section {
+    padding-top: var(--space-6);
+    padding-bottom: var(--space-6);
+  }
+  
+  .section-lg {
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-8);
+  }
+  
+  .section-xl {
+    padding-top: var(--space-12);
+    padding-bottom: var(--space-12);
+  }
+  
+  /* Reduce dashboard spacing */
+  .dashboard-container {
+    padding: var(--space-4) var(--space-4);
+  }
+  
+  .dashboard-section {
+    margin-bottom: var(--space-6);
+  }
+  
+  .dashboard-section-header {
+    margin-bottom: var(--space-4);
+  }
+  
+  /* Reduce grid gaps */
+  .grid-spacing,
+  .dashboard-grid,
+  .stats-grid {
+    gap: var(--space-3);
+  }
+  
+  /* Single column on mobile */
+  .dashboard-grid,
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  /* Reduce spacing for print */
+  .container,
+  .container-fluid {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  
+  .section {
+    padding-top: var(--space-4);
+    padding-bottom: var(--space-4);
+  }
+  
+  .dashboard-section {
+    margin-bottom: var(--space-4);
+    page-break-inside: avoid;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* Ensure sufficient spacing for touch targets on mobile */
+@media (max-width: 768px) and (pointer: coarse) {
+  .btn,
+  .menu-item,
+  .nav-btn {
+    min-height: var(--touch-target-min); /* 44px */
+    padding-top: var(--space-3);
+    padding-bottom: var(--space-3);
+  }
+}
+
+/* High contrast mode - maintain spacing */
+@media (prefers-contrast: high) {
+  /* Spacing remains consistent in high contrast mode */
+}
+
+/* Reduced motion - spacing is not affected */
+@media (prefers-reduced-motion: reduce) {
+  /* Spacing remains consistent with reduced motion */
+}

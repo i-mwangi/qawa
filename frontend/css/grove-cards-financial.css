@@ -1,0 +1,350 @@
+/* Grove Cards - Financial Platform Style (Coinbase-inspired) */
+
+.grove-card-financial {
+    background: linear-gradient(135deg, rgba(60, 45, 38, 0.6) 0%, rgba(40, 30, 25, 0.8) 100%);
+    border: 1px solid rgba(199, 172, 149, 0.15);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.grove-card-financial::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #8A5A44 0%, #D4A373 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.grove-card-financial:hover {
+    transform: translateY(-4px);
+    border-color: rgba(212, 163, 115, 0.4);
+    box-shadow: 
+        0 12px 24px rgba(0, 0, 0, 0.4),
+        0 0 40px rgba(212, 163, 115, 0.1);
+}
+
+.grove-card-financial:hover::before {
+    opacity: 1;
+}
+
+/* Header Section */
+.grove-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(199, 172, 149, 0.1);
+}
+
+.grove-title-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.grove-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #F5EFE6;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.grove-id {
+    font-size: 13px;
+    font-weight: 500;
+    color: #B0A090;
+    background: rgba(176, 160, 144, 0.1);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+}
+
+.grove-status-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Location Section */
+.grove-location-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 12px;
+    background: rgba(212, 163, 115, 0.05);
+    border-radius: 8px;
+    border-left: 3px solid #D4A373;
+}
+
+.location-icon {
+    color: #D4A373;
+    flex-shrink: 0;
+}
+
+.grove-location {
+    font-size: 14px;
+    font-weight: 600;
+    color: #F5EFE6;
+}
+
+.grove-coordinates {
+    font-size: 12px;
+    color: #B0A090;
+    margin-left: auto;
+    font-family: 'Courier New', monospace;
+}
+
+/* Metrics Grid */
+.grove-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.metric-item {
+    background: rgba(60, 45, 38, 0.4);
+    border: 1px solid rgba(199, 172, 149, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.2s ease;
+}
+
+.metric-item:hover {
+    background: rgba(60, 45, 38, 0.6);
+    border-color: rgba(212, 163, 115, 0.3);
+}
+
+.metric-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #B0A090;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+}
+
+.metric-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #F5EFE6;
+    letter-spacing: -0.01em;
+}
+
+.health-score {
+    font-weight: 800;
+}
+
+/* Stats Bar */
+.grove-stats-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: rgba(31, 22, 18, 0.5);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(199, 172, 149, 0.08);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #B0A090;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stat-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: #F5EFE6;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 32px;
+    background: rgba(199, 172, 149, 0.15);
+}
+
+/* Footer Actions */
+.grove-card-footer {
+    display: flex;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(199, 172, 149, 0.1);
+}
+
+.grove-action-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    outline: none;
+}
+
+.grove-action-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.grove-action-btn.secondary {
+    background: rgba(176, 160, 144, 0.1);
+    color: #D4A373;
+    border: 1px solid rgba(212, 163, 115, 0.2);
+}
+
+.grove-action-btn.secondary:hover {
+    background: rgba(176, 160, 144, 0.2);
+    border-color: rgba(212, 163, 115, 0.4);
+    transform: translateY(-2px);
+}
+
+.grove-action-btn.primary {
+    background: linear-gradient(135deg, #8A5A44 0%, #D4A373 100%);
+    color: #FFFFFF;
+    border: none;
+    box-shadow: 0 4px 12px rgba(212, 163, 115, 0.2);
+}
+
+.grove-action-btn.primary:hover {
+    box-shadow: 0 6px 20px rgba(212, 163, 115, 0.3);
+    transform: translateY(-2px);
+}
+
+.grove-action-btn:active {
+    transform: translateY(0);
+}
+
+/* Responsive Grid */
+#grovesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    #grovesGrid {
+        grid-template-columns: 1fr;
+    }
+    
+    .grove-card-financial {
+        padding: 20px;
+    }
+    
+    .grove-metrics-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .grove-stats-bar {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+    
+    .stat-divider {
+        width: 100%;
+        height: 1px;
+    }
+    
+    .grove-location-section {
+        flex-wrap: wrap;
+    }
+    
+    .grove-coordinates {
+        margin-left: 0;
+        width: 100%;
+        margin-top: 4px;
+    }
+}
+
+/* Tablet */
+@media (max-width: 1024px) and (min-width: 769px) {
+    #grovesGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Loading State */
+.grove-card-financial.loading {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.grove-card-financial.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(212, 163, 115, 0.1),
+        transparent
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    to {
+        left: 100%;
+    }
+}
+
+/* Readonly Input Style */
+.readonly-input {
+    background: rgba(60, 45, 38, 0.3);
+    border: 1px solid rgba(199, 172, 149, 0.15);
+    color: #B0A090;
+    cursor: not-allowed;
+    font-weight: 600;
+}

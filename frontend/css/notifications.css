@@ -1,0 +1,299 @@
+/**
+ * Toast Notification Styles
+ * Beautiful, modern notifications with animations
+ */
+
+/* Container - positioned at top right */
+.notification-container {
+    position: fixed !important;
+    top: 90px !important; /* Below navbar */
+    right: 20px !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 10002 !important; /* Higher than modal overlay */
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    max-width: 420px !important;
+    pointer-events: none !important;
+}
+
+/* Make sure it overrides any other positioning */
+.notification-container {
+    left: auto !important;
+    bottom: auto !important;
+}
+
+/* Ensure notifications appear at top right regardless of other styles */
+#toastContainer,
+.notification-container {
+    position: fixed !important;
+    top: 90px !important;
+    right: 20px !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 10002 !important; /* Higher than modal overlay */
+}
+
+/* Individual notification */
+.notification {
+    background: rgba(31, 22, 18, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+                0 2px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(199, 172, 149, 0.2);
+    min-width: 320px;
+    max-width: 420px;
+    pointer-events: all;
+    transform: translateX(450px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* Notification types */
+.notification-success {
+    border-left: 4px solid #10B981;
+}
+
+.notification-error {
+    border-left: 4px solid #EF4444;
+}
+
+.notification-warning {
+    border-left: 4px solid #F59E0B;
+}
+
+.notification-info {
+    border-left: 4px solid #3B82F6;
+}
+
+/* Icon */
+.notification-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-success .notification-icon {
+    color: #10B981;
+}
+
+.notification-error .notification-icon {
+    color: #EF4444;
+}
+
+.notification-warning .notification-icon {
+    color: #F59E0B;
+}
+
+.notification-info .notification-icon {
+    color: #3B82F6;
+}
+
+.notification-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Content */
+.notification-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.notification-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #F5EFE6;
+    line-height: 1.4;
+}
+
+.notification-message {
+    font-size: 14px;
+    color: #B0A090;
+    line-height: 1.5;
+}
+
+/* Action button */
+.notification-action {
+    margin-top: 8px;
+    padding: 6px 12px;
+    background: rgba(212, 163, 115, 0.2);
+    border: 1px solid rgba(212, 163, 115, 0.4);
+    border-radius: 6px;
+    color: #D4A373;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    align-self: flex-start;
+}
+
+.notification-action:hover {
+    background: rgba(212, 163, 115, 0.3);
+    border-color: rgba(212, 163, 115, 0.6);
+}
+
+/* Close button */
+.notification-close {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #B0A090;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.notification-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #F5EFE6;
+}
+
+/* Hover effect on notification */
+.notification:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5),
+                0 4px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Progress bar (optional) */
+.notification-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(212, 163, 115, 0.3);
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
+}
+
+.notification-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #8A5A44 0%, #D4A373 100%);
+    animation: progress 10s linear forwards;
+}
+
+@keyframes progress {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .notification-container {
+        top: 70px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+
+    .notification {
+        min-width: auto;
+        max-width: none;
+    }
+}
+
+/* Animation variants */
+@keyframes slideInRight {
+    from {
+        transform: translateX(450px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(450px);
+        opacity: 0;
+    }
+}
+
+/* Stacking effect for multiple notifications */
+.notification:nth-child(1) {
+    z-index: 100;
+}
+
+.notification:nth-child(2) {
+    z-index: 99;
+}
+
+.notification:nth-child(3) {
+    z-index: 98;
+}
+
+.notification:nth-child(4) {
+    z-index: 97;
+}
+
+.notification:nth-child(5) {
+    z-index: 96;
+}
+
+/* Limit visible notifications */
+.notification-container > .notification:nth-child(n+6) {
+    display: none;
+}
+
+/* Dark mode support (already dark, but for consistency) */
+@media (prefers-color-scheme: dark) {
+    .notification {
+        background: rgba(31, 22, 18, 0.98);
+    }
+}
+
+/* Accessibility */
+.notification:focus-within {
+    outline: 2px solid #D4A373;
+    outline-offset: 2px;
+}
+
+/* Loading state */
+.notification.loading .notification-icon {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}

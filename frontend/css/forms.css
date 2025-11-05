@@ -1,0 +1,1087 @@
+/**
+ * Professional Form Components
+ * Enhanced form inputs with professional styling and UX
+ * 
+ * This file implements:
+ * - Professional input field styles with focus states
+ * - Form labels and layout structure
+ * - Validation and error states
+ * - Custom select dropdowns, checkboxes, and radio buttons
+ */
+
+/* ============================================
+   FORM GROUP & LAYOUT (Subtask 5.2)
+   ============================================ */
+
+.form-group {
+  margin-bottom: var(--space-6);
+  position: relative;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+/* Inline form groups (side by side) */
+.form-group-inline {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.form-group-inline .form-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* Form sections */
+.form-section {
+  margin-bottom: var(--space-8);
+  padding-bottom: var(--space-8);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.form-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.form-section-title {
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+}
+
+.form-section-description {
+  font-size: var(--font-size-body-sm);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-6);
+  line-height: var(--line-height-relaxed);
+}
+
+/* ============================================
+   FORM LABELS (Subtask 5.2)
+   ============================================ */
+
+.form-label {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-body-sm);
+  font-weight: 600; /* Requirement 4.2 */
+  color: var(--text-secondary);
+  letter-spacing: var(--letter-spacing-wide);
+  line-height: var(--line-height-normal);
+}
+
+.form-label.required::after {
+  content: ' *';
+  color: var(--error);
+  font-weight: var(--font-weight-bold);
+}
+
+.form-label-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: 0;
+}
+
+/* Label with helper text */
+.form-label-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.form-label-helper {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-muted);
+}
+
+/* ============================================
+   TEXT INPUTS (Subtask 5.1)
+   ============================================ */
+
+.form-input,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+textarea {
+  width: 100%;
+  padding: var(--space-3) var(--space-4); /* Proper padding - Requirement 4.1 */
+  background: var(--bg-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm); /* Proper border-radius - Requirement 4.1 */
+  color: var(--text-primary);
+  font-size: var(--font-size-body);
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  transition: var(--transition-fast);
+  outline: none;
+  min-height: var(--input-height);
+}
+
+/* Placeholder styling - Requirement 4.1 */
+.form-input::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+  font-weight: var(--font-weight-regular);
+}
+
+/* Focus state with border color and glow - Requirement 4.1 */
+.form-input:focus,
+input:focus,
+textarea:focus {
+  border-color: var(--brand-primary);
+  background: var(--bg-secondary);
+  box-shadow: 0 0 0 var(--input-focus-ring-width) var(--brand-subtle);
+}
+
+/* Hover state */
+.form-input:hover:not(:disabled):not(:focus),
+input:hover:not(:disabled):not(:focus),
+textarea:hover:not(:disabled):not(:focus) {
+  border-color: var(--border-strong);
+  background: var(--bg-secondary);
+}
+
+/* Disabled state - Requirement 4.4 */
+.form-input:disabled,
+input:disabled,
+textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+}
+
+/* Readonly state */
+.form-input:read-only,
+input:read-only,
+textarea:read-only {
+  background: var(--bg-tertiary);
+  cursor: default;
+  border-color: var(--border-subtle);
+}
+
+/* Textarea specific */
+textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: var(--line-height-relaxed);
+}
+
+textarea.no-resize {
+  resize: none;
+}
+
+/* Input sizes */
+.form-input-sm,
+input.input-sm {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-body-sm);
+  min-height: 36px;
+}
+
+.form-input-lg,
+input.input-lg {
+  padding: var(--space-4) var(--space-5);
+  font-size: var(--font-size-body-lg);
+  min-height: 52px;
+}
+
+/* ============================================
+   INPUT WITH ICONS
+   ============================================ */
+
+.form-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.form-input-icon {
+  position: absolute;
+  left: var(--space-4);
+  color: var(--text-muted);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.form-input-wrapper .form-input,
+.form-input-wrapper input {
+  padding-left: calc(var(--space-4) + 20px + var(--space-3));
+}
+
+.form-input-icon-right {
+  left: auto;
+  right: var(--space-4);
+}
+
+.form-input-wrapper .form-input.has-icon-right,
+.form-input-wrapper input.has-icon-right {
+  padding-right: calc(var(--space-4) + 20px + var(--space-3));
+  padding-left: var(--space-4);
+}
+
+/* ============================================
+   VALIDATION & ERROR STATES (Subtask 5.3)
+   ============================================ */
+
+/* Error state - Red border on invalid inputs - Requirement 4.3 */
+.form-input.error,
+.form-input.is-invalid,
+input.error,
+input.is-invalid,
+textarea.error,
+textarea.is-invalid,
+.form-group.has-error .form-input,
+.form-group.has-error input,
+.form-group.has-error textarea {
+  border-color: var(--error);
+  background: rgba(239, 83, 80, 0.05);
+}
+
+/* Error state focus styling - Requirement 4.3 */
+.form-input.error:focus,
+.form-input.is-invalid:focus,
+input.error:focus,
+input.is-invalid:focus,
+textarea.error:focus,
+textarea.is-invalid:focus,
+.form-group.has-error .form-input:focus,
+.form-group.has-error input:focus,
+.form-group.has-error textarea:focus {
+  box-shadow: 0 0 0 var(--input-focus-ring-width) var(--error-subtle);
+  border-color: var(--error);
+}
+
+/* Success state */
+.form-input.success,
+.form-input.is-valid,
+input.success,
+input.is-valid,
+textarea.success,
+textarea.is-valid,
+.form-group.has-success .form-input,
+.form-group.has-success input,
+.form-group.has-success textarea {
+  border-color: var(--success);
+  background: rgba(76, 175, 80, 0.05);
+}
+
+.form-input.success:focus,
+.form-input.is-valid:focus,
+input.success:focus,
+input.is-valid:focus,
+textarea.success:focus,
+textarea.is-valid:focus {
+  box-shadow: 0 0 0 var(--input-focus-ring-width) var(--success-subtle);
+  border-color: var(--success);
+}
+
+/* Warning state */
+.form-input.warning,
+input.warning,
+textarea.warning {
+  border-color: var(--warning);
+  background: rgba(255, 167, 38, 0.05);
+}
+
+.form-input.warning:focus,
+input.warning:focus,
+textarea.warning:focus {
+  box-shadow: 0 0 0 var(--input-focus-ring-width) var(--warning-subtle);
+  border-color: var(--warning);
+}
+
+/* Inline error messages with red color - Requirement 4.3 */
+.form-error,
+.form-error-message,
+.invalid-feedback {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  color: var(--error);
+  font-size: var(--font-size-body-sm);
+  line-height: var(--line-height-normal);
+}
+
+/* Error icons next to messages - Requirement 4.3 */
+.form-error::before,
+.form-error-message::before,
+.invalid-feedback::before {
+  content: '⚠';
+  flex-shrink: 0;
+  font-size: 1em;
+  line-height: 1;
+}
+
+/* Success message */
+.form-success,
+.form-success-message,
+.valid-feedback {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  color: var(--success);
+  font-size: var(--font-size-body-sm);
+  line-height: var(--line-height-normal);
+}
+
+.form-success::before,
+.form-success-message::before,
+.valid-feedback::before {
+  content: '✓';
+  flex-shrink: 0;
+  font-size: 1em;
+  line-height: 1;
+}
+
+/* Warning message */
+.form-warning,
+.form-warning-message {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  color: var(--warning);
+  font-size: var(--font-size-body-sm);
+  line-height: var(--line-height-normal);
+}
+
+.form-warning::before,
+.form-warning-message::before {
+  content: '⚠';
+  flex-shrink: 0;
+  font-size: 1em;
+  line-height: 1;
+}
+
+/* Helper text */
+.form-hint,
+.form-help,
+.form-text {
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-body-sm);
+  line-height: var(--line-height-normal);
+}
+
+/* ============================================
+   SELECT DROPDOWNS (Subtask 5.4)
+   ============================================ */
+
+/* Custom dropdown styling - Requirement 4.5 */
+select,
+.form-select {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  padding-right: calc(var(--space-4) + 24px);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: var(--font-size-body);
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  transition: var(--transition-fast);
+  outline: none;
+  min-height: var(--input-height);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23b4b4b4' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-4) center;
+  background-size: 12px;
+}
+
+select:hover:not(:disabled),
+.form-select:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  background-color: var(--bg-secondary);
+}
+
+select:focus,
+.form-select:focus {
+  border-color: var(--brand-primary);
+  background-color: var(--bg-secondary);
+  box-shadow: 0 0 0 var(--input-focus-ring-width) var(--brand-subtle);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234CAF50' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+}
+
+select:disabled,
+.form-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--bg-tertiary);
+}
+
+/* Select options - Hover states for options - Requirement 4.5 */
+select option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: var(--space-2) var(--space-3);
+}
+
+select option:hover {
+  background: var(--bg-tertiary);
+}
+
+select option:checked {
+  background: var(--brand-subtle);
+  color: var(--brand-primary);
+}
+
+/* Select sizes */
+select.select-sm,
+.form-select-sm {
+  padding: var(--space-2) var(--space-3);
+  padding-right: calc(var(--space-3) + 24px);
+  font-size: var(--font-size-body-sm);
+  min-height: 36px;
+}
+
+select.select-lg,
+.form-select-lg {
+  padding: var(--space-4) var(--space-5);
+  padding-right: calc(var(--space-5) + 24px);
+  font-size: var(--font-size-body-lg);
+  min-height: 52px;
+}
+
+/* Multiple select */
+select[multiple] {
+  padding: var(--space-2);
+  background-image: none;
+  min-height: 120px;
+}
+
+select[multiple] option {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-xs);
+  margin-bottom: var(--space-1);
+}
+
+/* ============================================
+   CHECKBOXES (Subtask 5.4)
+   ============================================ */
+
+/* Checkbox and radio button styling - Requirement 4.5 */
+.form-check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  position: relative;
+}
+
+.form-check:last-child {
+  margin-bottom: 0;
+}
+
+.form-check-input {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  background: var(--bg-primary);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  position: relative;
+}
+
+.form-check-input:hover:not(:disabled) {
+  border-color: var(--brand-primary);
+  background: var(--bg-secondary);
+}
+
+.form-check-input:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 var(--input-focus-ring-width) var(--brand-subtle);
+}
+
+.form-check-input:checked {
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
+}
+
+.form-check-input:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='white' d='M8.5 2L3.5 7.5 1.5 5.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.form-check-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--bg-tertiary);
+}
+
+.form-check-input:indeterminate {
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
+}
+
+.form-check-input:indeterminate::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 2px;
+  background: white;
+}
+
+.form-check-label {
+  flex: 1;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-secondary);
+  line-height: var(--line-height-normal);
+  cursor: pointer;
+  user-select: none;
+}
+
+.form-check-input:disabled + .form-check-label {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Checkbox description */
+.form-check-description {
+  font-size: var(--font-size-body-sm);
+  color: var(--text-tertiary);
+  margin-top: var(--space-1);
+  line-height: var(--line-height-normal);
+}
+
+/* ============================================
+   RADIO BUTTONS (Subtask 5.4)
+   ============================================ */
+
+.form-check-input[type="radio"] {
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type="radio"]:checked::after {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: white;
+  background-image: none;
+}
+
+/* Radio group */
+.form-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.form-radio-group-inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+}
+
+/* ============================================
+   TOGGLE SWITCHES
+   ============================================ */
+
+.form-switch {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.form-switch:last-child {
+  margin-bottom: 0;
+}
+
+.form-switch-input {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  flex-shrink: 0;
+}
+
+.form-switch-input::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: var(--text-muted);
+  border-radius: var(--radius-full);
+  transition: var(--transition-fast);
+}
+
+.form-switch-input:hover:not(:disabled) {
+  border-color: var(--brand-primary);
+  background: var(--bg-elevated);
+}
+
+.form-switch-input:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 var(--input-focus-ring-width) var(--brand-subtle);
+}
+
+.form-switch-input:checked {
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
+}
+
+.form-switch-input:checked::after {
+  left: 22px;
+  background: white;
+}
+
+.form-switch-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.form-switch-label {
+  flex: 1;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-secondary);
+  line-height: var(--line-height-normal);
+  cursor: pointer;
+  user-select: none;
+}
+
+.form-switch-input:disabled + .form-switch-label {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   FILE INPUTS
+   ============================================ */
+
+.form-file {
+  position: relative;
+}
+
+.form-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.form-file-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.form-file-label:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--brand-primary);
+  color: var(--text-primary);
+}
+
+.form-file-input:focus + .form-file-label {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 var(--input-focus-ring-width) var(--brand-subtle);
+}
+
+.form-file-input:disabled + .form-file-label {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.form-file-text {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-body-sm);
+}
+
+/* ============================================
+   INPUT GROUPS
+   ============================================ */
+
+.input-group {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+.input-group .form-input,
+.input-group input {
+  flex: 1;
+  border-radius: 0;
+}
+
+.input-group .form-input:first-child,
+.input-group input:first-child {
+  border-top-left-radius: var(--radius-sm);
+  border-bottom-left-radius: var(--radius-sm);
+}
+
+.input-group .form-input:last-child,
+.input-group input:last-child {
+  border-top-right-radius: var(--radius-sm);
+  border-bottom-right-radius: var(--radius-sm);
+}
+
+.input-group-text {
+  display: flex;
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-default);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+.input-group-text:first-child {
+  border-top-left-radius: var(--radius-sm);
+  border-bottom-left-radius: var(--radius-sm);
+  border-right: none;
+}
+
+.input-group-text:last-child {
+  border-top-right-radius: var(--radius-sm);
+  border-bottom-right-radius: var(--radius-sm);
+  border-left: none;
+}
+
+/* ============================================
+   RANGE INPUTS
+   ============================================ */
+
+input[type="range"] {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--brand-primary);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  background: var(--brand-secondary);
+  box-shadow: var(--shadow-md);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--brand-primary);
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  background: var(--brand-secondary);
+  box-shadow: var(--shadow-md);
+}
+
+input[type="range"]:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 var(--input-focus-ring-width) var(--brand-subtle), var(--shadow-sm);
+}
+
+input[type="range"]:focus::-moz-range-thumb {
+  box-shadow: 0 0 0 var(--input-focus-ring-width) var(--brand-subtle), var(--shadow-sm);
+}
+
+/* ============================================
+   FORM ACTIONS
+   ============================================ */
+
+.form-actions {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.form-actions-right {
+  justify-content: flex-end;
+}
+
+.form-actions-center {
+  justify-content: center;
+}
+
+.form-actions-between {
+  justify-content: space-between;
+}
+
+/* ============================================
+   MODAL STYLES
+   ============================================ */
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  /* Remove backdrop-filter to prevent blurring notifications */
+  /* backdrop-filter: blur(4px); */
+}
+
+.modal-content {
+  position: relative;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-modal);
+  max-width: 480px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalSlideIn 0.3s ease-out;
+  border: 1px solid var(--border-default);
+  z-index: 10001;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-header h4 {
+  margin: 0;
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s;
+}
+
+.modal-close:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.modal-body {
+  padding: var(--space-6);
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  margin-top: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-subtle);
+  justify-content: flex-end;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 639px) {
+  .form-group-inline {
+    flex-direction: column;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .form-actions button {
+    width: 100%;
+  }
+  
+  .form-radio-group-inline {
+    flex-direction: column;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY ENHANCEMENTS
+   ============================================ */
+
+/* Visible focus indicators for keyboard navigation */
+.form-input:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+.form-check-input:focus-visible,
+.form-switch-input:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .form-input,
+  input,
+  textarea,
+  select {
+    border-width: 2px;
+  }
+  
+  .form-check-input,
+  .form-switch-input {
+    border-width: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .form-input,
+  input,
+  textarea,
+  select,
+  .form-check-input,
+  .form-switch-input,
+  .form-file-label {
+    transition: none;
+  }
+  
+  .form-switch-input::after {
+    transition: none;
+  }
+}

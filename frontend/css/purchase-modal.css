@@ -1,0 +1,291 @@
+/**
+ * Purchase Modal - Matching App Design System
+ * Dark theme (#2C2E33) with white card content (#FFFFFF)
+ * Green accent: #3CB371
+ */
+
+/* Modal Overlay */
+.modal {
+    background-color: rgba(44, 46, 51, 0.95);
+}
+
+/* Modal Container */
+.purchase-modal {
+    max-width: 800px !important;
+    background: #FFFFFF !important;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Modal Header */
+.purchase-modal .modal-header {
+    background: #FFFFFF;
+    border-bottom: 1px solid #EAEAEA;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.purchase-modal .modal-header h4 {
+    font-size: 24px;
+    color: #24262A;
+    font-weight: 700;
+    margin: 0;
+}
+
+.purchase-modal .modal-close {
+    background: transparent;
+    color: #6C757D;
+    border: none;
+    font-size: 28px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.purchase-modal .modal-close:hover {
+    background: #EAEAEA;
+    color: #24262A;
+}
+
+/* Modal Body */
+.purchase-modal .modal-body {
+    background: #FFFFFF;
+    color: #24262A;
+    padding: 30px;
+}
+
+/* Grove Header */
+.purchase-grove-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #EAEAEA;
+}
+
+.purchase-grove-header h3 {
+    color: #24262A;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+}
+
+.grove-meta {
+    color: #6C757D;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Investment Summary - Data Grid Layout */
+.investment-summary-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px 0;
+    margin-bottom: 30px;
+}
+
+.summary-item {
+    display: contents;
+}
+
+.summary-label {
+    font-size: 15px;
+    color: #6C757D;
+    font-weight: 500;
+    padding-right: 10px;
+    text-align: left;
+}
+
+.summary-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #24262A;
+    text-align: right;
+}
+
+.return-value {
+    color: #3CB371;
+    font-weight: 700;
+}
+
+/* Purchase Input Group */
+.purchase-input-group {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #EAEAEA;
+}
+
+.purchase-input-group label {
+    font-size: 15px;
+    font-weight: 500;
+    color: #6C757D;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.purchase-input-group input {
+    font-size: 16px;
+    padding: 10px 15px;
+    font-weight: 400;
+    border: 1px solid #6C757D;
+    border-radius: 4px;
+    background: #FFFFFF;
+    color: #24262A;
+    transition: border-color 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.purchase-input-group input:focus {
+    border-color: #3CB371;
+    outline: none;
+}
+
+.input-hint {
+    display: block;
+    margin-top: 8px;
+    font-size: 14px;
+    color: #6C757D;
+}
+
+/* Purchase Calculation - Data Grid Layout */
+.purchase-calculation-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px 0;
+    margin-bottom: 30px;
+}
+
+.calc-row {
+    display: contents;
+}
+
+.calc-label {
+    font-size: 15px;
+    color: #6C757D;
+    font-weight: 500;
+    padding-right: 10px;
+    text-align: left;
+}
+
+.calc-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #24262A;
+    text-align: right;
+}
+
+.earnings-value {
+    color: #3CB371;
+    font-weight: 700;
+}
+
+/* Modal Actions */
+.purchase-modal .modal-actions {
+    padding: 20px 30px;
+    gap: 15px;
+    background: #FFFFFF;
+    border-top: 1px solid #EAEAEA;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.purchase-modal .btn-secondary {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    background: #EAEAEA;
+    color: #24262A;
+    border: 1px solid #6C757D;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.purchase-modal .btn-secondary:hover {
+    opacity: 0.9;
+}
+
+.purchase-modal .btn-large,
+.purchase-modal .btn-primary {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    background: #3CB371;
+    color: #24262A;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.purchase-modal .btn-large:hover,
+.purchase-modal .btn-primary:hover {
+    opacity: 0.9;
+}
+
+/* Subtle Animation for Value Updates */
+@keyframes valueUpdate {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.calc-value.updating {
+    animation: valueUpdate 0.2s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .purchase-modal {
+        max-width: 95% !important;
+        margin: 20px;
+    }
+    
+    .purchase-modal .modal-header,
+    .purchase-modal .modal-body,
+    .purchase-modal .modal-actions {
+        padding: 20px;
+    }
+    
+    .investment-summary-card,
+    .purchase-calculation-card {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .summary-label,
+    .calc-label {
+        text-align: left;
+    }
+    
+    .summary-value,
+    .calc-value {
+        text-align: left;
+        margin-bottom: 15px;
+    }
+    
+    .purchase-modal .modal-actions {
+        flex-direction: column-reverse;
+    }
+    
+    .purchase-modal .btn-large,
+    .purchase-modal .btn-secondary {
+        width: 100%;
+    }
+}

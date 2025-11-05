@@ -1,0 +1,101 @@
+services:
+  # Static Site - Frontend (Vite build)
+  - type: web
+    name: chai-platform-frontend
+    env: static
+    buildCommand: pnpm install && pnpm run frontend:build
+    staticPublishPath: ./frontend/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: VITE_API_URL
+        value: https://chai-platform-api.onrender.com
+      - key: VITE_WALLETCONNECT_PROJECT_ID
+        value: 39948bbdaaebec2790629f3e9589793a
+      - key: VITE_HEDERA_NETWORK
+        value: testnet
+
+  # Web Service - Mock API Server (Simple, No Build Required)
+  - type: web
+    name: chai-platform-api
+    env: node
+    buildCommand: pnpm install
+    startCommand: node frontend/api-server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: API_PORT
+        value: 3005
+      - key: NODE_ENV
+        value: production
+      
+      # Turso Database (Add these in Render Dashboard)
+      # - key: TURSO_DATABASE_URL
+      #   value: YOUR_TURSO_URL
+      # - key: TURSO_AUTH_TOKEN
+      #   value: YOUR_TURSO_TOKEN
+      
+      # Hedera Network Configuration
+      - key: HEDERA_NETWORK
+        value: testnet
+      # Add these in Render Dashboard (SENSITIVE):
+      # - key: HEDERA_OPERATOR_ID
+      #   value: YOUR_OPERATOR_ID
+      # - key: HEDERA_OPERATOR_KEY
+      #   value: YOUR_OPERATOR_KEY
+      
+      # USDC Token (Add in Render Dashboard)
+      # - key: USDC_TOKEN_ID
+      #   value: YOUR_USDC_TOKEN_ID
+      # - key: HEDERA_USDC_TOKEN_ID
+      #   value: YOUR_USDC_TOKEN_ID
+      
+      # Smart Contract Addresses (Add in Render Dashboard)
+      # - key: ISSUER_CONTRACT_ID
+      #   value: YOUR_ISSUER_CONTRACT
+      # - key: PRICE_ORACLE_CONTRACT_ID
+      #   value: YOUR_PRICE_ORACLE
+      # - key: REVENUE_RESERVE_CONTRACT_ID
+      #   value: YOUR_REVENUE_RESERVE
+      # - key: MARKETPLACE_CONTRACT_ID
+      #   value: YOUR_MARKETPLACE
+      # - key: FARMER_VERIFICATION_CONTRACT_ID
+      #   value: YOUR_FARMER_VERIFICATION
+      # - key: USDC_CONTRACT_ID
+      #   value: YOUR_USDC_CONTRACT
+      # - key: COFFEETREEMANAGERULTRAMINIMAL_CONTRACT_ID
+      #   value: YOUR_TREE_MANAGER_MINIMAL
+      # - key: COFFEETREEMANAGERSIMPLIFIED_CONTRACT_ID
+      #   value: YOUR_TREE_MANAGER_SIMPLIFIED
+      # - key: COFFEEPRICEORACLE_CONTRACT_ID
+      #   value: YOUR_COFFEE_PRICE_ORACLE
+      # - key: PRICEORACLE_CONTRACT_ID
+      #   value: YOUR_PRICE_ORACLE_2
+      # - key: LENDER_CONTRACT_ID
+      #   value: YOUR_LENDER_CONTRACT
+      # - key: LP_USDC_TOKEN_ID
+      #   value: YOUR_LP_TOKEN
+      
+      # Admin Configuration (Add in Render Dashboard)
+      # - key: ADMIN_ACCOUNT_ID
+      #   value: YOUR_ADMIN_ACCOUNT
+      
+      # Feature Flags
+      - key: USE_HEDERA_BLOCKCHAIN
+        value: true
+      - key: TRANSFER_TOKENS_TO_FARMER
+        value: true
+      - key: FARMER_TOKEN_SHARE
+        value: 100
+      - key: DISABLE_INVESTOR_KYC
+        value: false
+      - key: ENABLE_DEMO_BYPASS
+        value: false
+    
+    # Free tier - will sleep after 15 min inactivity
+    plan: free
+    healthCheckPath: /health

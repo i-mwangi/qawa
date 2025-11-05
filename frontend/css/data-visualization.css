@@ -1,0 +1,948 @@
+/**
+ * Professional Data Visualization Components
+ * Enhanced data tables, badges, pills, and visual indicators
+ * Part of the UI/UX Redesign - Task 7
+ * 
+ * This file implements:
+ * - Professional data tables with proper structure and borders
+ * - Alternating row colors and hover states
+ * - Badge and pill components with color variants
+ * - Visual indicators for metrics (health scores, progress bars, status indicators)
+ * 
+ * Requirements: 3.1, 3.2, 3.3, 3.4
+ */
+
+/* ============================================
+   DATA TABLES - Professional Structure
+   Requirements: 3.1
+   ============================================ */
+
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-default);
+}
+
+/* Table wrapper for responsive scrolling */
+.data-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.data-table-wrapper .data-table {
+  box-shadow: none;
+}
+
+/* Table Header */
+.data-table thead {
+  background: var(--bg-tertiary);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.data-table thead th {
+  padding: var(--space-4) var(--space-6);
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-body-sm);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+  border-bottom: 2px solid var(--border-default);
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Sortable column headers */
+.data-table thead th.sortable {
+  cursor: pointer;
+  transition: var(--transition-colors);
+  position: relative;
+  padding-right: var(--space-8);
+}
+
+.data-table thead th.sortable:hover {
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+}
+
+.data-table thead th.sortable::after {
+  content: '⇅';
+  position: absolute;
+  right: var(--space-4);
+  opacity: 0.3;
+  transition: opacity var(--duration-fast);
+}
+
+.data-table thead th.sortable:hover::after {
+  opacity: 0.6;
+}
+
+.data-table thead th.sorted-asc::after {
+  content: '↑';
+  opacity: 1;
+  color: var(--brand-primary);
+}
+
+.data-table thead th.sorted-desc::after {
+  content: '↓';
+  opacity: 1;
+  color: var(--brand-primary);
+}
+
+/* Table Body */
+.data-table tbody {
+  background: var(--bg-secondary);
+}
+
+.data-table tbody td {
+  padding: var(--space-4) var(--space-6);
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-normal);
+}
+
+/* Alternating row colors */
+.data-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Row hover state */
+.data-table tbody tr {
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.data-table tbody tr:hover {
+  background: var(--bg-tertiary);
+  cursor: pointer;
+}
+
+/* Remove border from last row */
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Table Footer */
+.data-table tfoot {
+  background: var(--bg-tertiary);
+  border-top: 2px solid var(--border-default);
+}
+
+.data-table tfoot td {
+  padding: var(--space-4) var(--space-6);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+/* Column Alignment */
+.data-table th.text-right,
+.data-table td.text-right {
+  text-align: right;
+}
+
+.data-table th.text-center,
+.data-table td.text-center {
+  text-align: center;
+}
+
+/* Numeric columns with tabular figures */
+.data-table td.numeric,
+.data-table td[data-type="number"] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  font-weight: var(--font-weight-medium);
+  text-align: right;
+}
+
+/* Compact table variant */
+.data-table-compact tbody td,
+.data-table-compact thead th {
+  padding: var(--space-3) var(--space-4);
+}
+
+/* Bordered table variant */
+.data-table-bordered {
+  border: 1px solid var(--border-default);
+}
+
+.data-table-bordered th,
+.data-table-bordered td {
+  border-right: 1px solid var(--border-subtle);
+}
+
+.data-table-bordered th:last-child,
+.data-table-bordered td:last-child {
+  border-right: none;
+}
+
+/* Striped table variant */
+.data-table-striped tbody tr:nth-child(odd) {
+  background: var(--bg-secondary);
+}
+
+.data-table-striped tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Hoverable rows */
+.data-table-hover tbody tr:hover {
+  background: var(--bg-tertiary);
+  box-shadow: inset 0 0 0 1px var(--border-default);
+}
+
+/* Clickable rows */
+.data-table tbody tr.clickable {
+  cursor: pointer;
+}
+
+.data-table tbody tr.clickable:active {
+  background: var(--bg-elevated);
+}
+
+/* Selected row */
+.data-table tbody tr.selected {
+  background: var(--brand-subtle);
+  border-left: 3px solid var(--brand-primary);
+}
+
+.data-table tbody tr.selected td:first-child {
+  padding-left: calc(var(--space-6) - 3px);
+}
+
+/* Empty state */
+.data-table-empty {
+  padding: var(--space-12) var(--space-6);
+  text-align: center;
+  color: var(--text-tertiary);
+}
+
+.data-table-empty-icon {
+  font-size: 48px;
+  opacity: 0.3;
+  margin-bottom: var(--space-4);
+}
+
+.data-table-empty-message {
+  font-size: var(--font-size-body-lg);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-2);
+}
+
+.data-table-empty-hint {
+  font-size: var(--font-size-body-sm);
+  color: var(--text-muted);
+}
+
+/* ============================================
+   BADGE & PILL COMPONENTS
+   Requirements: 3.4
+   ============================================ */
+
+.badge,
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+  transition: var(--transition-colors);
+}
+
+/* Badge with icon */
+.badge-icon,
+.pill-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+/* Success Badge - Green */
+.badge-success,
+.pill-success {
+  background: var(--success-subtle);
+  color: var(--success-light);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.badge-success:hover,
+.pill-success:hover {
+  background: rgba(76, 175, 80, 0.2);
+  border-color: rgba(76, 175, 80, 0.4);
+}
+
+/* Warning Badge - Amber/Orange */
+.badge-warning,
+.pill-warning {
+  background: var(--warning-subtle);
+  color: var(--warning-light);
+  border: 1px solid rgba(255, 167, 38, 0.3);
+}
+
+.badge-warning:hover,
+.pill-warning:hover {
+  background: rgba(255, 167, 38, 0.2);
+  border-color: rgba(255, 167, 38, 0.4);
+}
+
+/* Error Badge - Red */
+.badge-error,
+.pill-error,
+.badge-danger,
+.pill-danger {
+  background: var(--error-subtle);
+  color: var(--error-light);
+  border: 1px solid rgba(239, 83, 80, 0.3);
+}
+
+.badge-error:hover,
+.pill-error:hover {
+  background: rgba(239, 83, 80, 0.2);
+  border-color: rgba(239, 83, 80, 0.4);
+}
+
+/* Info Badge - Blue */
+.badge-info,
+.pill-info {
+  background: var(--info-subtle);
+  color: var(--info-light);
+  border: 1px solid rgba(66, 165, 245, 0.3);
+}
+
+.badge-info:hover,
+.pill-info:hover {
+  background: rgba(66, 165, 245, 0.2);
+  border-color: rgba(66, 165, 245, 0.4);
+}
+
+/* Neutral Badge - Gray */
+.badge-neutral,
+.pill-neutral,
+.badge-default,
+.pill-default {
+  background: rgba(180, 180, 180, 0.15);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+}
+
+.badge-neutral:hover,
+.pill-neutral:hover {
+  background: rgba(180, 180, 180, 0.2);
+  border-color: var(--border-strong);
+}
+
+/* Primary Badge - Brand Color */
+.badge-primary,
+.pill-primary {
+  background: var(--brand-subtle);
+  color: var(--brand-light);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.badge-primary:hover,
+.pill-primary:hover {
+  background: var(--brand-subtle-hover);
+  border-color: rgba(76, 175, 80, 0.4);
+}
+
+/* Solid Badge Variants (filled) */
+.badge-solid-success {
+  background: var(--success);
+  color: white;
+  border: none;
+}
+
+.badge-solid-warning {
+  background: var(--warning);
+  color: white;
+  border: none;
+}
+
+.badge-solid-error,
+.badge-solid-danger {
+  background: var(--error);
+  color: white;
+  border: none;
+}
+
+.badge-solid-info {
+  background: var(--info);
+  color: white;
+  border: none;
+}
+
+.badge-solid-primary {
+  background: var(--brand-primary);
+  color: white;
+  border: none;
+}
+
+/* Badge sizes */
+.badge-sm,
+.pill-sm {
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.625rem; /* 10px */
+}
+
+.badge-lg,
+.pill-lg {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-body-sm);
+}
+
+/* Badge with dot indicator */
+.badge-dot::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-right: var(--space-1);
+}
+
+/* Removable badge */
+.badge-removable {
+  padding-right: var(--space-2);
+}
+
+.badge-remove {
+  margin-left: var(--space-1);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--duration-fast);
+}
+
+.badge-remove:hover {
+  opacity: 1;
+}
+
+/* ============================================
+   VISUAL INDICATORS FOR METRICS
+   Requirements: 3.2, 3.3
+   ============================================ */
+
+/* Color-coded indicators */
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: var(--font-weight-medium);
+}
+
+.indicator-positive,
+.indicator-up,
+.indicator-success {
+  color: var(--success-light);
+}
+
+.indicator-negative,
+.indicator-down,
+.indicator-error {
+  color: var(--error-light);
+}
+
+.indicator-neutral,
+.indicator-warning {
+  color: var(--warning-light);
+}
+
+/* Indicator with icon */
+.indicator-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Trend indicators */
+.trend-up::before {
+  content: '↑';
+  color: var(--success-light);
+  margin-right: var(--space-1);
+  font-weight: var(--font-weight-bold);
+}
+
+.trend-down::before {
+  content: '↓';
+  color: var(--error-light);
+  margin-right: var(--space-1);
+  font-weight: var(--font-weight-bold);
+}
+
+.trend-neutral::before {
+  content: '→';
+  color: var(--text-tertiary);
+  margin-right: var(--space-1);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Health Score Visual Display */
+.health-score {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.health-score-value {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.health-score-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  position: relative;
+}
+
+.health-score-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.6s var(--ease-smooth), background-color 0.3s ease;
+}
+
+/* Health score color variants */
+.health-score-excellent .health-score-value,
+.health-score-excellent .health-score-fill {
+  color: var(--success-light);
+  background: var(--success);
+}
+
+.health-score-good .health-score-value,
+.health-score-good .health-score-fill {
+  color: var(--brand-light);
+  background: var(--brand-primary);
+}
+
+.health-score-fair .health-score-value,
+.health-score-fair .health-score-fill {
+  color: var(--warning-light);
+  background: var(--warning);
+}
+
+.health-score-poor .health-score-value,
+.health-score-poor .health-score-fill {
+  color: var(--error-light);
+  background: var(--error);
+}
+
+/* Circular health score indicator */
+.health-score-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--brand-primary) 0deg,
+    var(--brand-primary) calc(var(--score, 0) * 3.6deg),
+    var(--bg-tertiary) calc(var(--score, 0) * 3.6deg),
+    var(--bg-tertiary) 360deg
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.health-score-circle::before {
+  content: '';
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  position: absolute;
+}
+
+.health-score-circle-value {
+  position: relative;
+  z-index: 1;
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+}
+
+/* Progress Bars for Percentages */
+.progress-bar {
+  width: 100%;
+  height: 12px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--shadow-inner);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--gradient-brand);
+  border-radius: var(--radius-full);
+  transition: width 0.6s var(--ease-smooth);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated shimmer effect */
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: progress-shimmer 2s infinite;
+}
+
+@keyframes progress-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Progress bar variants */
+.progress-bar-success .progress-bar-fill {
+  background: var(--gradient-success);
+}
+
+.progress-bar-warning .progress-bar-fill {
+  background: var(--gradient-warning);
+}
+
+.progress-bar-error .progress-bar-fill {
+  background: var(--gradient-error);
+}
+
+/* Progress bar with label */
+.progress-bar-labeled {
+  position: relative;
+}
+
+.progress-bar-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+/* Progress bar sizes */
+.progress-bar-sm {
+  height: 8px;
+}
+
+.progress-bar-lg {
+  height: 16px;
+}
+
+.progress-bar-xl {
+  height: 24px;
+}
+
+/* Status Indicators with Icons */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.status-indicator-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Status dot */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Status variants */
+.status-active,
+.status-online {
+  background: var(--success-subtle);
+  color: var(--success-light);
+}
+
+.status-active .status-dot,
+.status-online .status-dot {
+  background: var(--success);
+  box-shadow: 0 0 8px var(--success);
+  animation: pulse-success 2s infinite;
+}
+
+.status-pending,
+.status-warning {
+  background: var(--warning-subtle);
+  color: var(--warning-light);
+}
+
+.status-pending .status-dot,
+.status-warning .status-dot {
+  background: var(--warning);
+}
+
+.status-inactive,
+.status-offline,
+.status-error {
+  background: var(--error-subtle);
+  color: var(--error-light);
+}
+
+.status-inactive .status-dot,
+.status-offline .status-dot,
+.status-error .status-dot {
+  background: var(--error);
+}
+
+.status-neutral,
+.status-default {
+  background: rgba(180, 180, 180, 0.15);
+  color: var(--text-secondary);
+}
+
+.status-neutral .status-dot,
+.status-default .status-dot {
+  background: var(--text-tertiary);
+}
+
+/* Pulse animation for active status */
+@keyframes pulse-success {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Metric Card with Visual Indicator */
+.metric-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+}
+
+.metric-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.metric-icon-success {
+  background: var(--success-subtle);
+  color: var(--success-light);
+}
+
+.metric-icon-warning {
+  background: var(--warning-subtle);
+  color: var(--warning-light);
+}
+
+.metric-icon-error {
+  background: var(--error-subtle);
+  color: var(--error-light);
+}
+
+.metric-icon-info {
+  background: var(--info-subtle);
+  color: var(--info-light);
+}
+
+.metric-content {
+  flex: 1;
+}
+
+.metric-label {
+  font-size: var(--font-size-body-sm);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-1);
+}
+
+.metric-value {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.metric-change {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-medium);
+  margin-top: var(--space-1);
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Make tables scrollable on mobile */
+  .data-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .data-table {
+    min-width: 600px;
+  }
+  
+  /* Reduce table padding on mobile */
+  .data-table thead th,
+  .data-table tbody td,
+  .data-table tfoot td {
+    padding: var(--space-3) var(--space-4);
+  }
+  
+  /* Stack metric cards on mobile */
+  .metric-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  /* Smaller health score circles */
+  .health-score-circle {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .health-score-circle::before {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .health-score-circle-value {
+    font-size: var(--font-size-body-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  /* Further reduce padding on small mobile */
+  .data-table thead th,
+  .data-table tbody td {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-body-sm);
+  }
+  
+  /* Smaller badges on mobile */
+  .badge,
+  .pill {
+    padding: var(--space-1) var(--space-2);
+    font-size: 0.625rem;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .progress-bar-fill,
+  .health-score-fill,
+  .status-dot {
+    transition: none;
+    animation: none;
+  }
+  
+  .progress-bar-fill::after {
+    animation: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .data-table {
+    border: 2px solid currentColor;
+  }
+  
+  .badge,
+  .pill {
+    border-width: 2px;
+  }
+  
+  .progress-bar {
+    border: 1px solid currentColor;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.data-table tbody tr:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: -2px;
+}
+
+.badge:focus-visible,
+.pill:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .data-table {
+    border: 1px solid #000;
+    box-shadow: none;
+  }
+  
+  .data-table thead {
+    background: #f0f0f0;
+  }
+  
+  .data-table tbody tr:hover {
+    background: transparent;
+  }
+  
+  .badge,
+  .pill {
+    border: 1px solid #000;
+  }
+}

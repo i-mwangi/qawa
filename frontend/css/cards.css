@@ -1,0 +1,937 @@
+/**
+ * Professional Card Components
+ * Enhanced card styling with gradients, shadows, and animations
+ * Part of the UI/UX Redesign - Task 3
+ */
+
+/* ============================================
+   BASE CARD COMPONENT
+   ============================================ */
+
+.card {
+  /* Layout */
+  position: relative;
+  overflow: hidden;
+  
+  /* Spacing */
+  padding: var(--space-6); /* 24px */
+  
+  /* Visual */
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md); /* 12px */
+  box-shadow: var(--shadow-card);
+  
+  /* Animation */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Top accent border (hidden by default, shown on hover) */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Hover state */
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--brand-primary);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+/* Card header */
+.card-header {
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.card-title {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.card-subtitle {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  color: var(--text-tertiary);
+  margin-top: var(--space-2);
+}
+
+/* Card body */
+.card-body {
+  flex: 1;
+}
+
+/* Card footer */
+.card-footer {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* ============================================
+   CARD VARIANTS
+   ============================================ */
+
+/* Portfolio Card - Investment holdings display */
+.card-portfolio {
+  background: linear-gradient(135deg, #1a2e1a 0%, var(--bg-secondary) 100%);
+  border-left: 4px solid var(--brand-primary);
+}
+
+.card-portfolio:hover {
+  background: linear-gradient(135deg, #1f351f 0%, var(--bg-tertiary) 100%);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(76, 175, 80, 0.3);
+}
+
+.card-portfolio .portfolio-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-bold);
+  color: var(--brand-light);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: var(--space-2);
+}
+
+.card-portfolio .portfolio-change {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.card-portfolio .portfolio-change.positive {
+  color: var(--success-light);
+}
+
+.card-portfolio .portfolio-change.negative {
+  color: var(--error-light);
+}
+
+/* Grove Card - Coffee grove information */
+.card-grove {
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  border: 1px solid var(--border-default);
+}
+
+.card-grove:hover {
+  border-color: var(--brand-secondary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 15px rgba(76, 175, 80, 0.2);
+}
+
+.card-grove .grove-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-4);
+  background: var(--bg-primary);
+}
+
+.card-grove .grove-name {
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.card-grove .grove-location {
+  font-size: var(--font-size-body-sm);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.card-grove .grove-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.card-grove .grove-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.card-grove .grove-stat-label {
+  font-size: var(--font-size-caption);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+}
+
+.card-grove .grove-stat-value {
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Transaction Card - Transaction history */
+.card-transaction {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  padding: var(--space-4);
+  transition: all 0.2s ease;
+}
+
+.card-transaction:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-default);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-transaction .transaction-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.card-transaction .transaction-type {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.card-transaction .transaction-amount {
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.card-transaction .transaction-amount.positive {
+  color: var(--success-light);
+}
+
+.card-transaction .transaction-amount.negative {
+  color: var(--error-light);
+}
+
+.card-transaction .transaction-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--font-size-body-sm);
+  color: var(--text-tertiary);
+}
+
+.card-transaction .transaction-date {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Stat Card - Key metrics display */
+.card-stat {
+  background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-tertiary) 100%);
+  border: 1px solid var(--border-default);
+  padding: var(--space-6);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.card-stat::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, var(--brand-primary) 0%, transparent 70%);
+  opacity: 0.1;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.card-stat:hover {
+  border-color: var(--brand-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(76, 175, 80, 0.15);
+  transform: translateY(-4px);
+}
+
+.card-stat:hover::after {
+  opacity: 0.15;
+}
+
+.card-stat .stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--brand-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-primary);
+  transition: all 0.3s ease;
+}
+
+.card-stat .stat-icon svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2;
+}
+
+.card-stat:hover .stat-icon {
+  background: var(--brand-primary);
+  color: white;
+  transform: scale(1.05);
+}
+
+.card-stat .stat-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.card-stat .stat-content h3,
+.card-stat .stat-label {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+  margin: 0;
+}
+
+.card-stat .stat-value {
+  font-size: 2rem;
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+
+.card-stat .stat-subtext {
+  font-size: var(--font-size-caption);
+  color: var(--text-tertiary);
+  margin-top: var(--space-1);
+}
+
+.card-stat .stat-change {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-semibold);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  width: fit-content;
+  font-variant-numeric: tabular-nums;
+}
+
+.card-stat .stat-change::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+}
+
+.card-stat .stat-change.positive {
+  color: var(--success-light);
+  background: rgba(76, 175, 80, 0.15);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.card-stat .stat-change.positive::before {
+  border-bottom: 5px solid var(--success-light);
+}
+
+.card-stat .stat-change.negative {
+  color: var(--error-light);
+  background: rgba(239, 83, 80, 0.15);
+  border: 1px solid rgba(239, 83, 80, 0.3);
+}
+
+.card-stat .stat-change.negative::before {
+  border-top: 5px solid var(--error-light);
+}
+
+.card-stat .stat-change.neutral {
+  color: var(--text-tertiary);
+  background: rgba(180, 180, 180, 0.1);
+  border: 1px solid var(--border-default);
+}
+
+.card-stat .stat-change.neutral::before {
+  display: none;
+}
+
+/* Action Card - Quick actions */
+.card-action {
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  border: 2px dashed var(--border-default);
+  padding: var(--space-8);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-action:hover {
+  border-color: var(--brand-primary);
+  border-style: solid;
+  background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-tertiary) 100%);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(76, 175, 80, 0.2);
+}
+
+.card-action .action-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  background: var(--brand-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-4);
+  color: var(--brand-primary);
+  font-size: 32px;
+  transition: all 0.3s ease;
+}
+
+.card-action:hover .action-icon {
+  background: var(--brand-primary);
+  color: white;
+  transform: scale(1.1);
+}
+
+.card-action .action-title {
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.card-action .action-description {
+  font-size: var(--font-size-body-sm);
+  color: var(--text-tertiary);
+  line-height: var(--line-height-relaxed);
+}
+
+/* ============================================
+   CARD MODIFIERS
+   ============================================ */
+
+/* Compact card */
+.card-compact {
+  padding: var(--space-4);
+}
+
+/* Large card */
+.card-large {
+  padding: var(--space-8);
+}
+
+/* Flat card (no hover effect) */
+.card-flat:hover {
+  transform: none;
+  box-shadow: var(--shadow-card);
+}
+
+/* Clickable card */
+.card-clickable {
+  cursor: pointer;
+}
+
+.card-clickable:active {
+  transform: translateY(-2px);
+}
+
+/* Disabled card */
+.card-disabled {
+  opacity: 0.6;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* Loading card */
+.card-loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.card-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ============================================
+   CARD LAYOUTS
+   ============================================ */
+
+/* Card grid */
+.card-grid {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+/* Card list */
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Card group */
+.card-group {
+  display: flex;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+  .card {
+    padding: var(--space-4);
+  }
+  
+  .card-stat {
+    padding: var(--space-4);
+  }
+  
+  .card-action {
+    padding: var(--space-6);
+  }
+  
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  
+  .card-group {
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  
+  .card-grove .grove-stats {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: var(--space-3);
+  }
+  
+  .card-header {
+    margin-bottom: var(--space-3);
+    padding-bottom: var(--space-3);
+  }
+  
+  .card-footer {
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .card-stat .stat-value {
+    font-size: var(--font-size-h3);
+  }
+  
+  .card-portfolio .portfolio-value {
+    font-size: var(--font-size-h3);
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card::before,
+  .card-transaction,
+  .card-action,
+  .card-action .action-icon {
+    transition: none;
+    animation: none;
+  }
+  
+  .card:hover,
+  .card-transaction:hover,
+  .card-action:hover {
+    transform: none;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.card:focus-visible,
+.card-clickable:focus-visible,
+.card-action:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   ENHANCED MARKETPLACE CARDS
+   ============================================ */
+
+.enhanced-marketplace-card {
+  background: linear-gradient(135deg, #2a2a2a 0%, #252525 100%);
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.enhanced-marketplace-card:hover {
+  border-color: #4CAF50;
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(76, 175, 80, 0.25);
+}
+
+.enhanced-marketplace-card::before {
+  height: 4px;
+}
+
+/* Marketplace Card Header */
+.marketplace-card-header {
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(76, 175, 80, 0.1);
+  position: relative;
+}
+
+.marketplace-card-header .header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.marketplace-card-header .grove-name {
+  color: #4CAF50;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  flex: 1;
+}
+
+.marketplace-card-header .badge-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.marketplace-card-header .grove-location-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #999;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.marketplace-card-header .grove-location-info i {
+  color: #4CAF50;
+}
+
+.marketplace-card-header .grove-coordinates-small {
+  color: #666;
+  font-size: 0.75rem;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 1rem;
+}
+
+.marketplace-card-header .health-indicator-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.health-score-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  border: 3px solid;
+  position: relative;
+}
+
+.health-score-circle::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  opacity: 0.2;
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.2;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.health-excellent {
+  color: #4CAF50;
+  border-color: #4CAF50;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.health-excellent::after {
+  background: #4CAF50;
+}
+
+.health-good {
+  color: #8BC34A;
+  border-color: #8BC34A;
+  background: rgba(139, 195, 74, 0.1);
+}
+
+.health-good::after {
+  background: #8BC34A;
+}
+
+.health-moderate {
+  color: #FFC107;
+  border-color: #FFC107;
+  background: rgba(255, 193, 7, 0.1);
+}
+
+.health-moderate::after {
+  background: #FFC107;
+}
+
+.health-poor {
+  color: #f44336;
+  border-color: #f44336;
+  background: rgba(244, 67, 54, 0.1);
+}
+
+.health-poor::after {
+  background: #f44336;
+}
+
+/* Grove Stats Grid */
+.grove-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.stat-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.stat-box:hover {
+  background: rgba(76, 175, 80, 0.05);
+  border-color: rgba(76, 175, 80, 0.2);
+}
+
+.stat-box .stat-icon {
+  font-size: 1.75rem;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(76, 175, 80, 0.15);
+  border-radius: 8px;
+}
+
+.stat-box .stat-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.stat-box .stat-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.stat-box .stat-label {
+  font-size: 0.75rem;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Investment Details Section */
+.investment-details-section {
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.15);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  color: #999;
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 0.9rem;
+  color: #ccc;
+  font-weight: 600;
+}
+
+.mono-text {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: #4CAF50;
+}
+
+/* Investment Info */
+.enhanced-marketplace-card .investment-info {
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-around;
+  gap: 1rem;
+}
+
+.enhanced-marketplace-card .price-info,
+.enhanced-marketplace-card .return-info {
+  flex: 1;
+  text-align: center;
+  padding: 1rem;
+  background: rgba(76, 175, 80, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.enhanced-marketplace-card .price {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #4CAF50;
+  margin-bottom: 0.25rem;
+}
+
+.enhanced-marketplace-card .return {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #8BC34A;
+  margin-bottom: 0.25rem;
+}
+
+.enhanced-marketplace-card .investment-info small {
+  font-size: 0.75rem;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Grove Actions */
+.enhanced-marketplace-card .grove-actions {
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.enhanced-marketplace-card .grove-actions .btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .grove-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .enhanced-marketplace-card .investment-info {
+    flex-direction: column;
+  }
+}

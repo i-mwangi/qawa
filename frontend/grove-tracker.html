@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grove Tracker - Chai Platform</title>
+    <link rel="icon" href="public/chai.png">
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600;700;900&display=swap');
+
+        :root {
+            --bg-dark: #1F1612;
+            --bg-glass: rgba(60, 45, 38, 0.5);
+            --border-glass: rgba(199, 172, 149, 0.2);
+            --text-light: #F5EFE6;
+            --text-dark: #B0A090;
+            --gradient-primary: linear-gradient(90deg, #8A5A44 0%, #D4A373 100%);
+            --glow-primary: rgba(212, 163, 115, 0.4);
+            --accent-primary: #D4A373;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Comic Neue', 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            overflow: hidden;
+        }
+
+        .tracker-container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: rgba(31, 22, 18, 0.95);
+            border-right: 1px solid var(--border-glass);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            width: 380px;
+            min-width: 380px;
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        .sidebar.collapsed {
+            width: 0;
+            min-width: 0;
+            opacity: 0;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .sidebar-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 8px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-dark);
+        }
+
+        /* Search */
+        .search-container {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .search-wrapper {
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dark);
+            width: 16px;
+            height: 16px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 12px 10px 36px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 8px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(212, 163, 115, 0.2);
+        }
+
+        /* Filters */
+        .filter-section {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .filter-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--bg-glass);
+            color: var(--text-light);
+            border: 1px solid var(--border-glass);
+        }
+
+        .filter-btn:hover {
+            background: rgba(212, 163, 115, 0.2);
+        }
+
+        .filter-btn.active {
+            background: var(--accent-primary);
+            color: var(--bg-dark);
+            border-color: var(--accent-primary);
+        }
+
+        /* Grove List */
+        .grove-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+        }
+
+        .grove-list-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .grove-item {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .grove-item:hover {
+            background: rgba(212, 163, 115, 0.1);
+            border-color: var(--accent-primary);
+            transform: translateX(4px);
+        }
+
+        .grove-item.selected {
+            background: rgba(212, 163, 115, 0.2);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(212, 163, 115, 0.2);
+        }
+
+        .grove-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .country-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .country-kenya {
+            background: #ef4444;
+        }
+
+        .country-uganda {
+            background: #3b82f6;
+        }
+
+        .country-ethiopia {
+            background: #10b981;
+        }
+
+        .grove-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .grove-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .grove-description {
+            font-size: 0.8rem;
+            color: var(--text-dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Legend */
+        .legend {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-glass);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .legend-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .legend-items {
+            display: flex;
+            gap: 16px;
+            font-size: 0.85rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        /* Toggle Button */
+        .toggle-sidebar-btn {
+            position: absolute;
+            left: 380px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(31, 22, 18, 0.95);
+            border: 1px solid var(--border-glass);
+            border-radius: 0 8px 8px 0;
+            padding: 12px 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 11;
+            backdrop-filter: blur(10px);
+        }
+
+        .toggle-sidebar-btn:hover {
+            background: rgba(212, 163, 115, 0.2);
+        }
+
+        .sidebar.collapsed+.toggle-sidebar-btn {
+            left: 0;
+        }
+
+        .toggle-icon {
+            width: 20px;
+            height: 20px;
+            color: var(--accent-primary);
+        }
+
+        /* Map Container */
+        .map-container {
+            flex: 1;
+            position: relative;
+            min-height: 100vh;
+            background: #0a0a0a;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            min-height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        /* Info Card */
+        .info-card {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(31, 22, 18, 0.95);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 320px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+
+        .info-card.visible {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .info-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .info-card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        .info-card-subtitle {
+            font-size: 0.9rem;
+            color: var(--accent-primary);
+            margin-bottom: 16px;
+        }
+
+        .info-card-content {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* Custom Marker */
+        .custom-marker {
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .custom-marker:hover {
+            transform: scale(1.3);
+        }
+
+        /* Scrollbar */
+        .grove-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .grove-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .grove-list::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 3px;
+        }
+
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                max-width: 320px;
+                position: absolute;
+                height: 100%;
+                z-index: 20;
+            }
+
+            .toggle-sidebar-btn {
+                left: 320px;
+            }
+
+            .sidebar.collapsed+.toggle-sidebar-btn {
+                left: 0;
+            }
+
+            .info-card {
+                max-width: 280px;
+                top: 10px;
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="tracker-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Grove Tracker</h1>
+                <p class="sidebar-subtitle">Kenya • Uganda • Ethiopia</p>
+            </div>
+
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search groves..." />
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h2 class="filter-title">Filter by Country</h2>
+                <div class="filter-buttons" id="countryFilters">
+                    <button class="filter-btn active" data-country="all">All</button>
+                    <button class="filter-btn" data-country="Kenya">Kenya</button>
+                    <button class="filter-btn" data-country="Uganda">Uganda</button>
+                    <button class="filter-btn" data-country="Ethiopia">Ethiopia</button>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h2 class="filter-title">Map Layers</h2>
+                <div class="filter-buttons" id="layerFilters">
+                    <button class="filter-btn active" data-layer="satellite">Satellite</button>
+                    <button class="filter-btn" data-layer="terrain">Terrain</button>
+                </div>
+            </div>
+
+            <div class="grove-list" id="groveList">
+                <h2 class="grove-list-title">Your Groves</h2>
+                <div id="groveItems"></div>
+            </div>
+
+            <div class="legend">
+                <h3 class="legend-title">Legend</h3>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #ef4444;"></div>
+                        <span>Kenya</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #3b82f6;"></div>
+                        <span>Uganda</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #10b981;"></div>
+                        <span>Ethiopia</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toggle Button -->
+        <button class="toggle-sidebar-btn" id="toggleSidebar">
+            <svg class="toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+        </button>
+
+        <!-- Map Container -->
+        <div class="map-container">
+            <div id="map"></div>
+
+            <!-- Info Card -->
+            <div class="info-card" id="infoCard">
+                <div class="info-card-header">
+                    <div class="country-badge" id="infoCountryBadge"></div>
+                    <div>
+                        <h3 class="info-card-title" id="infoTitle"></h3>
+                    </div>
+                </div>
+                <p class="info-card-subtitle" id="infoCountry"></p>
+                <div class="info-card-content" id="infoDescription"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+    <script type="module" src="js/api.js"></script>
+    <script type="module" src="js/grove-tracker.js"></script>
+</body>
+
+</html>

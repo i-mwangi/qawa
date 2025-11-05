@@ -1,0 +1,555 @@
+/**
+ * Wallet Installation Guide Styles
+ * 
+ * Styles for the wallet installation guide modal
+ */
+
+/* Modal Container */
+.wallet-install-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fadeIn 0.3s ease;
+}
+
+.wallet-install-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.wallet-install-content {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Header */
+.wallet-install-header {
+    position: relative;
+    padding: 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-align: center;
+}
+
+.wallet-install-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+}
+
+.wallet-install-header h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.wallet-install-subtitle {
+    margin: 0;
+    font-size: 1rem;
+    opacity: 0.95;
+    line-height: 1.5;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.wallet-install-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.wallet-install-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Body */
+.wallet-install-body {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.wallet-install-section {
+    margin-bottom: 2rem;
+}
+
+.wallet-install-section:last-child {
+    margin-bottom: 0;
+}
+
+.wallet-install-section h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Wallet Providers */
+.wallet-providers {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.wallet-provider-card {
+    position: relative;
+    padding: 1.5rem;
+    background: #f9fafb;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.wallet-provider-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    transform: translateY(-2px);
+}
+
+.wallet-provider-recommended {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #f0f4ff 0%, #f9fafb 100%);
+}
+
+.wallet-provider-badge {
+    position: absolute;
+    top: -0.5rem;
+    right: 1rem;
+    padding: 0.25rem 0.75rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.wallet-provider-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.wallet-provider-name {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.wallet-provider-description {
+    margin: 0 0 1rem 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #6b7280;
+}
+
+.wallet-provider-platforms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.wallet-provider-platform {
+    padding: 0.25rem 0.625rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.wallet-provider-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.wallet-provider-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.wallet-provider-link:hover {
+    background: #f9fafb;
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.wallet-provider-link-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: transparent;
+    color: white;
+}
+
+.wallet-provider-link-primary:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+    color: white;
+}
+
+.wallet-provider-link-website {
+    background: transparent;
+    border-color: transparent;
+    color: #667eea;
+    padding: 0.5rem;
+}
+
+.wallet-provider-link-website:hover {
+    background: #f0f4ff;
+}
+
+/* Installation Steps */
+.wallet-install-steps {
+    margin: 0;
+    padding-left: 1.5rem;
+    counter-reset: step-counter;
+}
+
+.wallet-install-steps li {
+    position: relative;
+    margin-bottom: 1rem;
+    padding-left: 0.5rem;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: #4b5563;
+}
+
+.wallet-install-steps li strong {
+    color: #1f2937;
+    font-weight: 600;
+}
+
+/* Info Section */
+.wallet-install-info {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+}
+
+.wallet-install-info-icon {
+    flex-shrink: 0;
+    font-size: 1.5rem;
+    color: #3b82f6;
+}
+
+.wallet-install-info-text {
+    flex: 1;
+}
+
+.wallet-install-info-text strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e40af;
+}
+
+.wallet-install-info-text p {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #1e40af;
+}
+
+.wallet-install-info-text a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.wallet-install-info-text a:hover {
+    text-decoration: underline;
+}
+
+/* Security Section */
+.wallet-install-security {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+}
+
+.wallet-install-security-icon {
+    flex-shrink: 0;
+    font-size: 1.5rem;
+    color: #f59e0b;
+}
+
+.wallet-install-security-text {
+    flex: 1;
+}
+
+.wallet-install-security-text strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #92400e;
+}
+
+.wallet-install-security-text ul {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.wallet-install-security-text li {
+    margin-bottom: 0.375rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #92400e;
+}
+
+/* Footer */
+.wallet-install-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.wallet-install-btn-secondary,
+.wallet-install-btn-primary {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.wallet-install-btn-secondary {
+    background: white;
+    border: 1px solid #d1d5db;
+    color: #6b7280;
+}
+
+.wallet-install-btn-secondary:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+    color: #374151;
+}
+
+.wallet-install-btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.wallet-install-btn-primary:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .wallet-install-content {
+        max-height: 100vh;
+        border-radius: 0;
+    }
+    
+    .wallet-install-header {
+        padding: 1.5rem;
+    }
+    
+    .wallet-install-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .wallet-install-body {
+        padding: 1.5rem;
+    }
+    
+    .wallet-providers {
+        grid-template-columns: 1fr;
+    }
+    
+    .wallet-install-footer {
+        flex-direction: column-reverse;
+        padding: 1rem 1.5rem;
+    }
+    
+    .wallet-install-btn-secondary,
+    .wallet-install-btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .wallet-install-content {
+        background: #1f2937;
+    }
+    
+    .wallet-install-section h3 {
+        color: #f9fafb;
+    }
+    
+    .wallet-provider-card {
+        background: #111827;
+        border-color: #374151;
+    }
+    
+    .wallet-provider-card:hover {
+        border-color: #667eea;
+    }
+    
+    .wallet-provider-name {
+        color: #f9fafb;
+    }
+    
+    .wallet-provider-description {
+        color: #9ca3af;
+    }
+    
+    .wallet-provider-platform {
+        background: #1f2937;
+        border-color: #374151;
+        color: #9ca3af;
+    }
+    
+    .wallet-provider-link {
+        background: #1f2937;
+        border-color: #374151;
+        color: #d1d5db;
+    }
+    
+    .wallet-provider-link:hover {
+        background: #111827;
+    }
+    
+    .wallet-install-steps li {
+        color: #d1d5db;
+    }
+    
+    .wallet-install-steps li strong {
+        color: #f9fafb;
+    }
+    
+    .wallet-install-info {
+        background: #1e3a5f;
+        border-color: #1e40af;
+    }
+    
+    .wallet-install-security {
+        background: #3d2e1f;
+        border-color: #92400e;
+    }
+    
+    .wallet-install-footer {
+        background: #111827;
+        border-top-color: #374151;
+    }
+    
+    .wallet-install-btn-secondary {
+        background: #374151;
+        border-color: #4b5563;
+        color: #d1d5db;
+    }
+    
+    .wallet-install-btn-secondary:hover {
+        background: #4b5563;
+        color: #f9fafb;
+    }
+}
+
+/* Accessibility */
+.wallet-install-close:focus,
+.wallet-install-btn-secondary:focus,
+.wallet-install-btn-primary:focus,
+.wallet-provider-link:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .wallet-install-modal,
+    .wallet-install-content,
+    .wallet-provider-card {
+        animation: none;
+    }
+    
+    .wallet-install-close,
+    .wallet-install-btn-secondary,
+    .wallet-install-btn-primary,
+    .wallet-provider-card,
+    .wallet-provider-link {
+        transition: none;
+    }
+}

@@ -1,0 +1,1504 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chai Platform - Beta</title>
+    <link rel="icon" href="public/chai.png">
+    <!-- Add this to suppress Lit dev mode warning -->
+    <script>
+      // Suppress Lit dev mode warning in production
+      if (location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+        window.litDevMode = false;
+      }
+    </script>
+    
+    <!-- Error Handling Styles -->
+    <link rel="stylesheet" href="css/wallet-errors.css">
+    <link rel="stylesheet" href="css/wallet-installation-guide.css">
+    
+    <!-- Wallet Loading Styles -->
+    <link rel="stylesheet" href="css/wallet-loading.css">
+    <link rel="stylesheet" href="css/wallet-connection-ui.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600;700;900&family=Playfair+Display:wght@700;900&display=swap');
+    :root {
+        --bg-dark: #1F1612;
+        --bg-glass: rgba(60, 45, 38, 0.5);
+        --border-glass: rgba(199, 172, 149, 0.2);
+        --text-light: #F5EFE6;
+        --text-dark: #B0A090;
+        --gradient-primary: linear-gradient(90deg, #8A5A44 0%, #D4A373 100%);
+        --glow-primary: rgba(212, 163, 115, 0.4);
+        --nav-height: 80px;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Comic Neue', 'Inter', 'Segoe UI', sans-serif;
+        background-color: var(--bg-dark);
+        color: var(--text-light);
+        padding-top: var(--nav-height);
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-repeat: no-repeat;
+        background-position: 10% 15%, 85% 25%, 20% 80%, 75% 60%, 90% 90%, 5% 55%;
+        pointer-events: none;
+        z-index: 0;
+        animation: spiral-float 60s infinite ease-in-out;
+    }
+
+    /* Adding the SVG background elements */
+    .svg-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+    }
+    
+    .floating-svg {
+        position: absolute;
+        opacity: 0.25; /* Minimum opacity as per SVG Opacity Standard */
+        animation: float 20s infinite ease-in-out;
+        transform-origin: center;
+    }
+    
+    .floating-svg.tree {
+        width: 120px;
+        height: 120px;
+        animation-delay: 0s;
+    }
+    
+    .floating-svg.coin {
+        width: 80px;
+        height: 80px;
+        animation-delay: -5s;
+    }
+    
+    .floating-svg.bean {
+        width: 100px;
+        height: 100px;
+        animation-delay: -10s;
+    }
+    
+    @keyframes float {
+        0% {
+            transform: translate(0, 0) rotate(0deg);
+        }
+        25% {
+            transform: translate(20px, -25px) rotate(10deg);
+        }
+        50% {
+            transform: translate(-25px, 20px) rotate(-8deg);
+        }
+        75% {
+            transform: translate(15px, 15px) rotate(12deg);
+        }
+        100% {
+            transform: translate(0, 0) rotate(0deg);
+        }
+    }
+    
+    /* Additional animation for spiral effect */
+    @keyframes float-reverse {
+        0% {
+            transform: translate(0, 0) rotate(0deg);
+        }
+        25% {
+            transform: translate(-20px, 25px) rotate(-10deg);
+        }
+        50% {
+            transform: translate(25px, -20px) rotate(8deg);
+        }
+        75% {
+            transform: translate(-15px, -15px) rotate(-12deg);
+        }
+        100% {
+            transform: translate(0, 0) rotate(0deg);
+        }
+    }
+    
+    @keyframes float-spiral {
+        0% {
+            transform: translate(0, 0) rotate(0deg);
+        }
+        25% {
+            transform: translate(30px, -15px) rotate(15deg);
+        }
+        50% {
+            transform: translate(-15px, 30px) rotate(-15deg);
+        }
+        75% {
+            transform: translate(20px, 20px) rotate(10deg);
+        }
+        100% {
+            transform: translate(0, 0) rotate(0deg);
+        }
+    }
+    
+    @keyframes spiral-float {
+        0% { transform: translate(0, 0) rotate(0deg); }
+        25% { transform: translate(20px, -25px) rotate(10deg); }
+        50% { transform: translate(-25px, 20px) rotate(-8deg); }
+        75% { transform: translate(15px, 15px) rotate(12deg); }
+        100% { transform: translate(0, 0) rotate(0deg); }
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(1.15); }
+    }
+
+    nav, #app, .landing-page, main, section, footer {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hidden { display: none !important; }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        font-family: 'Comic Neue', 'Inter', 'Segoe UI', sans-serif;
+    }
+    .btn-primary {
+        background: var(--gradient-primary);
+        color: white;
+        box-shadow: 0 4px 15px var(--glow-primary);
+    }
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 7px 20px var(--glow-primary);
+    }
+    .btn-large { padding: 14px 32px; font-size: 1.1rem; }
+
+    nav {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        height: var(--nav-height);
+        background: rgba(31, 22, 18, 0.7);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border-glass);
+        padding: 15px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 1000;
+    }
+    
+    .brand-section { 
+        display: flex; 
+        align-items: center; 
+        gap: 15px; 
+    }
+    
+    .brand-logo {
+        width: 50px; 
+        height: 50px; 
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    
+    .brand-text { 
+        display: flex; 
+        flex-direction: column;
+        gap: 2px;
+    }
+    
+    .brand-name-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .brand-name { 
+        color: var(--text-light); 
+        font-weight: 700; 
+        font-size: 1.3rem; 
+        margin: 0; 
+    }
+    
+    .beta-badge {
+        background: #D4A373; 
+        color: #1F1612;
+        box-shadow: 0 2px 4px rgba(212, 163, 115, 0.3);
+        font-size: 0.65rem; 
+        padding: 3px 8px; 
+        border-radius: 10px;
+        font-weight: 600; 
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+    }
+    
+    .brand-tagline { 
+        color: var(--text-dark); 
+        font-size: 0.75rem; 
+        margin: 0; 
+    }
+    
+    .nav-section { display: flex; align-items: center; gap: 20px; }
+    .notification-container { position: relative; cursor: pointer; padding: 5px; }
+    .notification-bell { font-size: 1.3rem; transition: transform 0.3s ease; color: var(--text-light); }
+    .notification-container:hover .notification-bell { transform: scale(1.1); }
+    .notification-count {
+        position: absolute; top: -2px; right: -2px; background-color: #DC2626; color: white;
+        font-size: 0.65rem; width: 18px; height: 18px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 600; border: 2px solid #1F1612;
+    }
+    .notifications-dropdown {
+        position: absolute; top: 35px; right: 0; width: 320px; background: #2a1d17;
+        border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); overflow: hidden;
+        display: none; z-index: 1002; border: 1px solid var(--border-glass);
+    }
+    .notifications-dropdown.show { display: block; animation: slideDown 0.3s ease; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .notification-header { padding: 14px 16px; font-weight: 600; color: var(--text-light); border-bottom: 1px solid var(--border-glass); background: rgba(0,0,0,0.1); }
+    .notification-item { padding: 14px 16px; border-bottom: 1px solid var(--border-glass); font-size: 0.9rem; color: var(--text-dark); transition: background 0.2s ease; }
+    .notification-item:hover { background: rgba(255,255,255,0.05); }
+    .notification-item:last-child { border-bottom: none; }
+    .notification-item p { margin: 0; line-height: 1.5; }
+    .notification-item strong { color: #D4A373; }
+    .faq-link { color: var(--text-light); text-decoration: none; font-weight: 500; padding: 8px 12px; border-radius: 6px; transition: all 0.3s ease; }
+    .faq-link:hover { color: #D4A373; }
+    .signup-btn { 
+        background: var(--gradient-primary); 
+        border: none; 
+        color: white; 
+        padding: 10px 20px; 
+        border-radius: 8px; 
+        cursor: pointer; 
+        font-weight: 600; 
+        transition: all 0.3s ease; 
+        font-family: 'Comic Neue', 'Inter', 'Segoe UI', sans-serif;
+    }
+    .signup-btn:hover { 
+        transform: translateY(-2px); 
+        box-shadow: 0 4px 15px var(--glow-primary); 
+    }
+    
+    #announcement-banner {
+        position: fixed; 
+        top: -100px; 
+        left: 50%; 
+        transform: translateX(-50%);
+        background: var(--gradient-primary); 
+        color: white; 
+        padding: 12px 30px;
+        border-radius: 50px; 
+        text-align: center; 
+        font-size: 1rem; 
+        font-weight: 600;
+        transition: all 0.5s ease; 
+        z-index: 999; 
+        opacity: 0; 
+        visibility: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
+        max-width: 90%;
+    }
+    #announcement-banner.active { 
+        top: calc(var(--nav-height) + 10px); 
+        opacity: 1; 
+        visibility: visible; 
+    }
+
+    /* Hero Section with Image and Text Overlays */
+    .hero-section { 
+        background: none; 
+        color: var(--text-light); 
+        padding: 80px 20px; 
+        text-align: center; 
+    }
+    
+    .hero-content { 
+        max-width: 1200px; 
+        margin: 0 auto; 
+        position: relative;
+    }
+    
+    .hero-image-container {
+        position: relative;
+        width: 200%;
+        max-width: 1000px;
+        margin: 0 auto;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+    }
+    
+    .hero-background-image {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    .hero-text-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 50px;
+        background: rgba(31, 22, 18, 0.6); /* Semi-transparent background for better text readability */
+    }
+    
+    .hero-main-headline {
+        font-size: 5rem; /* 48px */
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        max-width: 800px;
+    }
+    
+    .hero-supporting-text {
+        font-size: 1.875rem; /* 30px */
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #F5EFE6;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        max-width: 800px;
+    }
+    
+    .hero-rhetorical-hook {
+        font-size: 1.875rem; /* 30px */
+        font-weight: 600;
+        margin-bottom: 30px;
+        color: #F5EFE6;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        max-width: 800px;
+    }
+    
+    .hero-call-to-action {
+        font-size: 1.375rem; /* 22px */
+        font-weight: 700;
+        color: #D4A373;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        max-width: 800px;
+        padding: 12px 24px;
+        border: 2px solid #D4A373;
+        border-radius: 8px;
+        background: rgba(212, 163, 115, 0.1);
+    }
+    
+    .hero-description { 
+        color: var(--text-dark); 
+        font-size: 1.15rem; 
+        margin-bottom: 40px; 
+        line-height: 1.7; 
+        max-width: 800px; 
+        margin-left: auto; 
+        margin-right: auto; 
+    }
+    
+    .hero-content-wrapper { 
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 40px; 
+        align-items: center; 
+        max-width: 1200px; 
+        margin: 40px auto; 
+    }
+    
+    .hero-text { 
+        flex: 1; 
+        min-width: 300px; 
+    }
+    
+    .hero-image { 
+        flex: 1; 
+        min-width: 300px; 
+        display: flex; 
+        justify-content: center; 
+    }
+    
+    .hero-cta { 
+        margin-top: 40px; 
+    }
+
+    /* Problem Section */
+    .problem-section {
+        padding: 80px 20px;
+        background-color: transparent;
+    }
+    
+    .problem-content {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .problem-content h2 {
+        color: var(--text-light);
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 50px;
+        font-weight: 700;
+    }
+    
+    .problem-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 40px;
+        align-items: center;
+    }
+    
+    .problem-text {
+        flex: 1;
+        min-width: 300px;
+    }
+    
+    .problem-image {
+        flex: 1;
+        min-width: 300px;
+        display: flex;
+        justify-content: center;
+    }
+
+    /* Passion Purpose Section */
+    .passion-section {
+        padding: 80px 20px;
+        background-color: transparent;
+    }
+    
+    .passion-content {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .passion-content h2 {
+        color: #D4A373;
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 30px;
+        font-weight: 700;
+    }
+    
+    .passion-text {
+        color: var(--text-dark);
+        font-size: 1.1rem;
+        line-height: 1.8;
+        margin-bottom: 30px;
+        text-align: center;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .passion-image-wrapper {
+        max-width: 600px;
+        margin: 40px auto;
+        text-align: center;
+    }
+    
+    .video-container { 
+        max-width: 800px; 
+        margin: 50px auto; 
+        border-radius: 12px; 
+        overflow: hidden; 
+        box-shadow: 0 15px 40px rgba(0,0,0,0.5); 
+    }
+    
+    .video-container iframe { 
+        display: block; 
+    }
+
+    .banner { 
+        background: none; 
+        padding: 80px 20px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        overflow: hidden; 
+    }
+    
+    .banner-wrapper { 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        width: 100%; 
+        max-width: 1200px; 
+        gap: 40px; 
+    }
+    
+    .banner .solution-info { 
+        flex: 1; 
+        max-width: 450px; 
+        text-align: left; 
+        z-index: 1; 
+    }
+    
+    .banner .solution-info h1 { 
+        color: var(--text-light); 
+        font-size: 3rem; 
+        line-height: 1.2; 
+        margin-bottom: 25px; 
+        font-weight: 700; 
+    }
+    
+    .banner .solution-info h2 { 
+        color: #D4A373; 
+        font-size: 1.8rem; 
+        margin-bottom: 20px; 
+        font-weight: 600; 
+    }
+    
+    .banner .solution-info p { 
+        color: var(--text-dark); 
+        line-height: 1.7; 
+        font-size: 1.05rem; 
+        margin-bottom: 15px; 
+    }
+    
+    .banner .solution-info p b { 
+        color: var(--text-light); 
+        font-weight: 600; 
+    }
+    
+    .banner .slider { 
+        flex: 1; 
+        max-width: 500px; 
+        min-height: 400px; 
+        position: relative; 
+        transform-style: preserve-3d; 
+        animation: autoRun 25s linear infinite; 
+        perspective: 1200px; 
+    }
+    
+    .banner .slider:hover { 
+        animation-play-state: paused; 
+    }
+    
+    @keyframes autoRun { 
+        from { transform: rotateX(-10deg) rotateY(0deg); } 
+        to { transform: rotateX(-10deg) rotateY(360deg); } 
+    }
+    
+    .banner .slider .item { 
+        position: absolute; 
+        inset: 0; 
+        width: 240px; 
+        height: 320px; 
+        margin: auto; 
+        transform: rotateY(calc((var(--position) - 1) * 90deg)) translateZ(300px); 
+    }
+    
+    .carousel-card {
+        width: 100%; 
+        height: 100%; 
+        background: var(--bg-glass); 
+        border: 1px solid var(--border-glass);
+        backdrop-filter: blur(5px); 
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3); 
+        border-radius: 16px;
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: center; 
+        padding: 30px 20px;
+    }
+    
+    .carousel-card-icon { 
+        font-size: 4rem; 
+        margin-bottom: 20px; 
+    }
+    
+    .carousel-card-title { 
+        color: var(--text-light); 
+        font-size: 1.2rem; 
+        font-weight: 600; 
+        text-align: center; 
+        line-height: 1.3; 
+    }
+    
+    .features-section, .how-it-works, .faq-section { 
+        padding: 80px 20px; 
+        background-color: transparent; 
+    }
+    
+    .faq-section {
+        min-height: 100vh;
+    }
+    
+    .features-section h2, .how-it-works h2, .faq-section h2 { 
+        color: var(--text-light); 
+        text-align: center; 
+        font-size: 2.5rem; 
+        margin-bottom: 50px; 
+        font-weight: 700; 
+    }
+    
+    .features-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+        gap: 30px; 
+        max-width: 1200px; 
+        margin: 0 auto; 
+    }
+    
+    .feature-card { 
+        background: var(--bg-glass); 
+        border: 1px solid var(--border-glass); 
+        backdrop-filter: blur(5px); 
+        transition: all 0.3s ease; 
+        padding: 35px; 
+        border-radius: 12px; 
+    }
+    
+    .feature-card:hover { 
+        transform: translateY(-8px); 
+        border-color: #D4A373; 
+        box-shadow: 0 10px 30px rgba(138, 90, 68, 0.3); 
+    }
+    
+    .feature-card h3 { 
+        color: var(--text-light); 
+        font-size: 1.4rem; 
+        font-weight: 600; 
+        margin-bottom: 15px; 
+    }
+    
+    .feature-card p { 
+        color: var(--text-dark); 
+        line-height: 1.7; 
+        font-size: 0.95rem; 
+    }
+    
+    .faq-container { 
+        display: flex;
+        flex-direction: column;
+        gap: 30vh;
+        max-width: 800px; 
+        margin: 0 auto; 
+    }
+    
+    .faq-item { 
+        position: sticky;
+        top: 160px;
+        background: var(--bg-glass);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        border: 1px solid var(--border-glass); 
+        padding: 40px;
+        min-height: 300px;
+        border-radius: 10px; 
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        transition: all 0.3s ease; 
+    }
+    
+    .faq-item:hover { 
+        border-color: #D4A373; 
+    }
+    
+    .faq-item:nth-child(odd) {
+        transform: rotate(2deg);
+    }
+    
+    .faq-item:nth-child(even) {
+        transform: rotate(-2deg);
+    }
+    
+    .faq-item:nth-child(3n) {
+        transform: rotate(4deg);
+    }
+    
+    .faq-item:nth-child(4n) {
+        transform: rotate(-4deg);
+    }
+    
+    .faq-question { 
+        padding: 22px; 
+        color: #FFFFFF; 
+        font-size: 1.25rem; 
+        font-weight: 700; 
+        margin-bottom: 24px;
+        cursor: default;
+    }
+    
+    .faq-answer { 
+        max-height: none;
+        overflow: visible;
+        padding: 0; 
+        color: var(--text-light); 
+        line-height: 1.7; 
+    }
+    
+    .landing-footer { 
+        background: transparent; 
+        border-top: 1px solid var(--border-glass); 
+        color: var(--text-dark); 
+        padding: 50px 20px; 
+        text-align: center; 
+    }
+    
+    .footer-content { 
+        max-width: 1200px; 
+        margin: 0 auto; 
+    }
+    
+    .footer-content p { 
+        margin-bottom: 20px; 
+        opacity: 0.9; 
+    }
+
+    @media (max-width: 992px) {
+         .banner .solution-info h1 { font-size: 2.8rem; }
+         .banner .solution-info h2 { font-size: 1.5rem; }
+         .banner .slider .item { transform: rotateY(calc((var(--position) - 1) * 90deg)) translateZ(240px); }
+    }
+    
+    @media (max-width: 768px) {
+        :root {
+            --nav-height: 70px;
+        }
+        
+        nav { 
+            padding: 10px 15px; 
+        }
+        
+        .brand-name {
+            font-size: 1.1rem;
+        }
+        
+        .beta-badge {
+            font-size: 0.6rem;
+            padding: 2px 6px;
+        }
+        
+        #announcement-banner.active { 
+            top: calc(var(--nav-height) + 10px); 
+        }
+        
+        .hero-section { 
+            padding-top: 60px; 
+        }
+        
+        .hero-content h2, .features-section h2, .how-it-works h2, .faq-section h2, .problem-content h2, .passion-content h2 { 
+            font-size: 2.2rem; 
+        }
+        
+        .banner-wrapper { 
+            flex-direction: column; 
+            gap: 50px; 
+        }
+        
+        .banner .solution-info { 
+            text-align: center; 
+        }
+        
+        .banner .slider { 
+            animation: none; 
+            transform: rotateX(-10deg) rotateY(20deg); 
+            min-height: 320px; 
+        }
+        
+        .banner .slider .item { 
+            width: 180px; 
+            height: 240px; 
+            transform: rotateY(calc((var(--position) - 1) * 90deg)) translateZ(200px); 
+        }
+        
+        .problem-wrapper {
+            flex-direction: column;
+        }
+        
+        /* FAQ mobile responsive behavior */
+        .faq-container {
+            gap: 40px;
+        }
+        
+        .faq-item {
+            position: relative;
+            transform: none;
+        }
+        
+        /* Adjust SVG sizes for mobile */
+        .floating-svg.tree {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .floating-svg.coin {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .floating-svg.bean {
+            width: 120px;
+            height: 120px;
+        }
+    }
+
+    /* Browser compatibility fallback for sticky positioning */
+    @supports not (position: sticky) {
+        .faq-item {
+            position: relative;
+            transform: none;
+        }
+    }
+
+    .background-glow {
+        position: fixed;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 1; /* Changed from 0 to 1 to appear above SVGs */
+    }
+</style>
+</head>
+<body>
+    <div class="svg-background">
+        <!-- Multiple scattered SVGs with spiral effect -->
+        <!-- 6 Tree SVGs -->
+        <img src="public/tree.svg" class="floating-svg tree" style="top: 10%; left: 15%; animation-duration: 25s; animation-name: float;" loading="lazy">
+        <img src="public/tree.svg" class="floating-svg tree" style="top: 60%; left: 80%; animation-duration: 28s; animation-name: float-reverse;" loading="lazy">
+        <img src="public/tree.svg" class="floating-svg tree" style="top: 30%; left: 50%; animation-duration: 33s; animation-name: float-spiral;" loading="lazy">
+        <img src="public/tree.svg" class="floating-svg tree" style="top: 50%; left: 65%; animation-duration: 26s; animation-name: float;" loading="lazy">
+        <img src="public/tree.svg" class="floating-svg tree" style="top: 20%; left: 35%; animation-duration: 30s; animation-name: float-spiral;" loading="lazy">
+        <img src="public/tree.svg" class="floating-svg tree" style="top: 70%; left: 20%; animation-duration: 27s; animation-name: float-reverse;" loading="lazy">
+        <!-- 5 Coin SVGs -->
+        <img src="public/coin.svg" class="floating-svg coin" style="top: 20%; left: 70%; animation-duration: 30s; animation-name: float-reverse;" loading="lazy">
+        <img src="public/coin.svg" class="floating-svg coin" style="top: 40%; left: 10%; animation-duration: 32s; animation-name: float-spiral;" loading="lazy">
+        <img src="public/coin.svg" class="floating-svg coin" style="top: 70%; left: 40%; animation-duration: 29s; animation-name: float;" loading="lazy">
+        <img src="public/coin.svg" class="floating-svg coin" style="top: 15%; left: 85%; animation-duration: 35s; animation-name: float-spiral;" loading="lazy">
+        <img src="public/coin.svg" class="floating-svg coin" style="top: 80%; left: 50%; animation-duration: 31s; animation-name: float-reverse;" loading="lazy">
+        <!-- Bean SVGs -->
+        <img src="public/bean.svg" class="floating-svg bean" style="top: 75%; left: 25%; animation-duration: 35s; animation-name: float-spiral;" loading="lazy">
+        <img src="public/bean.svg" class="floating-svg bean" style="top: 85%; left: 85%; animation-duration: 27s; animation-name: float;" loading="lazy">
+        <img src="public/bean.svg" class="floating-svg bean" style="top: 15%; left: 30%; animation-duration: 31s; animation-name: float-reverse;" loading="lazy">
+    </div>
+    
+    <div class="background-glow glow-1"></div>
+    <div class="background-glow glow-2"></div>
+    <div class="background-glow glow-3"></div>
+<nav>
+    <div class="brand-section">
+        <img class="brand-logo" src="public/chai.png" alt="Chai Platform Logo" width="50" height="50" decoding="async">
+        <div class="brand-text">
+            <div class="brand-name-wrapper">
+                <h1 class="brand-name">Chai Platform</h1>
+                <span class="beta-badge">Beta</span>
+            </div>
+            <p class="brand-tagline">Invest in Sustainable Coffee Production</p>
+        </div>
+    </div>
+    <div class="nav-section">
+        <div class="notification-container" aria-label="Notifications">
+            <span class="notification-bell" role="img" aria-label="Notifications">🔔</span>
+            <span class="notification-count">2</span>
+            <div class="notifications-dropdown" id="notificationsDropdown" role="menu">
+                <div class="notification-header">Notifications</div>
+                <div class="notification-item" role="menuitem">
+                    <p><strong>Update:</strong> Harvest season has officially begun for the 'Mountain Gold' batch.</p>
+                </div>
+                <div class="notification-item" role="menuitem">
+                    <p><strong>Welcome!</strong> Thank you for joining the Chai Platform.</p>
+                </div>
+            </div>
+        </div>
+        <a href="#faq" class="faq-link">FAQs</a>
+        <button class="signup-btn" aria-label="Sign up for Chai Platform" onclick="window.location.href='app.html'; localStorage.setItem('targetView', 'investor');">Sign Up</button>
+    </div>
+</nav>
+
+<div id="announcement-banner" role="alert" aria-live="polite">
+    2000 Tokenized Coffee Trees DROPPING SOON!
+</div>
+
+<div id="app">
+    <div id="landingPage" class="landing-page">
+        <main class="landing-main">
+            <!-- HERO SECTION -->
+            <section class="hero-section">
+                <div class="hero-content">
+                    <style>
+                        /* Hero Section with Image Background */
+                        .hero {
+                            min-height: 100vh;
+                            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                                        url('public/transform.png') center/cover;
+                            position: relative;
+                            overflow: hidden;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            padding-top: 80px;
+                        }
+
+                        .hero::before {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            bottom: 0;
+                            background: linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.5) 100%);
+                            z-index: 1;
+                        }
+
+                        .hero-content-overlay {
+                            position: relative;
+                            z-index: 10;
+                            max-width: 900px;
+                            text-align: center;
+                            animation: fadeInUp 1s ease-out;
+                        }
+
+                        @keyframes fadeInUp {
+                            from {
+                                opacity: 0;
+                                transform: translateY(30px);
+                            }
+                            to {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+                        }
+
+                        .hero h1 {
+                            font-size: 4.5rem;
+                            color: white;
+                            margin-bottom: 1.5rem;
+                            line-height: 1.1;
+                            font-weight: 800;
+                            letter-spacing: -1px;
+                            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+                        }
+
+                        .hero-subtitle {
+                            font-size: 1.4rem;
+                            color: #f5deb3;
+                            margin-bottom: 2rem;
+                            font-weight: 500;
+                            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+                        }
+
+                        .hero-description {
+                            font-size: 1.15rem;
+                            color: #e8d7c3;
+                            margin-bottom: 3rem;
+                            line-height: 1.8;
+                            max-width: 700px;
+                            margin-left: auto;
+                            margin-right: auto;
+                            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+                        }
+
+                        .cta-container {
+                            display: flex;
+                            gap: 2rem;
+                            justify-content: center;
+                            flex-wrap: wrap;
+                        }
+
+                        .cta-primary {
+                            padding: 1.2rem 3rem;
+                            background: var(--gradient-primary);
+                            color: white;
+                            border: none;
+                            border-radius: 50px;
+                            font-size: 1.1rem;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s;
+                            box-shadow: 0 10px 30px var(--glow-primary);
+                            font-family: 'Comic Neue', 'Inter', 'Segoe UI', sans-serif;
+                        }
+
+                        .cta-primary:hover {
+                            transform: translateY(-3px);
+                            box-shadow: 0 15px 40px var(--glow-primary);
+                        }
+
+                        .cta-secondary {
+                            padding: 1.2rem 3rem;
+                            background: transparent;
+                            color: #f5deb3;
+                            border: 2px solid #f5deb3;
+                            border-radius: 50px;
+                            font-size: 1.1rem;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s;
+                            font-family: 'Comic Neue', 'Inter', 'Segoe UI', sans-serif;
+                        }
+
+                        .cta-secondary:hover {
+                            background: #f5deb3;
+                            color: #3e2723;
+                            transform: translateY(-3px);
+                        }
+
+                        /* Responsive */
+                        @media (max-width: 768px) {
+                            .hero h1 {
+                                font-size: 2.8rem;
+                            }
+
+                            .hero-subtitle {
+                                font-size: 1.2rem;
+                            }
+
+                            .hero-description {
+                                font-size: 1rem;
+                            }
+
+                            .nav-right {
+                                gap: 1rem;
+                            }
+
+                            .cta-container {
+                                flex-direction: column;
+                                align-items: center;
+                                gap: 1rem;
+                            }
+
+                            .cta-primary, .cta-secondary {
+                                width: 100%;
+                                max-width: 300px;
+                            }
+                        }
+                    </style>
+                    
+                    <!-- Hero Section with Image Background and Text Overlay -->
+                    <section class="hero">
+                        <div class="hero-content-overlay">
+                            <h1>From Coffee Sippers<br>to Coffee Investors</h1>
+                            <p class="hero-subtitle">African Coffee Is Globally Ranked for Its Quality and Flavor</p>
+                            <p class="hero-description">
+                                Why Not Invest Where It Begins?
+                            </p>
+                            
+                            <div class="cta-container">
+                                <button class="cta-primary" onclick="window.location.href='app.html'; localStorage.setItem('targetView', 'investor');">Invest in a Coffee Tree</button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </section>
+
+            <!-- PROBLEM SECTION -->
+            <section class="problem-section">
+                <div class="problem-content">
+                    <h2>The Challenge</h2>
+                    <div class="problem-wrapper">
+                        <div class="problem-text">
+                            <p style="color: var(--text-dark); font-size: 1.1rem; line-height: 1.8; margin-bottom: 20px;">
+                                Smallholder coffee farmers face multiple interconnected challenges that prevent them from achieving economic stability and sustainable growth.
+                            </p>
+                            <ul style="list-style-type: none; padding: 0; color: var(--text-dark); font-size: 1.05rem; line-height: 2;">
+                                <li style="margin-bottom: 12px; position: relative; padding-left: 20px;">Limited access to fair financing and capital<span style="position: absolute; left: 0; top: 50%; transform: translateY(-50%);">✓</span></li>
+                                <li style="margin-bottom: 12px; position: relative; padding-left: 20px;">Exploitation by middlemen reducing profits<span style="position: absolute; left: 0; top: 50%; transform: translateY(-50%);">✓</span></li>
+                                <li style="margin-bottom: 12px; position: relative; padding-left: 20px;">Lack of resources for sustainable farming practices<span style="position: absolute; left: 0; top: 50%; transform: translateY(-50%);">✓</span></li>
+                                <li style="margin-bottom: 12px; position: relative; padding-left: 20px;">No transparency in supply chains<span style="position: absolute; left: 0; top: 50%; transform: translateY(-50%);">✓</span></li>
+                                <li style="margin-bottom: 12px; position: relative; padding-left: 20px;">Limited access to modern agricultural technology<span style="position: absolute; left: 0; top: 50%; transform: translateY(-50%);">✓</span></li>
+                            </ul>
+                        </div>
+                        <div class="problem-image">
+                            <img src="public/problems.png" alt="Challenges faced by smallholder coffee farmers" style="width: 100%; max-width: 500px; height: auto; border-radius: 12px; box-shadow: 0 15px 40px rgba(0,0,0,0.5);" loading="lazy" decoding="async">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PASSION & PURPOSE SECTION -->
+            <section class="passion-section">
+                <div class="passion-content">
+                    <h2>Turn Passion Into Purpose</h2>
+                    <p class="passion-text">
+                        At Chai Platform, we believe coffee is more than a beverage it's a bridge between people, cultures, and futures. By partnering with ethical farmers, especially in Kenya, Uganda, and Ethiopia, we ensure every bean uplifts communities, protects the environment, and empowers you to be part of lasting change.
+                    </p>
+                    <div class="video-container">
+                        <iframe width="100%" height="450" src="https://www.youtube.com/embed/1nebnr9FF3Q" title="Introduction to Blockchain and Coffee Farming" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <div class="hero-cta" style="text-align: center; margin-top: 40px;">
+                        <button id="heroConnectWallet" class="btn btn-primary btn-large" onclick="window.location.href='app.html'; localStorage.setItem('targetView', 'investor');">Get Started</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SOLUTION SECTION -->
+            <section class="banner">
+                <div class="banner-wrapper">
+                    <div class="solution-info">
+                        <h1>Our Solution</h1>
+                        <h2>Blockchain for Impact</h2>
+                        <p><b>Empowering Coffee Farmers</b></p>
+                        <p>Tokenizing coffee trees to provide capital, promote sustainability, ensure fair compensation, and build a global community.</p>
+                    </div>
+                    <div class="slider" style="--quantity: 4">
+                        <div class="item" style="--position: 1">
+                            <div class="carousel-card">
+                                <span class="carousel-card-icon">💰</span>
+                                <h3 class="carousel-card-title">Access to Capital</h3>
+                            </div>
+                        </div>
+                        <div class="item" style="--position: 2">
+                            <div class="carousel-card">
+                                <span class="carousel-card-icon">🌿</span>
+                                <h3 class="carousel-card-title">Sustainable Practices</h3>
+                            </div>
+                        </div>
+                        <div class="item" style="--position: 3">
+                            <div class="carousel-card">
+                                <span class="carousel-card-icon">⚖️</span>
+                                <h3 class="carousel-card-title">Fair Compensation</h3>
+                            </div>
+                        </div>
+                        <div class="item" style="--position: 4">
+                            <div class="carousel-card">
+                                <span class="carousel-card-icon">🤝</span>
+                                <h3 class="carousel-card-title">Impact Community</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+<!-- GROVE TRACKER SECTION -->
+<!-- Insert this BETWEEN "Our Solution" section and "Platform Technology" section -->
+<!-- Place it after the closing </section> tag of "Our Solution" -->
+
+            <!-- GROVE TRACKER SECTION -->
+            <section style="padding: 80px 20px; background-color: transparent;">
+                <div style="max-width: 1400px; margin: 0 auto;">
+                    <h2 style="color: var(--text-light); text-align: center; font-size: 2.5rem; margin-bottom: 20px; font-weight: 700;">
+                        Track Your Groves from Satellite imagery
+                    </h2>
+                    <p style="color: var(--text-dark); text-align: center; font-size: 1.1rem; margin-bottom: 40px; max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.7;">
+                        Monitor your coffee grove investments with real-time satellite imagery across Kenya, Uganda, and Ethiopia. See exactly where your investment is growing on our interactive 3D globe.
+                    </p>
+                    
+                    <!-- Embedded Grove Tracker with even margins -->
+                    <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+                        <div style="width: 100%; height: 600px; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); border: 1px solid var(--border-glass); background: var(--bg-dark);">
+                            <iframe 
+                                src="grove-tracker.html" 
+                                style="width: 100%; height: 100%; border: none; display: block;"
+                                title="Grove Tracker - Satellite View"
+                                loading="lazy"
+                                allow="geolocation">
+                            </iframe>
+                        </div>
+                    </div>
+                    
+                    <!-- Call to Action Button -->
+                    <div style="text-align: center; margin-top: 30px;">
+                        <a href="grove-tracker.html" target="_blank" 
+                           style="display: inline-block; padding: 14px 32px; background: var(--gradient-primary); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 1.1rem; box-shadow: 0 4px 15px var(--glow-primary); transition: all 0.3s ease;"
+                           onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 7px 20px var(--glow-primary)';"
+                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px var(--glow-primary)';">
+                            Open Full Screen Tracker →
+                        </a>
+                    </div>
+                    
+                    <!-- Feature Highlights -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 50px; max-width: 1000px; margin-left: auto; margin-right: auto;">
+                        <div style="text-align: center; padding: 20px;">
+                            <div style="font-size: 2.5rem; margin-bottom: 10px;">🛰️</div>
+                            <h3 style="color: var(--text-light); font-size: 1.1rem; margin-bottom: 8px;">Satellite Imagery</h3>
+                            <p style="color: var(--text-dark); font-size: 0.9rem;">Real-time views from space</p>
+                        </div>
+                        <div style="text-align: center; padding: 20px;">
+                            <div style="font-size: 2.5rem; margin-bottom: 10px;">🌍</div>
+                            <h3 style="color: var(--text-light); font-size: 1.1rem; margin-bottom: 8px;">3D Globe View</h3>
+                            <p style="color: var(--text-dark); font-size: 0.9rem;">Interactive Earth visualization</p>
+                        </div>
+                        <div style="text-align: center; padding: 20px;">
+                            <div style="font-size: 2.5rem; margin-bottom: 10px;">📍</div>
+                            <h3 style="color: var(--text-light); font-size: 1.1rem; margin-bottom: 8px;">87 Groves</h3>
+                            <p style="color: var(--text-dark); font-size: 0.9rem;">Across 3 countries</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- PLATFORM TECHNOLOGY -->
+            <section class="features-section">
+                <h2>Platform Technology</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <img src="public/blockchain.png" alt="Hedera Hashgraph blockchain technology" style="width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px;" loading="lazy" decoding="async">
+                        <h3>Hedera Hashgraph</h3>
+                        <p>Lightning-fast, secure tokenization of coffee trees with minimal environmental impact and transaction costs</p>
+                    </div>
+                    <div class="feature-card">
+                        <img src="public/iot.png" alt="IoT sensors and data analytics" style="width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px;" loading="lazy" decoding="async">
+                        <h3>IoT & Data Analytics</h3>
+                        <p>Real-time monitoring with IoT sensors tracking tree health, soil conditions, and yield predictions</p>
+                    </div>
+                    <div class="feature-card">
+                        <img src="public/data.png" alt="Transparent tracking and blockchain records" style="width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px;" loading="lazy" decoding="async">
+                        <h3>Transparent Tracking</h3>
+                        <p>Full supply chain visibility from farm to cup with immutable blockchain records</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- WHAT INVESTORS & FARMERS GET -->
+            <section class="how-it-works">
+                <h2>What Investors & Farmers Get</h2>
+                <div style="max-width: 1200px; margin: 0 auto;">
+                    <div class="features-grid" style="grid-template-columns: 1fr 1fr; gap: 50px;">
+                        <div class="feature-card">
+                            <div style="text-align: center; margin-bottom: 20px;">
+                                <div style="width: 200px; height: 200px; border-radius: 50%; overflow: hidden; margin: 0 auto 20px; border: 3px solid #D4A373;">
+                                    <img src="public/solving.png" alt="Benefits for Farmers" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy" decoding="async">
+                                </div>
+                            </div>
+                            <h3 style="color: #D4A373; font-size: 1.9rem; margin-bottom: 25px; text-align: center; font-weight: 600;">What Farmers Get</h3>
+                            <ul style="list-style-type: none; padding: 0; margin: 0;">
+                                <li style="margin-bottom: 15px; font-size: 1.1rem; text-align: center; padding-left: 20px; position: relative;">
+                                    <span style="position: absolute; left: 0; top: 50%; transform: translateY(-50%);">✓</span>
+                                    Immediate capital through fractioco
+                                </li>
+                                <li style="margin-bottom: 15px; font-size: 1.1rem; text-align: center; padding-left: 20px; position: relative;">
+                                    <span style="position: absolute; left: 0; top: 50%; transform: translateY(-50%);">✓</span>
+                                    Potential yield increase by up to 5x
+                                </li>
+                                <li style="margin-bottom: 15px; font-size: 1.1rem; text-align: center; padding-left: 20px; position: relative;">
+                                    <span style="position: absolute; left: 0; top: 50%; transform: translateY(-50%);">✓</span>
+                                    IoT sensors and data analytics for sustainable farming
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <div style="text-align: center; margin-bottom: 20px;">
+                                <div style="width: 200px; height: 200px; border-radius: 50%; overflow: hidden; margin: 0 auto 20px; border: 3px solid #D4A373;">
+                                    <img src="public/investor.png" alt="Benefits for Investors" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy" decoding="async">
+                                </div>
+                            </div>
+                            <h3 style="color: #D4A373; font-size: 1.9rem; margin-bottom: 25px; text-align: center; font-weight: 600;">What Investors Get</h3>
+                            <ul style="list-style-type: none; padding: 0; margin: 0;">
+                                <li style="margin-bottom: 15px; font-size: 1.1rem; text-align: center; padding-left: 20px; position: relative;">
+                                    <span style="position: absolute; left: 0; top: 50%; transform: translateY(-50%);">✓</span>
+                                    Economic rights to the coffee trees
+                                </li>
+                                <li style="margin-bottom: 15px; font-size: 1.1rem; text-align: center; padding-left: 20px; position: relative;">
+                                    <span style="position: absolute; left: 0; top: 50%; transform: translateY(-50%);">✓</span>
+                                    Transparent revenue-sharing through smart contracts
+                                </li>
+                                <li style="margin-bottom: 15px; font-size: 1.1rem; text-align: center; padding-left: 20px; position: relative;">
+                                    <span style="position: absolute; left: 0; top: 50%; transform: translateY(-50%);">✓</span>
+                                    Share of sustainable coffee revenues
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- WORLD MAP -->
+            <section class="world-map-section" style="padding: 80px 20px; background-color: transparent; position: relative; text-align: center;">
+                <div style="max-width: 1200px; margin: 0 auto; position: relative;">
+                    <img src="public/world.svg" alt="World Map" style="width: 100%; max-width: 800px; height: auto; display: block; margin: 0 auto; border-radius: 12px;" loading="lazy">
+                </div>
+            </section>
+
+            <!-- FAQ SECTION -->
+            <section class="faq-section" id="faq">
+                <h2>Frequently Asked Questions</h2>
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <h3 class="faq-question">What is the Chai Platform?</h3>
+                        <p class="faq-answer">Our platform connects coffee farmers with investors through blockchain technology, enabling transparent and fair trade while promoting sustainable farming practices.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3 class="faq-question">How do I invest in coffee trees?</h3>
+                        <p class="faq-answer">After signing up, you can browse available coffee trees, review their details and performance history, and purchase ownership shares through our secure smart contracts.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3 class="faq-question">What are the risks involved?</h3>
+                        <p class="faq-answer">Like any agricultural investment, coffee tree investments carry risks including weather conditions, pests, and market fluctuations. We provide transparent reporting to help you make informed decisions.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3 class="faq-question">How are revenues distributed?</h3>
+                        <p class="faq-answer">Revenues from coffee sales are automatically distributed to investors through smart contracts, with full transparency and minimal fees.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3 class="faq-question">What blockchain technology do you use?</h3>
+                        <p class="faq-answer">We use Hedera Hashgraph for its speed, security, low transaction costs, and minimal environmental impact compared to traditional blockchains.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3 class="faq-question">How do I earn returns from my investment?</h3>
+                        <p class="faq-answer">You earn returns in two ways: through your share of harvest revenues when coffee is sold, and through potential token appreciation as your coffee trees mature and increase in value. All earnings are distributed automatically through smart contracts.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3 class="faq-question">Can I sell my coffee tree tokens?</h3>
+                        <p class="faq-answer">Yes! Our marketplace allows you to list and sell your coffee tree tokens to other investors at any time, providing liquidity for your investment. You set your own price based on market conditions.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3 class="faq-question">How do I track my investment performance?</h3>
+                        <p class="faq-answer">Your investor dashboard provides real-time tracking of your portfolio, including total investment value, earnings history, individual grove performance, health scores, and detailed transaction history.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3 class="faq-question">What happens if a coffee tree dies or underperforms?</h3>
+                        <p class="faq-answer">While we work closely with farmers to maintain tree health through sustainable practices, agricultural risks exist. We provide transparent health monitoring and reporting so you can make informed decisions. Diversifying across multiple groves helps mitigate individual tree risks.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="landing-footer">
+            <div class="footer-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                    <div style="text-align: left;">
+                        <p style="margin-bottom: 10px;">Proudly built on:</p>
+                        <img src="public/hedera.webp" alt="Hedera Hashgraph" style="height: 30px;" loading="lazy" decoding="async">
+                    </div>
+                    <div>
+                        <p style="text-align: center;">&copy; 2025 Chai Platform. All rights reserved.</p>
+                    </div>
+                    <div></div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</div>
+
+<!-- Chart.js for interactive graphs -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="js/grove-performance-chart.js" type="module"></script>
+
+<!-- ES Module Imports -->
+<script src="js/api.js" type="module"></script>
+<script src="js/notification-manager.js" type="module"></script>
+<script src="js/main.js" type="module"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const banner = document.getElementById('announcement-banner');
+        let bannerVisible = false;
+        let lastScrollTop = 0;
+
+        function showBanner() {
+            if (banner) {
+                banner.classList.add('active');
+                bannerVisible = true;
+            }
+        }
+
+        function hideBanner() {
+            if (banner) {
+                banner.classList.remove('active');
+                bannerVisible = false;
+            }
+        }
+
+        setTimeout(showBanner, 2000);
+
+        window.addEventListener('scroll', function() {
+            const currentScrollTop = window.scrollY || document.documentElement.scrollTop;
+
+            if (currentScrollTop > 100 && bannerVisible && currentScrollTop > lastScrollTop) {
+                hideBanner();
+            } else if (currentScrollTop < 100 && !bannerVisible && currentScrollTop < lastScrollTop) {
+                showBanner();
+            } else if (currentScrollTop === 0) {
+                showBanner();
+            }
+
+            lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop;
+        });
+
+        const heroBtn = document.getElementById('heroConnectWallet');
+        const signUpBtn = document.querySelector('.signup-btn');
+
+        function handleSignUp() {
+            window.location.href = 'app.html';
+        }
+
+        if (heroBtn) {
+            heroBtn.addEventListener('click', handleSignUp);
+        }
+
+        if (signUpBtn) {
+            signUpBtn.addEventListener('click', handleSignUp);
+        }
+
+        const notificationContainer = document.querySelector('.notification-container');
+        const notificationsDropdown = document.getElementById('notificationsDropdown');
+
+        if (notificationContainer && notificationsDropdown) {
+            notificationContainer.addEventListener('click', (event) => {
+                event.stopPropagation();
+                notificationsDropdown.classList.toggle('show');
+            });
+
+            document.addEventListener('click', (event) => {
+                if (notificationsDropdown.classList.contains('show') &&
+                    !notificationContainer.contains(event.target)) {
+                    notificationsDropdown.classList.remove('show');
+                }
+            });
+        }
+
+        const faqLink = document.querySelector('.faq-link');
+        if (faqLink) {
+            faqLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                const faqSection = document.getElementById('faq');
+                if (faqSection) {
+                    faqSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        }
+
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        const animatedElements = document.querySelectorAll('.feature-card');
+        animatedElements.forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    });
+</script>
+</body>
+</html>

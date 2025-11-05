@@ -1,0 +1,352 @@
+/**
+ * Wallet Connection UI Styles
+ * Enhanced wallet connection display with network and user type info
+ */
+
+/* ============================================
+   WALLET CONNECTION CONTAINER
+   ============================================ */
+
+.wallet-connection {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Connect button */
+#connect-wallet-btn,
+#connectWallet {
+    padding: 10px 20px;
+    background: linear-gradient(90deg, #8A5A44 0%, #D4A373 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(212, 163, 115, 0.4);
+}
+
+#connect-wallet-btn:hover,
+#connectWallet:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(212, 163, 115, 0.5);
+}
+
+#connect-wallet-btn:active,
+#connectWallet:active {
+    transform: translateY(0);
+}
+
+/* ============================================
+   WALLET INFO DISPLAY
+   ============================================ */
+
+.wallet-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(60, 45, 38, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(199, 172, 149, 0.2);
+    border-radius: 12px;
+    padding: 8px 12px;
+    transition: all 0.3s ease;
+}
+
+.wallet-info:hover {
+    border-color: rgba(199, 172, 149, 0.4);
+    background: rgba(60, 45, 38, 0.6);
+}
+
+.wallet-info.hidden {
+    display: none;
+}
+
+/* Wallet info content */
+.wallet-info-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Account display */
+.wallet-account {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wallet-icon {
+    font-size: 1.125rem;
+    line-height: 1;
+}
+
+.wallet-account-id {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #F5EFE6;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+    letter-spacing: 0.5px;
+}
+
+/* Meta information (network and user type) */
+.wallet-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8125rem;
+    color: #B0A090;
+}
+
+.wallet-network,
+.wallet-user-type {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.wallet-separator {
+    color: rgba(199, 172, 149, 0.3);
+}
+
+/* Disconnect button */
+#disconnectWallet {
+    padding: 6px 14px;
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 6px;
+    color: #EF4444;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+#disconnectWallet:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.6);
+}
+
+#disconnectWallet:active {
+    transform: scale(0.98);
+}
+
+/* ============================================
+   WALLET STATUS INDICATOR
+   ============================================ */
+
+.wallet-status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10B981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+    animation: pulse-status 2s ease-in-out infinite;
+}
+
+@keyframes pulse-status {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+/* ============================================
+   WALLET PROMPT (when not connected)
+   ============================================ */
+
+#walletPrompt {
+    padding: 12px 16px;
+    background: rgba(212, 163, 115, 0.1);
+    border: 1px solid rgba(212, 163, 115, 0.3);
+    border-radius: 8px;
+    color: #D4A373;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#walletPrompt.hidden {
+    display: none;
+}
+
+#walletPrompt::before {
+    content: 'ℹ️';
+    font-size: 1rem;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+    .wallet-connection {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .wallet-info {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 12px;
+    }
+
+    .wallet-info-content {
+        width: 100%;
+    }
+
+    .wallet-account {
+        width: 100%;
+    }
+
+    .wallet-account-id {
+        font-size: 0.875rem;
+    }
+
+    .wallet-meta {
+        font-size: 0.75rem;
+    }
+
+    #disconnectWallet {
+        width: 100%;
+        padding: 8px 14px;
+    }
+
+    #connect-wallet-btn,
+    #connectWallet {
+        width: 100%;
+        padding: 12px 20px;
+    }
+}
+
+/* ============================================
+   COMPACT MODE (for smaller navbars)
+   ============================================ */
+
+.wallet-info.compact {
+    padding: 6px 10px;
+}
+
+.wallet-info.compact .wallet-info-content {
+    gap: 2px;
+}
+
+.wallet-info.compact .wallet-account-id {
+    font-size: 0.875rem;
+}
+
+.wallet-info.compact .wallet-meta {
+    font-size: 0.75rem;
+}
+
+.wallet-info.compact #disconnectWallet {
+    padding: 4px 10px;
+    font-size: 0.75rem;
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* Focus states */
+#connect-wallet-btn:focus,
+#connectWallet:focus,
+#disconnectWallet:focus {
+    outline: 2px solid #D4A373;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .wallet-info {
+        border-width: 2px;
+    }
+
+    .wallet-account-id {
+        font-weight: 700;
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    #connect-wallet-btn,
+    #connectWallet,
+    #disconnectWallet,
+    .wallet-info {
+        transition: none;
+    }
+
+    .wallet-status-indicator {
+        animation: none;
+    }
+
+    #connect-wallet-btn:hover,
+    #connectWallet:hover {
+        transform: none;
+    }
+}
+
+/* ============================================
+   TOOLTIP FOR FULL ACCOUNT ID
+   ============================================ */
+
+.wallet-account-id[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 10px;
+    background: rgba(31, 22, 18, 0.95);
+    border: 1px solid rgba(199, 172, 149, 0.3);
+    border-radius: 6px;
+    color: #F5EFE6;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 8px;
+    pointer-events: none;
+}
+
+/* ============================================
+   ANIMATION STATES
+   ============================================ */
+
+/* Fade in animation for wallet info */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.wallet-info:not(.hidden) {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Pulse animation for connect button when wallet not connected */
+@keyframes pulse-connect {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(212, 163, 115, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(212, 163, 115, 0.6);
+    }
+}
+
+#connect-wallet-btn.pulse,
+#connectWallet.pulse {
+    animation: pulse-connect 2s ease-in-out infinite;
+}

@@ -1,0 +1,512 @@
+/**
+ * Wallet Error Display Styles
+ * 
+ * Styles for user-friendly error messages and guidance
+ */
+
+/* Error Container */
+.wallet-error {
+    display: flex;
+    align-items: flex-start;
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 8px;
+    border-left: 4px solid;
+    background: var(--error-bg, #fff);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.wallet-error-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    width: 100%;
+}
+
+/* Severity Variants */
+.wallet-error-info {
+    border-left-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.wallet-error-warning {
+    border-left-color: #f59e0b;
+    background: #fffbeb;
+}
+
+.wallet-error-error {
+    border-left-color: #ef4444;
+    background: #fef2f2;
+}
+
+/* Error Icon */
+.wallet-error-icon {
+    flex-shrink: 0;
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.wallet-error-info .wallet-error-icon {
+    color: #3b82f6;
+}
+
+.wallet-error-warning .wallet-error-icon {
+    color: #f59e0b;
+}
+
+.wallet-error-error .wallet-error-icon {
+    color: #ef4444;
+}
+
+/* Error Text */
+.wallet-error-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.wallet-error-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.wallet-error-message {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #4b5563;
+}
+
+/* Technical Details */
+.wallet-error-details {
+    margin-top: 0.75rem;
+}
+
+.wallet-error-details summary {
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: #6b7280;
+    user-select: none;
+}
+
+.wallet-error-details summary:hover {
+    color: #374151;
+}
+
+.wallet-error-details pre {
+    margin: 0.5rem 0 0 0;
+    padding: 0.75rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    overflow-x: auto;
+    color: #374151;
+}
+
+/* Error Actions */
+.wallet-error-actions {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.wallet-error-action-btn {
+    padding: 0.5rem 1rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.wallet-error-action-btn:hover {
+    background: #2563eb;
+}
+
+.wallet-error-action-btn:active {
+    background: #1d4ed8;
+}
+
+.wallet-error-dismiss-btn {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.wallet-error-dismiss-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #6b7280;
+}
+
+/* Toast Container */
+.wallet-toast-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 400px;
+    pointer-events: none;
+}
+
+.wallet-toast {
+    pointer-events: auto;
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Error Modal */
+.wallet-error-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.wallet-error-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.wallet-error-modal-content {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.wallet-error-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.wallet-error-modal-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.wallet-error-modal-close {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.wallet-error-modal-close:hover {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.wallet-error-modal-body {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.wallet-error-modal-message {
+    margin: 0 0 1.5rem 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #4b5563;
+}
+
+.wallet-error-modal-body h3 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.wallet-error-guidance-steps {
+    margin: 0 0 1.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.wallet-error-guidance-steps li {
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #4b5563;
+}
+
+.wallet-error-modal-details {
+    margin-bottom: 1.5rem;
+}
+
+.wallet-error-modal-details summary {
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+    user-select: none;
+}
+
+.wallet-error-modal-details summary:hover {
+    color: #374151;
+}
+
+.wallet-error-modal-details pre {
+    margin: 0.5rem 0 0 0;
+    padding: 0.75rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    overflow-x: auto;
+    color: #374151;
+}
+
+.wallet-error-modal-help {
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 6px;
+}
+
+.wallet-error-modal-help a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #3b82f6;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.wallet-error-modal-help a:hover {
+    color: #2563eb;
+}
+
+.wallet-error-modal-footer {
+    padding: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.wallet-error-modal-action {
+    padding: 0.625rem 1.5rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.wallet-error-modal-action:hover {
+    background: #2563eb;
+}
+
+.wallet-error-modal-action:active {
+    background: #1d4ed8;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+    .wallet-toast-container {
+        top: 0;
+        right: 0;
+        left: 0;
+        max-width: none;
+        padding: 0.5rem;
+    }
+    
+    .wallet-error {
+        margin: 0.5rem 0;
+    }
+    
+    .wallet-error-content {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .wallet-error-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .wallet-error-action-btn {
+        flex: 1;
+    }
+    
+    .wallet-error-modal-content {
+        max-height: 100vh;
+        border-radius: 0;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .wallet-error {
+        background: #1f2937;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .wallet-error-info {
+        background: #1e3a5f;
+    }
+    
+    .wallet-error-warning {
+        background: #3d2e1f;
+    }
+    
+    .wallet-error-error {
+        background: #3d1f1f;
+    }
+    
+    .wallet-error-title {
+        color: #f9fafb;
+    }
+    
+    .wallet-error-message {
+        color: #d1d5db;
+    }
+    
+    .wallet-error-details pre {
+        background: #111827;
+        border-color: #374151;
+        color: #d1d5db;
+    }
+    
+    .wallet-error-modal-content {
+        background: #1f2937;
+    }
+    
+    .wallet-error-modal-header {
+        border-bottom-color: #374151;
+    }
+    
+    .wallet-error-modal-header h2 {
+        color: #f9fafb;
+    }
+    
+    .wallet-error-modal-message,
+    .wallet-error-guidance-steps li {
+        color: #d1d5db;
+    }
+    
+    .wallet-error-modal-body h3 {
+        color: #f9fafb;
+    }
+    
+    .wallet-error-modal-help {
+        background: #111827;
+    }
+    
+    .wallet-error-modal-footer {
+        border-top-color: #374151;
+    }
+}
+
+/* Accessibility */
+.wallet-error:focus-within {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+.wallet-error-action-btn:focus,
+.wallet-error-dismiss-btn:focus,
+.wallet-error-modal-close:focus,
+.wallet-error-modal-action:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .wallet-error,
+    .wallet-toast,
+    .wallet-error-modal,
+    .wallet-error-modal-content {
+        animation: none;
+    }
+    
+    .wallet-error,
+    .wallet-error-action-btn,
+    .wallet-error-dismiss-btn {
+        transition: none;
+    }
+}

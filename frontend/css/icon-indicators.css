@@ -1,0 +1,648 @@
+/**
+ * Icon Indicators for Accessible Color-Coded Information
+ * WCAG 2.1 Success Criterion 1.4.1 - Use of Color
+ * 
+ * This file provides icon indicators that accompany color-coded information
+ * to ensure accessibility for users with color vision deficiencies.
+ */
+
+/* ============================================
+   BASE ICON STYLES
+   ============================================ */
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+}
+
+.icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+/* Icon sizes */
+.icon-xs { width: 0.75rem; height: 0.75rem; }
+.icon-sm { width: 1rem; height: 1rem; }
+.icon-md { width: 1.25rem; height: 1.25rem; }
+.icon-lg { width: 1.5rem; height: 1.5rem; }
+.icon-xl { width: 2rem; height: 2rem; }
+
+/* ============================================
+   STATUS INDICATORS WITH ICONS
+   ============================================ */
+
+/* Success Status */
+.status-success,
+.state-success {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--success-accessible);
+}
+
+.status-success::before,
+.state-success::before {
+  content: '✓';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25em;
+  height: 1.25em;
+  font-weight: var(--font-weight-bold);
+  font-size: 0.875em;
+  background: var(--success-subtle);
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+/* Error Status */
+.status-error,
+.state-error {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--error-accessible);
+}
+
+.status-error::before,
+.state-error::before {
+  content: '✕';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25em;
+  height: 1.25em;
+  font-weight: var(--font-weight-bold);
+  font-size: 0.875em;
+  background: var(--error-subtle);
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+/* Warning Status */
+.status-warning,
+.state-warning {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--warning-accessible);
+}
+
+.status-warning::before,
+.state-warning::before {
+  content: '⚠';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25em;
+  height: 1.25em;
+  font-weight: var(--font-weight-bold);
+  font-size: 0.875em;
+  background: var(--warning-subtle);
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+/* Info Status */
+.status-info,
+.state-info {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--info-accessible);
+}
+
+.status-info::before,
+.state-info::before {
+  content: 'ℹ';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25em;
+  height: 1.25em;
+  font-weight: var(--font-weight-bold);
+  font-size: 0.875em;
+  background: var(--info-subtle);
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+/* ============================================
+   TREND INDICATORS
+   ============================================ */
+
+/* Positive Trend */
+.trend-up,
+.trend-positive {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--success-accessible);
+}
+
+.trend-up::before,
+.trend-positive::before {
+  content: '↑';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-bold);
+  font-size: 1.25em;
+  flex-shrink: 0;
+}
+
+/* Negative Trend */
+.trend-down,
+.trend-negative {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--error-accessible);
+}
+
+.trend-down::before,
+.trend-negative::before {
+  content: '↓';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-bold);
+  font-size: 1.25em;
+  flex-shrink: 0;
+}
+
+/* Neutral Trend */
+.trend-neutral,
+.trend-stable {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+}
+
+.trend-neutral::before,
+.trend-stable::before {
+  content: '→';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-bold);
+  font-size: 1.25em;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   BADGE INDICATORS WITH ICONS
+   ============================================ */
+
+.badge-success,
+.badge-error,
+.badge-warning,
+.badge-info {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+/* Success Badge */
+.badge-success {
+  background: var(--success-subtle);
+  color: var(--success-accessible);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.badge-success::before {
+  content: '●';
+  font-size: 0.75em;
+}
+
+/* Error Badge */
+.badge-error {
+  background: var(--error-subtle);
+  color: var(--error-accessible);
+  border: 1px solid rgba(239, 83, 80, 0.3);
+}
+
+.badge-error::before {
+  content: '●';
+  font-size: 0.75em;
+}
+
+/* Warning Badge */
+.badge-warning {
+  background: var(--warning-subtle);
+  color: var(--warning-accessible);
+  border: 1px solid rgba(255, 167, 38, 0.3);
+}
+
+.badge-warning::before {
+  content: '●';
+  font-size: 0.75em;
+}
+
+/* Info Badge */
+.badge-info {
+  background: var(--info-subtle);
+  color: var(--info-accessible);
+  border: 1px solid rgba(66, 165, 245, 0.3);
+}
+
+.badge-info::before {
+  content: '●';
+  font-size: 0.75em;
+}
+
+/* Neutral Badge */
+.badge-neutral {
+  background: rgba(180, 180, 180, 0.15);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+}
+
+.badge-neutral::before {
+  content: '●';
+  font-size: 0.75em;
+}
+
+/* ============================================
+   ALERT COMPONENTS WITH ICONS
+   ============================================ */
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border-left: 4px solid;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-relaxed);
+}
+
+.alert-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+}
+
+/* Success Alert */
+.alert-success {
+  background: var(--success-subtle);
+  border-left-color: var(--success-accessible);
+  color: var(--text-primary);
+}
+
+.alert-success .alert-icon::before {
+  content: '✓';
+  color: var(--success-accessible);
+}
+
+/* Error Alert */
+.alert-error {
+  background: var(--error-subtle);
+  border-left-color: var(--error-accessible);
+  color: var(--text-primary);
+}
+
+.alert-error .alert-icon::before {
+  content: '✕';
+  color: var(--error-accessible);
+}
+
+/* Warning Alert */
+.alert-warning {
+  background: var(--warning-subtle);
+  border-left-color: var(--warning-accessible);
+  color: var(--text-primary);
+}
+
+.alert-warning .alert-icon::before {
+  content: '⚠';
+  color: var(--warning-accessible);
+}
+
+/* Info Alert */
+.alert-info {
+  background: var(--info-subtle);
+  border-left-color: var(--info-accessible);
+  color: var(--text-primary);
+}
+
+.alert-info .alert-icon::before {
+  content: 'ℹ';
+  color: var(--info-accessible);
+}
+
+/* ============================================
+   NOTIFICATION INDICATORS
+   ============================================ */
+
+.notification {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-default);
+}
+
+.notification-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+}
+
+/* Success Notification */
+.notification-success .notification-icon {
+  background: var(--success-subtle);
+  color: var(--success-accessible);
+}
+
+.notification-success .notification-icon::before {
+  content: '✓';
+}
+
+/* Error Notification */
+.notification-error .notification-icon {
+  background: var(--error-subtle);
+  color: var(--error-accessible);
+}
+
+.notification-error .notification-icon::before {
+  content: '✕';
+}
+
+/* Warning Notification */
+.notification-warning .notification-icon {
+  background: var(--warning-subtle);
+  color: var(--warning-accessible);
+}
+
+.notification-warning .notification-icon::before {
+  content: '⚠';
+}
+
+/* Info Notification */
+.notification-info .notification-icon {
+  background: var(--info-subtle);
+  color: var(--info-accessible);
+}
+
+.notification-info .notification-icon::before {
+  content: 'ℹ';
+}
+
+/* ============================================
+   FORM VALIDATION INDICATORS
+   ============================================ */
+
+.form-group.has-success .form-label::after,
+.form-group.has-error .form-label::after,
+.form-group.has-warning .form-label::after {
+  content: '';
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-left: var(--space-2);
+  font-weight: var(--font-weight-bold);
+}
+
+.form-group.has-success .form-label::after {
+  content: '✓';
+  color: var(--success-accessible);
+}
+
+.form-group.has-error .form-label::after {
+  content: '✕';
+  color: var(--error-accessible);
+}
+
+.form-group.has-warning .form-label::after {
+  content: '⚠';
+  color: var(--warning-accessible);
+}
+
+/* Form validation messages with icons */
+.form-success,
+.form-error,
+.form-warning {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  font-size: var(--font-size-body-sm);
+}
+
+.form-success::before {
+  content: '✓';
+  color: var(--success-accessible);
+  font-weight: var(--font-weight-bold);
+}
+
+.form-error::before {
+  content: '✕';
+  color: var(--error-accessible);
+  font-weight: var(--font-weight-bold);
+}
+
+.form-warning::before {
+  content: '⚠';
+  color: var(--warning-accessible);
+  font-weight: var(--font-weight-bold);
+}
+
+/* ============================================
+   HEALTH SCORE INDICATORS
+   ============================================ */
+
+.health-score {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: var(--font-weight-semibold);
+}
+
+.health-score::before {
+  content: '●';
+  font-size: 0.75em;
+}
+
+.health-score.health-excellent {
+  color: var(--success-accessible);
+}
+
+.health-score.health-good {
+  color: var(--brand-accessible);
+}
+
+.health-score.health-fair {
+  color: var(--warning-accessible);
+}
+
+.health-score.health-poor {
+  color: var(--error-accessible);
+}
+
+/* ============================================
+   TRANSACTION TYPE INDICATORS
+   ============================================ */
+
+.transaction-type {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: var(--font-weight-medium);
+}
+
+.transaction-type.type-purchase::before {
+  content: '↓';
+  color: var(--success-accessible);
+  font-weight: var(--font-weight-bold);
+}
+
+.transaction-type.type-sale::before {
+  content: '↑';
+  color: var(--error-accessible);
+  font-weight: var(--font-weight-bold);
+}
+
+.transaction-type.type-transfer::before {
+  content: '→';
+  color: var(--info-accessible);
+  font-weight: var(--font-weight-bold);
+}
+
+.transaction-type.type-harvest::before {
+  content: '✓';
+  color: var(--success-accessible);
+  font-weight: var(--font-weight-bold);
+}
+
+/* ============================================
+   LOADING STATE INDICATORS
+   ============================================ */
+
+.loading-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+}
+
+.loading-indicator::before {
+  content: '⟳';
+  display: inline-block;
+  animation: spin 1s linear infinite;
+  font-size: 1.25em;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   ACCESSIBILITY HELPERS
+   ============================================ */
+
+/* Screen reader only text for icon descriptions */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Ensure icons are hidden from screen readers when decorative */
+.icon[aria-hidden="true"],
+.status-success::before,
+.status-error::before,
+.status-warning::before,
+.status-info::before,
+.trend-up::before,
+.trend-down::before,
+.trend-neutral::before {
+  speak: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* ============================================
+   USAGE EXAMPLES
+   ============================================ */
+
+/*
+Example HTML Usage:
+
+<!-- Success Message -->
+<div class="status-success">
+  <span class="sr-only">Success:</span>
+  Transaction completed successfully
+</div>
+
+<!-- Error Message -->
+<div class="status-error">
+  <span class="sr-only">Error:</span>
+  Failed to process payment
+</div>
+
+<!-- Trend Indicator -->
+<div class="trend-up">
+  <span class="sr-only">Increased by</span>
+  +12.5%
+</div>
+
+<!-- Badge with Icon -->
+<span class="badge-success">
+  <span class="sr-only">Status:</span>
+  Active
+</span>
+
+<!-- Alert Component -->
+<div class="alert alert-warning">
+  <div class="alert-icon" aria-hidden="true"></div>
+  <div>
+    <strong>Warning:</strong> Your session will expire in 5 minutes.
+  </div>
+</div>
+
+<!-- Form Validation -->
+<div class="form-group has-error">
+  <label class="form-label">Email Address</label>
+  <input type="email" class="form-input error" />
+  <div class="form-error">
+    <span class="sr-only">Error:</span>
+    Please enter a valid email address
+  </div>
+</div>
+*/

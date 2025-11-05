@@ -1,0 +1,26 @@
+{
+  "name": "vanilla-hashconnect-example",
+  "version": "1.0.0",
+  "description": "Vanilla JavaScript HashConnect integration example",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve .",
+    "dev": "serve ."
+  },
+  "keywords": [
+    "hashconnect",
+    "hedera",
+    "javascript",
+    "vanilla"
+  ],
+  "author": "Project Chai",
+  "license": "MIT",
+  "dependencies": {
+    "@hashgraph/sdk": "2.41.0",
+    "hashconnect": "3.0.13",
+    "buffer": "^6.0.3"
+  },
+  "devDependencies": {
+    "serve": "^14.2.0"
+  }
+}

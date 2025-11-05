@@ -1,0 +1,2122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chai Platform</title>
+    <link rel="icon" href="/public/chai.png">
+
+    <!-- Design System Core -->
+    <link rel="stylesheet" href="/css/design-system.css">
+
+    <!-- Design System Components (in cascade order) -->
+    <link rel="stylesheet" href="/css/spacing.css">
+    <link rel="stylesheet" href="/css/cards.css">
+    <link rel="stylesheet" href="/css/buttons.css">
+    <link rel="stylesheet" href="/css/forms.css">
+    <link rel="stylesheet" href="/css/navigation.css">
+    <link rel="stylesheet" href="/css/notifications.css">
+    <link rel="stylesheet" href="/css/data-visualization.css">
+    <link rel="stylesheet" href="/css/loading-states.css">
+    <link rel="stylesheet" href="/css/wallet-loading.css">
+    <link rel="stylesheet" href="/css/wallet-connection-ui.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+    <link rel="stylesheet" href="/css/accessibility.css">
+
+    <!-- Theme & Page-Specific Styles -->
+    <link rel="stylesheet" href="/css/dark-theme.css">
+    <link rel="stylesheet" href="/css/dashboard-enhanced.css">
+    <link rel="stylesheet" href="/css/purchase-modal.css">
+    <link rel="stylesheet" href="/styles/marketplace.css">
+
+    <!-- Wallet Connection Styles -->
+    <link rel="stylesheet" href="/wallet/modal.css">
+
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+        body {
+            font-family: 'Comic Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .verification-skip-banner {
+            background-color: #3e2723; /* A dark brown color from the palette */
+            color: #f5efe6; /* Light text color */
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid #5d4037; /* A slightly lighter brown for the border */
+        }
+
+        .verification-skip-banner .banner-inner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        }
+
+        .verification-skip-banner .btn {
+            margin-left: 10px;
+        }
+
+        /* === Modal & Notification Z-Index Fix === */
+        /* Ensure notifications are always on top */
+        .toast-container {
+            z-index: 10002 !important;
+        }
+
+        /* Style the modal overlay without blurring */
+        .modal.active .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 10000;
+            /* backdrop-filter: blur(4px); */ /* REMOVED: This was blurring notifications */
+        }
+
+        /* Ensure modal content is above its overlay */
+        .modal.active .modal-content {
+            z-index: 10001;
+        }
+
+        /* === Tree Health Dashboard Styles === */
+        .tree-health-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .grove-selector-container {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background-color: var(--color-background-light);
+            border-radius: var(--border-radius-lg);
+        }
+
+        .health-overview-card, .yield-projections-card, .alerts-card, .recommendations-card {
+            grid-column: span 1;
+        }
+
+        .sensor-charts-card {
+            grid-column: 1 / -1;
+        }
+
+        #sensorCharts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .sensor-chart-container {
+            position: relative;
+            height: 250px; /* Give charts a fixed height */
+            background-color: var(--color-background-light);
+            padding: 1rem;
+            border-radius: var(--border-radius-md);
+        }
+
+        .sensor-chart-container h5 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        /* === Market Prices Professional Styles === */
+        #currentPricesDisplay {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        .price-card {
+            background: linear-gradient(145deg, var(--color-background-light), var(--color-background-dark));
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--color-border);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        .price-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .price-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+        .price-card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .price-card-title h4 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: var(--color-text-light);
+        }
+        .price-card-current .price-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--color-text-light);
+        }
+        .price-card-current .price-unit {
+            font-size: 1rem;
+            color: var(--color-text-dark);
+            margin-left: 0.25rem;
+        }
+        .price-card-change {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        .price-card-body {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .price-card-chart {
+            width: 100%;
+            height: 50px;
+        }
+        .variety-icon-svg {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+        }
+        .price-card-footer {
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid var(--color-border);
+        }
+        .grade-range {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--color-text-dark);
+        }
+        /* === End Fix === */
+
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <h1><img src="public/chai.png" alt="Chai Platform Logo" width="30" height="30"
+                            style="vertical-align: middle; margin-right: 10px;" loading="lazy" decoding="async">Chai
+                        Platform</h1>
+                </div>
+                <div class="nav-menu">
+                    <button class="nav-btn active" data-view="dashboard">Dashboard</button>
+                    <button class="nav-btn" data-view="farmer">Farmer Portal</button>
+                    <button class="nav-btn" data-view="investor">Investor Portal</button>
+                    <button class="nav-btn hidden" id="adminNavBtn" data-view="admin">Admin</button>
+                </div>
+                <div class="nav-user">
+                    <div class="wallet-connection">
+                        <button id="connect-wallet-btn" class="btn btn-primary">Connect Wallet</button>
+                        <div id="walletInfo" class="wallet-info hidden">
+                            <span id="walletAddress"></span>
+                            <button id="disconnectWallet" class="btn btn-danger btn-sm">Disconnect</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <div id="dashboardView" class="view active">
+                <div class="dashboard-header">
+                    <h2>Platform Overview</h2>
+
+                    <!-- Enhanced Stats Grid -->
+                    <div class="stats-grid-enhanced">
+                        <div class="stat-card card-stat">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Total Groves</h3>
+                                <div class="stat-value" id="totalGroves">-</div>
+                            </div>
+                        </div>
+                        <div class="stat-card card-stat">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Active Farmers</h3>
+                                <div class="stat-value" id="activeFarmers">-</div>
+                            </div>
+                        </div>
+                        <div class="stat-card card-stat">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Total Revenue</h3>
+                                <div class="stat-value" id="totalRevenue">-</div>
+                            </div>
+                        </div>
+                        <div class="stat-card card-stat">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                                    <polyline points="17 6 23 6 23 12"></polyline>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Coffee Price</h3>
+                                <div class="stat-value" id="coffeePrice">-</div>
+                                <div class="stat-change" id="priceChange">+0.0%</div>
+                            </div>
+                        </div>
+                        <div class="stat-card card-stat">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M12 6v6l4 2"></path>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Total Tokens</h3>
+                                <div class="stat-value" id="totalTokens">-</div>
+                            </div>
+                        </div>
+                        <div class="stat-card card-stat">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Investment Volume</h3>
+                                <div class="stat-value" id="investmentVolume">-</div>
+                            </div>
+                        </div>
+                        <div class="stat-card card-stat">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Active Investors</h3>
+                                <div class="stat-value" id="activeInvestors">-</div>
+                            </div>
+                        </div>
+                        <div class="stat-card card-stat">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                    <path
+                                        d="M16 21V5a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <h3>Marketplace Volume</h3>
+                                <div class="stat-value" id="marketplaceVolume">-</div>
+                                <div class="stat-subtext">Last 24h</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Grid Layout -->
+                    <div class="dashboard-grid">
+                        <!-- Quick Actions Panel -->
+                        <div class="dashboard-card quick-actions-card card">
+                            <div class="card-header">
+                                <h3 class="card-title">Quick Actions</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="quick-actions">
+                                    <button class="action-btn btn btn-primary" data-action="investor-portfolio">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path
+                                                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                                            </path>
+                                        </svg>
+                                        <span>Browse Groves</span>
+                                    </button>
+                                    <button class="action-btn btn btn-primary" data-action="investor-marketplace">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <circle cx="9" cy="21" r="1"></circle>
+                                            <circle cx="20" cy="21" r="1"></circle>
+                                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6">
+                                            </path>
+                                        </svg>
+                                        <span>View Marketplace</span>
+                                    </button>
+                                    <button class="action-btn btn btn-primary" data-action="farmer-portal">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="8.5" cy="7" r="4"></circle>
+                                            <polyline points="17 11 19 13 23 9"></polyline>
+                                        </svg>
+                                        <span>Register as Farmer</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity Feed -->
+                        <div class="dashboard-card activity-feed-card card">
+                            <div class="card-header">
+                                <h3>Recent Activity</h3>
+                                <button class="btn btn-tertiary btn-sm"
+                                    onclick="window.dashboardEnhanced?.refreshActivity()">Refresh</button>
+                            </div>
+                            <div class="activity-feed" id="activityFeed">
+                                <div class="activity-loading">Loading activity...</div>
+                            </div>
+                        </div>
+
+                        <!-- Top Performing Groves -->
+                        <div class="dashboard-card top-groves-card card">
+                            <div class="card-header">
+                                <h3>Top Performing Groves</h3>
+                                <button class="btn btn-tertiary btn-sm" data-action="investor-portfolio">View
+                                    All</button>
+                            </div>
+                            <div class="top-groves-list" id="topGrovesList">
+                                <div class="activity-loading">Loading groves...</div>
+                            </div>
+                        </div>
+
+                        <!-- Market Activity -->
+                        <div class="dashboard-card market-activity-card card">
+                            <div class="card-header">
+                                <h3>Market Activity</h3>
+                            </div>
+                            <div class="market-stats">
+                                <div class="market-stat-item">
+                                    <span class="label">Recent Transactions</span>
+                                    <span class="value" id="recentTransactions">-</span>
+                                </div>
+                                <div class="market-stat-item">
+                                    <span class="label">Active Listings</span>
+                                    <span class="value" id="activeListings">-</span>
+                                </div>
+                                <div class="market-stat-item">
+                                    <span class="label">Recent Harvests</span>
+                                    <span class="value" id="recentHarvests">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Revenue Distribution -->
+                        <div class="dashboard-card revenue-card card">
+                            <div class="card-header">
+                                <h3>Revenue Distribution</h3>
+                            </div>
+                            <div class="revenue-stats">
+                                <div class="revenue-item">
+                                    <span class="label">Distributed This Month</span>
+                                    <span class="value" id="monthlyDistribution">-</span>
+                                </div>
+                                <div class="revenue-item">
+                                    <span class="label">Pending Distributions</span>
+                                    <span class="value" id="pendingDistributions">-</span>
+                                </div>
+                                <div class="revenue-item">
+                                    <span class="label">Next Payout</span>
+                                    <span class="value" id="nextPayout">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Price Trends Chart -->
+                        <div class="dashboard-card price-chart-card card">
+                            <div class="card-header">
+                                <h3>Coffee Price Trends</h3>
+                                <div class="chart-controls">
+                                    <button class="chart-period-btn active" data-period="7">7D</button>
+                                    <button class="chart-period-btn" data-period="30">30D</button>
+                                    <button class="chart-period-btn" data-period="90">90D</button>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="priceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wallet Connection Prompt -->
+                    <div id="walletPrompt" class="wallet-prompt">
+                        <div class="prompt-card">
+                            <h3>Connect Your Wallet to Get Started</h3>
+                            <p>Connect your Hedera wallet to access farmer and investor features:</p>
+                            <ul>
+                                <li><strong>Farmers:</strong> Register groves, report harvests, track revenue</li>
+                                <li><strong>Investors:</strong> Browse groves, purchase tokens, manage portfolio</li>
+                            </ul>
+                            <button class="btn btn-primary btn-lg" id="dashboardConnectBtn">
+                                Connect Wallet Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Farmer Portal View -->
+            <div id="farmerView" class="view">
+                <div class="farmer-dashboard">
+                    <div class="dashboard-sidebar">
+                        <div class="sidebar-menu">
+                            <button class="menu-item active" data-section="groves">
+                                <i class="fas fa-cube"></i>
+                                <span>My Groves</span>
+                            </button>
+                            <button class="menu-item" data-section="harvest">
+                                <i class="fas fa-seedling"></i>
+                                <span>Harvest Reports</span>
+                            </button>
+                            <button class="menu-item" data-section="revenue">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Revenue Tracking</span>
+                            </button>
+                            <button class="menu-item" data-section="health">
+                                <i class="fas fa-heartbeat"></i>
+                                <span>Tree Health</span>
+                            </button>
+                            <button class="menu-item" data-section="pricing">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>Market Prices</span>
+                            </button>
+                            <button class="menu-item" data-section="transactions">
+                                <i class="fas fa-history"></i>
+                                <span>Transaction History</span>
+                            </button>
+                            <button class="menu-item" data-section="verification">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Verification</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-content">
+                        <!-- Grove Management Section -->
+                        <div id="grovesSection" class="section active">
+                            <div class="section-header">
+                                <h3>Grove Management</h3>
+                                <button id="addGroveBtn" class="btn btn-primary">Register New Grove</button>
+                            </div>
+
+                            <div class="groves-grid" id="grovesGrid">
+                                <!-- Grove cards will be populated here -->
+                            </div>
+
+                            <!-- Grove Registration Modal -->
+                            <div id="groveModal" class="modal">
+                                <div class="modal-overlay"></div>
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4>Register Coffee Grove</h4>
+                                        <button class="modal-close">&times;</button>
+                                    </div>
+                                    <form id="groveForm" class="modal-body">
+                                        <div class="form-group">
+                                            <label class="form-label" for="groveName">Grove Name</label>
+                                            <input class="form-input" type="text" id="groveName" name="groveName"
+                                                required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="location">Location</label>
+                                            <input class="form-input" type="text" id="location" name="location"
+                                                placeholder="e.g., Costa Rica, Central Valley" required>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label class="form-label" for="latitude">Latitude</label>
+                                                <input class="form-input" type="number" id="latitude" name="latitude"
+                                                    step="any" placeholder="e.g., 9.7489" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label" for="longitude">Longitude</label>
+                                                <input class="form-input" type="number" id="longitude" name="longitude"
+                                                    step="any" placeholder="e.g., -83.7534" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <button type="button" class="btn btn-secondary btn-sm" id="goToCoordinates"
+                                                style="width: 100%;">
+                                                ???? Navigate Map to Coordinates
+                                            </button>
+                                            <small class="form-help-text">Enter lat/long above, then click to move the
+                                                map</small>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label class="form-label" for="treeCount">Number of Trees</label>
+                                                <input class="form-input" type="number" id="treeCount" name="treeCount"
+                                                    min="1" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label" for="coffeeVariety">Coffee Variety</label>
+                                                <select class="form-select" id="coffeeVariety" name="coffeeVariety"
+                                                    required>
+                                                    <option value="">Select variety</option>
+                                                    <option value="Arabica">Arabica</option>
+                                                    <option value="Robusta">Robusta</option>
+                                                    <option value="Bourbon">Bourbon</option>
+                                                    <option value="Typica">Typica</option>
+                                                    <option value="Caturra">Caturra</option>
+                                                    <option value="Geisha">Geisha</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="expectedYield">Expected Yield per Tree
+                                                (kg/year)</label>
+                                            <input class="form-input" type="number" id="expectedYield"
+                                                name="expectedYield" step="0.1" min="0" required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label">Location on Map</label>
+                                            <div class="map-search-container" style="margin-bottom: 10px;">
+                                                <input type="text" id="locationSearch" class="form-input"
+                                                    placeholder="Search for a location (e.g., 'Costa Rica coffee region')"
+                                                    style="margin-bottom: 5px;">
+                                                <button type="button" class="btn btn-secondary btn-sm"
+                                                    id="searchLocation" style="width: 100%;">
+                                                    ???? Search Location
+                                                </button>
+                                            </div>
+                                            <div id="groveMap" class="map-container"></div>
+                                            <small class="form-help-text">
+                                                ???? <strong>Three ways to set location:</strong><br>
+                                                1. Click directly on the map<br>
+                                                2. Enter coordinates and click "Navigate Map to Coordinates"<br>
+                                                3. Search for a location by name
+                                            </small>
+                                        </div>
+
+                                        <div class="modal-actions">
+                                            <button type="button" class="btn btn-secondary"
+                                                id="cancelGrove">Cancel</button>
+                                            <button type="submit" class="btn btn-primary">Register Grove</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Harvest Reports Section -->
+                        <div id="harvestSection" class="section">
+                            <div class="section-header">
+                                <h3>Harvest Reports</h3>
+                                <button id="addHarvestBtn" class="btn btn-primary">Report New Harvest</button>
+                            </div>
+
+                            <div class="harvest-list" id="harvestList">
+                                <!-- Harvest reports will be populated here -->
+                            </div>
+
+                            <!-- Harvest Report Modal -->
+                            <div id="harvestModal" class="modal">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4>Report Harvest</h4>
+                                        <button class="modal-close">&times;</button>
+                                    </div>
+                                    <form id="harvestForm" class="modal-body">
+                                        <div class="form-group">
+                                            <label class="form-label" for="harvestGrove">Select Grove</label>
+                                            <select class="form-select" id="harvestGrove" name="groveId" required>
+                                                <option value="">Select a grove</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="harvestDate">Harvest Date</label>
+                                            <input class="form-input" type="date" id="harvestDate" name="harvestDate"
+                                                required>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label class="form-label" for="coffeeVariety">Coffee Variety</label>
+                                                <select class="form-select" id="coffeeVariety" name="coffeeVariety"
+                                                    required>
+                                                    <option value="">Select variety</option>
+                                                    <option value="ARABICA">Arabica</option>
+                                                    <option value="ROBUSTA">Robusta</option>
+                                                    <option value="SPECIALTY">Specialty</option>
+                                                    <option value="ORGANIC">Organic</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label" for="yieldKg">Total Yield (kg)</label>
+                                                <input class="form-input" type="number" id="yieldKg" name="yieldKg"
+                                                    step="0.1" min="0" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="qualityGrade">Quality Grade: <span id="gradeValue">5</span> -
+                                                <span id="gradeDescription">Medium Quality</span></label>
+                                            <input type="range" id="qualityGrade" name="qualityGrade" min="1" max="10"
+                                                value="5" required>
+                                            <div class="grade-scale">
+                                                <span>1 (Low)</span>
+                                                <span>10 (Premium)</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="salePrice">Sale Price per kg (USDC)</label>
+                                            <input type="number" id="salePrice" name="salePrice" step="0.01" min="0"
+                                                required>
+                                            <div id="suggestedPriceInfo" class="price-info" style="display: none;">
+                                                <small>Suggested price: <strong id="suggestedPrice">-</strong>
+                                                    USDC/kg</small>
+                                                <small id="priceValidation" class="validation-message"></small>
+                                            </div>
+                                        </div>
+
+                                        <div id="projectedRevenueSection" class="projected-revenue"
+                                            style="display: none;">
+                                            <h5>Projected Revenue</h5>
+                                            <div class="revenue-breakdown">
+                                                <div class="revenue-item">
+                                                    <span>Total Revenue:</span>
+                                                    <strong id="projectedTotal">-</strong>
+                                                </div>
+                                                <div class="revenue-item">
+                                                    <span>Your Share (30%):</span>
+                                                    <strong id="projectedFarmerShare">-</strong>
+                                                </div>
+                                                <div class="revenue-item">
+                                                    <span>Investor Share (70%):</span>
+                                                    <strong id="projectedInvestorShare">-</strong>
+                                                </div>
+                                            </div>
+                                            <div id="priceBreakdown" class="price-breakdown">
+                                                <small>Base price: <span id="basePrice">-</span> USDC/kg</small>
+                                                <small>Seasonal multiplier: <span
+                                                        id="seasonalMultiplier">-</span>x</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="notes">Additional Notes</label>
+                                            <textarea id="notes" name="notes" rows="3"
+                                                placeholder="Weather conditions, processing method, etc."></textarea>
+                                        </div>
+
+                                        <div class="modal-actions">
+                                            <button type="button" class="btn btn-secondary"
+                                                id="cancelHarvest">Cancel</button>
+                                            <button type="submit" class="btn btn-primary">Submit Report</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Withdrawal Confirmation Modal -->
+                            <div id="withdrawalConfirmModal" class="modal">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4>Confirm Withdrawal</h4>
+                                        <button class="modal-close">&times;</button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="confirmation-details">
+                                            <p>Please confirm your withdrawal details:</p>
+                                            <div class="detail-row">
+                                                <label>Grove:</label>
+                                                <span id="confirmGroveName">-</span>
+                                            </div>
+                                            <div class="detail-row">
+                                                <label>Amount:</label>
+                                                <span id="confirmAmount">$0.00</span>
+                                            </div>
+                                            <div class="detail-row">
+                                                <label>Destination:</label>
+                                                <span id="confirmDestination">-</span>
+                                            </div>
+                                        </div>
+                                        <div class="modal-actions">
+                                            <button type="button" class="btn btn-secondary"
+                                                id="cancelWithdrawal">Cancel</button>
+                                            <button type="button" class="btn btn-primary" id="confirmWithdrawal">Confirm
+                                                Withdrawal</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Revenue Tracking Section -->
+                        <div id="revenueSection" class="section">
+                            <div class="section-header">
+                                <h3>Revenue Tracking</h3>
+                                <small>Track your earnings and manage withdrawals</small>
+                            </div>
+
+                            <!-- Legacy Elements (for backward compatibility) -->
+                            <div style="display: none;">
+                                <div id="totalEarnings">$0.00</div>
+                                <div id="monthlyEarnings">$0.00</div>
+                                <div id="farmerAvailableBalance">$0.00</div>
+                                <div id="farmerPendingBalance">$0.00</div>
+                                <div id="farmerTotalWithdrawn">$0.00</div>
+                            </div>
+
+                            <!-- 4 Key Revenue Metrics -->
+                            <div class="revenue-overview" id="revenueMetricsContainer">
+                                <div class="revenue-stats">
+                                    <div class="stat-card card-stat">
+                                        <h4>This Month's Distribution</h4>
+                                        <div class="stat-value" id="thisMonthDistributed">$0.00</div>
+                                        <small class="stat-label">Total distributed this month</small>
+                                    </div>
+                                    <div class="stat-card card-stat">
+                                        <h4>Available Balance</h4>
+                                        <div class="stat-value" id="availableBalance">$0.00</div>
+                                        <small class="stat-label">Ready for withdrawal</small>
+                                    </div>
+                                    <div class="stat-card card-stat">
+                                        <h4>Pending Distribution</h4>
+                                        <div class="stat-value" id="pendingDistribution">$0.00</div>
+                                        <small class="stat-label">Calculated but not distributed</small>
+                                    </div>
+                                    <div class="stat-card card-stat">
+                                        <h4>Total Withdrawn</h4>
+                                        <div class="stat-value" id="totalWithdrawn">$0.00</div>
+                                        <small class="stat-label">Cumulative withdrawals</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Monthly Revenue Graph -->
+                            <div class="revenue-graph-card">
+                                <div class="section-header">
+                                    <h4>Monthly Revenue Breakdown</h4>
+                                    <small>Interactive view of your revenue across the year</small>
+                                </div>
+                                <div class="revenue-graph-container">
+                                    <canvas id="monthlyRevenueChart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Grove-Specific Withdrawal Card -->
+                            <div class="withdrawal-card">
+                                <div class="section-header">
+                                    <h4>Grove Withdrawal</h4>
+                                    <small>Withdraw full available balance from a specific grove</small>
+                                </div>
+
+                                <div class="withdrawal-form-container">
+                                    <form id="groveWithdrawalForm" class="withdrawal-form">
+                                        <div class="form-group">
+                                            <label class="form-label" for="revenueGroveSelector">Select Grove</label>
+                                            <select class="form-select" id="revenueGroveSelector" name="groveId" required>
+                                                <option value="">Select a grove to withdraw from</option>
+                                            </select>
+                                        </div>
+
+                                        <div id="groveWithdrawalSection" style="display: none;">
+                                            <div class="withdrawal-info">
+                                                <div class="info-row">
+                                                    <span class="info-label">Maximum Withdrawable:</span>
+                                                    <span class="info-value" id="maxWithdrawableAmount">$0.00</span>
+                                                </div>
+                                                <p class="info-note">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    Full amount will be withdrawn from this grove
+                                                </p>
+                                            </div>
+
+                                            <input type="hidden" id="groveWithdrawalAmount" name="amount">
+
+                                            <button type="submit" class="btn btn-primary btn-block" id="groveWithdrawBtn">
+                                                <i class="fas fa-wallet"></i> Withdraw Full Amount
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="distributions-list" id="distributionsList">
+                                <!-- Distribution history will be populated here -->
+                            </div>
+
+                            <!-- Withdrawal History Section -->
+                            <div class="withdrawal-history-container">
+                                <div class="section-header">
+                                    <h4>Withdrawal History</h4>
+                                    <small>Complete history of all withdrawals</small>
+                                </div>
+                                <div class="withdrawal-history-list" id="withdrawalHistoryList">
+                                    <!-- Withdrawal history will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tree Health Section -->
+                        <div id="healthSection" class="section">
+                            <div class="section-header">
+                                <h3>Tree Health Monitoring</h3>
+                            </div>
+
+                            <div class="health-overview" id="healthOverview">
+                                <!-- Health monitoring cards will be populated here -->
+                                <div class="dashboard-grid tree-health-dashboard" id="tree-health-dashboard">
+                                    <!-- Grove Selector -->
+                                    <div class="grove-selector-container">
+                                        <label for="healthGroveSelector">Select Grove:</label>
+                                        <select id="healthGroveSelector" class="form-select">
+                                            <option value="">Loading groves...</option>
+                                        </select>
+                                        <button id="refreshHealthData" class="btn btn-secondary btn-sm">Refresh</button>
+                                    </div>
+
+                                    <!-- Health Overview -->
+                                    <div class="health-overview-card card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Health Overview</h4>
+                                        </div>
+                                        <div class="card-body" id="healthOverviewContent">
+                                            <p>Select a grove to view health data.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Yield Projections -->
+                                    <div class="yield-projections-card card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Yield Projections</h4>
+                                        </div>
+                                        <div class="card-body" id="yieldProjectionsContent">
+                                            <p>Select a grove to view yield projections.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Active Alerts -->
+                                    <div class="alerts-card card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Active Alerts</h4>
+                                        </div>
+                                        <div class="card-body" id="alertsPanel">
+                                            <p>No active alerts.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Recommendations -->
+                                    <div class="recommendations-card card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Care Recommendations</h4>
+                                        </div>
+                                        <div class="card-body" id="recommendationsContent">
+                                            <p>No recommendations at this time.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Sensor Data Charts -->
+                                    <div class="sensor-charts-card card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Live Sensor Data</h4>
+                                        </div>
+                                        <div class="card-body" id="sensorCharts"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Market Prices Section -->
+                        <div id="pricingSection" class="section">
+                            <div class="section-header">
+                                <h3>Market Prices</h3>
+                                <small>Current coffee prices by variety and quality grade</small>
+                            </div>
+
+                            <!-- Variety Filter -->
+                            <div class="pricing-filters">
+                                <div class="form-group">
+                                    <label for="priceVarietyFilter">Coffee Variety</label>
+                                    <select id="priceVarietyFilter" class="variety-filter">
+                                        <option value="">All Varieties</option>
+                                        <option value="ARABICA">Arabica</option>
+                                        <option value="ROBUSTA">Robusta</option>
+                                        <option value="SPECIALTY">Specialty</option>
+                                        <option value="ORGANIC">Organic</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Current Prices Card -->
+                            <div class="pricing-overview">
+                                <div class="pricing-card">
+                                    <h4>Current Market Prices</h4>
+                                    <div id="currentPricesDisplay">
+                                        <!-- Current prices will be populated here -->
+                                    </div>
+                                </div>
+
+                                <!-- Quality Grade Pricing Table -->
+                                <div class="pricing-card">
+                                    <h4>Quality Grade Pricing</h4>
+                                    <small>Price per kilogram (USDC) by quality grade (1-10)</small>
+                                    <div id="gradePricingTable">
+                                        <!-- Grade pricing table will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Seasonal Pricing Chart -->
+                            <div class="pricing-card seasonal-pricing-card">
+                                <h4>Seasonal Price Multipliers</h4>
+                                <small>Monthly price adjustments throughout the year</small>
+                                <div class="current-month-indicator" id="currentMonthIndicator">
+                                    <!-- Current month multiplier will be displayed here -->
+                                </div>
+                                <div class="seasonal-chart-container">
+                                    <canvas id="seasonalPricingChart"></canvas>
+                                </div>
+                                <div class="price-calculation-info" id="priceCalculationInfo">
+                                    <!-- Price calculation breakdown tooltip will be shown here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Verification Section -->
+                        <div id="verificationSection" class="section">
+                            <div class="section-header">
+                                <h3>Farmer Verification</h3>
+                            </div>
+
+                            <div class="verification-status" id="verificationStatus">
+                                <!-- Verification status will be populated here -->
+                            </div>
+
+                            <div class="verification-form" id="verificationForm">
+                                <h4>Submit Verification Documents</h4>
+                                <div class="form-instructions">
+                                    <p>Please upload clear, legible copies of the following documents. All documents
+                                        must be current and valid.</p>
+                                </div>
+                                <form id="documentsForm">
+                                    <div class="form-group">
+                                        <label for="landOwnership">???? Land Ownership Documents</label>
+                                        <small class="form-help">Land title, deed, lease agreement, or property
+                                            certificate proving your right to farm the land</small>
+                                        <input type="file" id="landOwnership" name="landOwnership"
+                                            accept=".pdf,.jpg,.png" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="farmingLicense">???? Farming License or Permit</label>
+                                        <small class="form-help">Agricultural license, farming permit, cooperative
+                                            membership, or coffee grower registration</small>
+                                        <input type="file" id="farmingLicense" name="farmingLicense"
+                                            accept=".pdf,.jpg,.png" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="identityDocument">???? Government-Issued Identity Document</label>
+                                        <small class="form-help">National ID, passport, driver's license, or voter
+                                            registration card</small>
+                                        <input type="file" id="identityDocument" name="identityDocument"
+                                            accept=".pdf,.jpg,.png" required>
+                                    </div>
+
+                                    <div class="form-requirements">
+                                        <h6>Document Requirements:</h6>
+                                        <ul>
+                                            <li>??? Accepted formats: PDF, JPG, PNG</li>
+                                            <li>??? Maximum file size: 10MB per document</li>
+                                            <li>??? Documents must be clear and legible</li>
+                                            <li>??? All text must be readable</li>
+                                            <li>??? Documents must be current and valid</li>
+                                        </ul>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">Submit Documents for Review</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Farmer Transaction History Section -->
+                        <div id="farmerTransactionsSection" class="section">
+                            <div class="section-header">
+                                <h3>Transaction History</h3>
+                                <div class="section-actions">
+                                    <select id="farmerTransactionTypeFilter" class="filter-select">
+                                        <option value="all">All Transactions</option>
+                                        <option value="distribution">Revenue Distributions</option>
+                                        <option value="withdrawal">Withdrawals</option>
+                                        <option value="sale">Token Sales</option>
+                                    </select>
+                                    <button id="exportFarmerTransactionsBtn" class="btn btn-secondary">
+                                        ???? Export to CSV
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="transaction-stats">
+                                <div class="stat-card">
+                                    <h4>Total Transactions</h4>
+                                    <div class="stat-value" id="farmerTotalTransactions">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h4>Total Revenue</h4>
+                                    <div class="stat-value" id="farmerTotalRevenue">$0.00</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h4>Completed</h4>
+                                    <div class="stat-value" id="farmerCompletedTransactions">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h4>Pending</h4>
+                                    <div class="stat-value" id="farmerPendingTransactions">0</div>
+                                </div>
+                            </div>
+
+                            <div class="transactions-list" id="farmerTransactionsList">
+                                <!-- Transactions will be populated here -->
+                                <div class="empty-state">
+                                    <p>No transactions found</p>
+                                </div>
+                            </div>
+
+                            <div class="pagination" id="farmerTransactionsPagination">
+                                <!-- Pagination controls will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Investor Portal View -->
+            <div id="investorView" class="view">
+                <div class="investor-dashboard">
+                    <div class="dashboard-sidebar">
+                        <div class="sidebar-menu">
+                            <button class="menu-item active" data-section="browse">
+                                <i class="fas fa-cube"></i>
+                                <span>Browse Groves</span>
+                            </button>
+                            <button class="menu-item" data-section="portfolio">
+                                <i class="fas fa-wallet"></i>
+                                <span>My Portfolio</span>
+                            </button>
+                            <button class="menu-item" data-section="marketplace">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>Marketplace</span>
+                            </button>
+                            <button class="menu-item" data-section="earnings">
+                                <i class="fas fa-dollar-sign"></i>
+                                <span>Earnings</span>
+                            </button>
+                            <button class="menu-item" data-section="lending">
+                                <i class="fas fa-hand-holding-usd"></i>
+                                <span>Lending</span>
+                            </button>
+                            <button class="menu-item" data-section="transactions">
+                                <i class="fas fa-history"></i>
+                                <span>Transaction History</span>
+                            </button>
+                            <button class="menu-item" data-section="verification">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Verification</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-content">
+                        <!-- Browse Groves Section -->
+                        <div id="browseSection" class="section active">
+                            <div class="section-header">
+                                <h3>Available Coffee Groves</h3>
+                                <div class="filters">
+                                    <select id="varietyFilter">
+                                        <option value="">All Varieties</option>
+                                        <option value="Arabica">Arabica</option>
+                                        <option value="Robusta">Robusta</option>
+                                        <option value="Bourbon">Bourbon</option>
+                                        <option value="Typica">Typica</option>
+                                        <option value="Caturra">Caturra</option>
+                                        <option value="Geisha">Geisha</option>
+                                    </select>
+                                    <select id="locationFilter">
+                                        <option value="">All Locations</option>
+                                    </select>
+                                    <div class="yield-filter-container">
+                                        <label for="yieldFilter">Min Yield: <span id="yieldFilterValue">0</span>
+                                            kg/tree</label>
+                                        <input type="range" id="yieldFilter" min="0" max="10" step="0.1" value="0">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="groves-marketplace" id="grovesMarketplace">
+                                <!-- Available groves will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Portfolio Section -->
+                        <div id="portfolioSection" class="section">
+                            <div class="section-header">
+                                <h3>My Investment Portfolio</h3>
+                            </div>
+
+                            <div class="portfolio-overview">
+                                <div class="portfolio-stats">
+                                    <div class="stat-card card-stat">
+                                        <h4>Total Investment</h4>
+                                        <div class="stat-value" id="totalInvestment">$0.00</div>
+                                    </div>
+                                    <div class="stat-card card-stat">
+                                        <h4>Current Value</h4>
+                                        <div class="stat-value" id="currentValue">$0.00</div>
+                                    </div>
+                                    <div class="stat-card card-stat">
+                                        <h4>Total Returns</h4>
+                                        <div class="stat-value" id="totalReturns">$0.00</div>
+                                    </div>
+                                    <div class="stat-card card-stat">
+                                        <h4>ROI</h4>
+                                        <div class="stat-value" id="roi">0%</div>
+                                    </div>
+                                </div>
+
+                                <div class="portfolio-chart">
+                                    <canvas id="portfolioChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="holdings-list" id="holdingsList">
+                                <!-- Token holdings will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Marketplace Section -->
+                        <div id="marketplaceSection" class="section">
+                            <div class="section-header">
+                                <h3>Secondary Market</h3>
+                                <div class="section-actions">
+                                    <button class="btn btn-secondary" id="viewTradeHistoryBtn">
+                                        View Trade History
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="marketplace-content">
+                                <div class="market-listings" id="marketListings">
+                                    <!-- Market listings will be populated here -->
+                                </div>
+
+                                <div class="trade-history" id="tradeHistory" style="display: none;">
+                                    <!-- Trade history will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Earnings Section -->
+                        <div id="earningsSection" class="section">
+                            <div class="section-header">
+                                <h3>My Earnings</h3>
+                                <small>Track and claim your investment returns</small>
+                            </div>
+
+                            <!-- Earnings Summary -->
+                            <div class="earnings-stats" id="earningsSummaryContainer">
+                                <div class="stat-card card-stat">
+                                    <h4>Total Earnings (This Month)</h4>
+                                    <div class="stat-value" id="totalEarningsThisMonth">$0.00</div>
+                                    <small class="stat-label">Cumulative returns this month</small>
+                                </div>
+                                <div class="stat-card card-stat">
+                                    <h4>Claimed Earnings</h4>
+                                    <div class="stat-value" id="totalClaimed">$0.00</div>
+                                    <small class="stat-label">Total claimed to date</small>
+                                </div>
+                            </div>
+
+                            <!-- Unclaimed Earnings Breakdown -->
+                            <div class="earnings-section-container">
+                                <div class="section-header">
+                                    <h4>Unclaimed Earnings</h4>
+                                    <small>Earnings available to claim by source</small>
+                                </div>
+                                
+                                <div class="unclaimed-breakdown">
+                                    <div class="breakdown-card">
+                                        <div class="breakdown-header">
+                                            <span class="breakdown-icon">🌱</span>
+                                            <span class="breakdown-label">Primary Market Returns</span>
+                                        </div>
+                                        <div class="breakdown-value" id="unclaimedPrimaryMarket">$0.00</div>
+                                        <small class="breakdown-desc">From direct grove purchases</small>
+                                    </div>
+                                    
+                                    <div class="breakdown-card">
+                                        <div class="breakdown-header">
+                                            <span class="breakdown-icon">🔄</span>
+                                            <span class="breakdown-label">Secondary Market Returns</span>
+                                        </div>
+                                        <div class="breakdown-value" id="unclaimedSecondaryMarket">$0.00</div>
+                                        <small class="breakdown-desc">From tokens acquired from others</small>
+                                    </div>
+                                    
+                                    <div class="breakdown-card">
+                                        <div class="breakdown-header">
+                                            <span class="breakdown-icon">💧</span>
+                                            <span class="breakdown-label">Liquidity Token Interest</span>
+                                        </div>
+                                        <div class="breakdown-value" id="unclaimedLpInterest">$0.00</div>
+                                        <small class="breakdown-desc">From liquidity provision</small>
+                                    </div>
+                                    
+                                    <div class="breakdown-card breakdown-total">
+                                        <div class="breakdown-header">
+                                            <span class="breakdown-icon">💰</span>
+                                            <span class="breakdown-label">Total Unclaimed</span>
+                                        </div>
+                                        <div class="breakdown-value" id="totalUnclaimed">$0.00</div>
+                                        <small class="breakdown-desc">Total available to claim</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Claim Earnings Section -->
+                            <div class="earnings-section-container">
+                                <div class="section-header">
+                                    <h4>Claim Earnings</h4>
+                                    <small>Select earnings to claim (supports partial claims)</small>
+                                </div>
+                                
+                                <div class="claim-controls">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="selectAllEarnings">
+                                        <span>Select All</span>
+                                    </label>
+                                    <div class="selected-amount">
+                                        Selected: <span id="selectedClaimAmount">$0.00</span>
+                                    </div>
+                                </div>
+
+                                <div id="unclaimedEarningsList" class="unclaimed-earnings-list">
+                                    <!-- Unclaimed earnings will be populated here -->
+                                </div>
+
+                                <form id="investorClaimForm" class="claim-form">
+                                    <button type="submit" class="btn btn-primary btn-block" id="claimEarningsBtn" disabled>
+                                        Select earnings to claim
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Lending Section -->
+                        <div id="lendingSection" class="section">
+                            <div class="section-header">
+                                <h3>Lending & Liquidity</h3>
+                                <small>Provide liquidity to earn returns or take loans against your holdings</small>
+                            </div>
+
+                            <!-- Lending Pools Overview -->
+                            <div class="lending-pools-container">
+                                <div class="section-header">
+                                    <h4>Available Lending Pools</h4>
+                                    <small>Provide USDC liquidity to earn APY</small>
+                                </div>
+
+                                <div class="lending-pools-grid" id="lendingPoolsGrid">
+                                    <!-- Lending pools will be populated here -->
+                                </div>
+                            </div>
+
+                            <!-- User's Liquidity Positions -->
+                            <div class="liquidity-positions-container">
+                                <div class="section-header">
+                                    <h4>Your Liquidity Positions</h4>
+                                    <small>Your active liquidity provisions and LP tokens</small>
+                                </div>
+
+                                <div class="liquidity-positions-list" id="liquidityPositionsList">
+                                    <!-- User's liquidity positions will be populated here -->
+                                </div>
+                            </div>
+
+                            <!-- Provide Liquidity Modal -->
+                            <div id="provideLiquidityModal" class="modal">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4>Provide Liquidity</h4>
+                                        <button class="modal-close">&times;</button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="pool-details-summary" id="poolDetailsSummary">
+                                            <!-- Pool details will be populated here -->
+                                        </div>
+
+                                        <form id="provideLiquidityForm">
+                                            <div class="form-group">
+                                                <label class="form-label" for="liquidityAmount">Amount (USDC)</label>
+                                                <input class="form-input" type="number" id="liquidityAmount"
+                                                    name="amount" step="0.01" min="0.01" placeholder="Enter USDC amount"
+                                                    required>
+                                                <small class="form-help-text" id="liquidityAmountHelp">Available:
+                                                    $0.00</small>
+                                            </div>
+
+                                            <div class="liquidity-calculation">
+                                                <div class="calc-row">
+                                                    <span>LP Tokens to Receive:</span>
+                                                    <span id="lpTokensToReceive">0.00</span>
+                                                </div>
+                                                <div class="calc-row">
+                                                    <span>Your Pool Share:</span>
+                                                    <span id="yourPoolShare">0.00%</span>
+                                                </div>
+                                                <div class="calc-row">
+                                                    <span>Estimated Annual Return:</span>
+                                                    <span id="estimatedAnnualReturn">$0.00</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="modal-actions">
+                                                <button type="button"
+                                                    class="btn btn-secondary modal-close">Cancel</button>
+                                                <button type="submit" class="btn btn-primary">Provide Liquidity</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Withdraw Liquidity Modal -->
+                            <div id="withdrawLiquidityModal" class="modal">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4>Withdraw Liquidity</h4>
+                                        <button class="modal-close">&times;</button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="withdrawal-details-summary" id="withdrawalDetailsSummary">
+                                            <!-- Withdrawal details will be populated here -->
+                                        </div>
+
+                                        <form id="withdrawLiquidityForm">
+                                            <div class="form-group">
+                                                <label class="form-label" for="lpTokenAmount">LP Tokens to
+                                                    Withdraw</label>
+                                                <div class="input-with-button">
+                                                    <input class="form-input" type="number" id="lpTokenAmount"
+                                                        name="lpTokenAmount" step="0.01" min="0.01"
+                                                        placeholder="Enter LP token amount" required>
+                                                    <button type="button" class="btn btn-secondary btn-sm"
+                                                        id="withdrawMaxBtn">
+                                                        Max
+                                                    </button>
+                                                </div>
+                                                <small class="form-help-text" id="lpTokenAmountHelp">Available: 0.00 LP
+                                                    tokens</small>
+                                            </div>
+
+                                            <div class="withdrawal-calculation">
+                                                <div class="calc-row">
+                                                    <span>USDC to Receive:</span>
+                                                    <span id="usdcToReceive">$0.00</span>
+                                                </div>
+                                                <div class="calc-row">
+                                                    <span>Accrued Rewards:</span>
+                                                    <span id="accruedRewards">$0.00</span>
+                                                </div>
+                                                <div class="calc-row">
+                                                    <span>Total Amount:</span>
+                                                    <span id="totalWithdrawalAmount" class="text-success">$0.00</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="modal-actions">
+                                                <button type="button"
+                                                    class="btn btn-secondary modal-close">Cancel</button>
+                                                <button type="submit" class="btn btn-primary">Withdraw
+                                                    Liquidity</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Loans Section -->
+                            <div class="loans-container">
+                                <div class="section-header">
+                                    <h4>Loans</h4>
+                                    <small>Borrow against your coffee tree token holdings</small>
+                                </div>
+
+                                <!-- Loan Availability Card -->
+                                <div class="loan-availability-card">
+                                    <div class="card-header">
+                                        <h5>Available Loan Amount</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="loan-stats">
+                                            <div class="stat-item">
+                                                <label>Your Holdings Value</label>
+                                                <span class="stat-value" id="holdingsValue">$0.00</span>
+                                            </div>
+                                            <div class="stat-item">
+                                                <label>Max Loan Amount</label>
+                                                <span class="stat-value text-primary" id="maxLoanAmount">$0.00</span>
+                                                <small class="stat-help">Based on 125% collateralization</small>
+                                            </div>
+                                            <div class="stat-item">
+                                                <label>Collateralization Ratio</label>
+                                                <span class="stat-value" id="collateralizationRatio">125%</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="loan-terms-info">
+                                            <h6>Loan Terms</h6>
+                                            <ul class="terms-list">
+                                                <li><strong>Collateral Required:</strong> 125% of loan value</li>
+                                                <li><strong>Liquidation Threshold:</strong> 90% of collateral value</li>
+                                                <li><strong>Repayment Amount:</strong> 110% of loan amount</li>
+                                                <li><strong>Interest Rate:</strong> 10% of loan amount</li>
+                                            </ul>
+                                        </div>
+
+                                        <button class="btn btn-primary" id="takeLoanBtn" disabled>
+                                            Take Out Loan
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Active Loan Display -->
+                                <div class="active-loan-container" id="activeLoanContainer" style="display: none;">
+                                    <div class="section-header">
+                                        <h5>Your Active Loan</h5>
+                                    </div>
+                                    <div class="active-loan-card" id="activeLoanCard">
+                                        <!-- Active loan details will be populated here -->
+                                    </div>
+                                </div>
+
+                                <!-- Take Loan Modal -->
+                                <div id="takeLoanModal" class="modal">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4>Take Out Loan</h4>
+                                            <button class="modal-close">&times;</button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="loan-terms-summary">
+                                                <h5>Loan Terms</h5>
+                                                <div class="terms-grid">
+                                                    <div class="term-item">
+                                                        <label>Your Holdings Value</label>
+                                                        <span id="modalHoldingsValue">$0.00</span>
+                                                    </div>
+                                                    <div class="term-item">
+                                                        <label>Max Loan Amount</label>
+                                                        <span id="modalMaxLoanAmount">$0.00</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Repay Loan Modal -->
+                                            <div id="repayLoanModal" class="modal">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4>Repay Loan</h4>
+                                                        <button class="modal-close">&times;</button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="repayment-summary">
+                                                            <h5>Loan Repayment Details</h5>
+                                                            <div class="summary-grid">
+                                                                <div class="summary-item">
+                                                                    <label>Original Loan Amount</label>
+                                                                    <span id="modalLoanAmount">$0.00</span>
+                                                                </div>
+                                                                <div class="summary-item">
+                                                                    <label>Interest (10%)</label>
+                                                                    <span id="modalInterest">$0.00</span>
+                                                                </div>
+                                                                <div class="summary-item">
+                                                                    <label>Total Repayment</label>
+                                                                    <span id="modalTotalRepayment"
+                                                                        class="text-primary">$0.00</span>
+                                                                </div>
+                                                                <div class="summary-item">
+                                                                    <label>Collateral to Unlock</label>
+                                                                    <span id="modalCollateralUnlock">0 tokens</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="repayment-info">
+                                                            <p><strong> Repaying this loan will:</strong></p>
+                                                            <ul>
+                                                                <li>Transfer the repayment amount from your wallet</li>
+                                                                <li>Unlock your collateral tokens</li>
+                                                                <li>Close your active loan</li>
+                                                                <li>Restore your ability to take new loans</li>
+                                                            </ul>
+                                                        </div>
+
+                                                        <div class="modal-actions">
+                                                            <button type="button"
+                                                                class="btn btn-secondary modal-close">Cancel</button>
+                                                            <button type="button" class="btn btn-primary"
+                                                                id="confirmRepayBtn">
+                                                                Confirm Repayment
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <form id="takeLoanForm">
+                                                <div class="form-group">
+                                                    <label for="loanAmount">Loan Amount (USDC)</label>
+                                                    <div class="input-with-button">
+                                                        <input type="number" id="loanAmount" name="loanAmount"
+                                                            step="0.01" min="0.01" placeholder="Enter loan amount"
+                                                            required>
+                                                        <button type="button" class="btn btn-secondary btn-sm"
+                                                            id="loanMaxBtn">
+                                                            Max
+                                                        </button>
+                                                    </div>
+                                                    <small class="form-help" id="loanAmountHelp">Max available:
+                                                        $0.00</small>
+                                                </div>
+
+                                                <div class="loan-calculation">
+                                                    <h6>Loan Details</h6>
+                                                    <div class="calc-row">
+                                                        <span>Collateral Required:</span>
+                                                        <span id="collateralRequired">0 tokens</span>
+                                                    </div>
+                                                    <div class="calc-row">
+                                                        <span>Liquidation Price:</span>
+                                                        <span id="liquidationPrice" class="text-warning">$0.00</span>
+                                                    </div>
+                                                    <div class="calc-row">
+                                                        <span>Repayment Amount:</span>
+                                                        <span id="repaymentAmount" class="text-primary">$0.00</span>
+                                                    </div>
+                                                    <div class="calc-row">
+                                                        <span>Interest (10%):</span>
+                                                        <span id="interestAmount">$0.00</span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="loan-warning">
+                                                    <p><strong> Important:</strong> Your tokens will be locked as
+                                                        collateral. If the value drops below the liquidation threshold,
+                                                        your collateral may be liquidated.</p>
+                                                </div>
+
+                                                <div class="modal-actions">
+                                                    <button type="button"
+                                                        class="btn btn-secondary modal-close">Cancel</button>
+                                                    <button type="submit" class="btn btn-primary">Confirm Loan</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transaction History Section -->
+                    <div id="transactionsSection" class="section">
+                        <div class="section-header">
+                            <h3>Transaction History</h3>
+                            <div class="section-actions">
+                                <select id="transactionTypeFilter" class="filter-select">
+                                    <option value="all">All Transactions</option>
+                                    <option value="purchase">Token Purchases</option>
+                                    <option value="sale">Token Sales</option>
+                                    <option value="distribution">Revenue Distributions</option>
+                                    <option value="loan">Loans</option>
+                                    <option value="loan_repayment">Loan Repayments</option>
+                                    <option value="withdrawal">Withdrawals</option>
+                                    <option value="liquidity_provided">Liquidity Provided</option>
+                                    <option value="liquidity_withdrawn">Liquidity Withdrawn</option>
+                                </select>
+                                <button id="exportTransactionsBtn" class="btn btn-secondary">
+                                    ???? Export to CSV
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="transaction-stats">
+                            <div class="stat-card">
+                                <h4>Total Transactions</h4>
+                                <div class="stat-value" id="totalTransactions">0</div>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Total Volume</h4>
+                                <div class="stat-value" id="totalVolume">$0.00</div>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Completed</h4>
+                                <div class="stat-value" id="completedTransactions">0</div>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Pending</h4>
+                                <div class="stat-value" id="pendingTransactions">0</div>
+                            </div>
+                        </div>
+
+                        <div class="transactions-list" id="transactionsList">
+                            <!-- Transactions will be populated here -->
+                            <div class="empty-state">
+                                <p>No transactions found</p>
+                            </div>
+                        </div>
+
+                        <div class="pagination" id="transactionsPagination">
+                            <!-- Pagination controls will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Investor Verification Section -->
+                    <div id="verificationSection" class="section">
+                        <div class="section-header">
+                            <h3>Investor Verification</h3>
+                        </div>
+
+                        <div class="verification-status" id="investorVerificationStatus">
+                            <!-- Verification status will be populated here -->
+                        </div>
+
+                        <div class="verification-form" id="investorVerificationForm">
+                            <h4>Submit Verification Documents</h4>
+                            <div class="form-instructions">
+                                <p>Please upload clear, legible copies of the following documents. All documents must be
+                                    current and valid.</p>
+                            </div>
+                            <form id="investorDocumentsForm">
+                                <div class="form-group">
+                                    <label for="investorIdentityDocument">???? Government-Issued Identity Document</label>
+                                    <small class="form-help">National ID, passport, driver's license, or state-issued ID
+                                        card</small>
+                                    <input type="file" id="investorIdentityDocument" name="identityDocument"
+                                        accept=".pdf,.jpg,.png" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="proofOfAddress">???? Proof of Address</label>
+                                    <small class="form-help">Utility bill, bank statement, lease agreement, or
+                                        government correspondence (last 3 months)</small>
+                                    <input type="file" id="proofOfAddress" name="proofOfAddress" accept=".pdf,.jpg,.png"
+                                        required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="financialInformation">???? Financial Information</label>
+                                    <small class="form-help">Bank statement, income verification, investment account
+                                        statement, or tax return</small>
+                                    <input type="file" id="financialInformation" name="financialInformation"
+                                        accept=".pdf,.jpg,.png" required>
+                                </div>
+
+                                <div class="form-requirements">
+                                    <h6>Document Requirements:</h6>
+                                    <ul>
+                                        <li>??? Accepted formats: PDF, JPG, PNG</li>
+                                        <li>??? Maximum file size: 10MB per document</li>
+                                        <li>??? Documents must be clear and legible</li>
+                                        <li>??? All text must be readable</li>
+                                        <li>??? Documents must be current and valid</li>
+                                        <li>??? Address documents must be from last 3 months</li>
+                                    </ul>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Submit Documents for Review</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <!-- Admin Panel View -->
+    <div id="adminView" class="view">
+        <div class="admin-dashboard">
+            <div class="dashboard-sidebar">
+                <div class="sidebar-menu">
+                    <button class="menu-item active" data-section="token-operations">Token Operations</button>
+                    <button class="menu-item" data-section="kyc-management">KYC Management</button>
+                    <button class="menu-item" data-section="token-holders">Token Holders</button>
+                </div>
+            </div>
+
+            <div class="dashboard-content">
+                <!-- Token Operations Section -->
+                <div id="tokenOperationsSection" class="section active">
+                    <div class="section-header">
+                        <h3>Token Operations</h3>
+                        <small>Manage token supply for coffee groves</small>
+                    </div>
+
+                    <!-- Grove Selection -->
+                    <div class="admin-grove-selector">
+                        <div class="form-group">
+                            <label for="adminGroveSelect">Select Grove</label>
+                            <select id="adminGroveSelect" class="grove-select">
+                                <option value="">Select a grove...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Token Supply Display -->
+                    <div id="tokenSupplyDisplay" class="token-supply-card" style="display: none;">
+                        <h4>Token Supply Information</h4>
+                        <div class="supply-stats">
+                            <div class="stat-card">
+                                <h5>Total Supply</h5>
+                                <div class="stat-value" id="totalSupply">-</div>
+                                <small class="stat-label">Total tokens minted</small>
+                            </div>
+                            <div class="stat-card">
+                                <h5>Circulating Supply</h5>
+                                <div class="stat-value" id="circulatingSupply">-</div>
+                                <small class="stat-label">Tokens in circulation</small>
+                            </div>
+                            <div class="stat-card">
+                                <h5>Holder Count</h5>
+                                <div class="stat-value" id="holderCount">-</div>
+                                <small class="stat-label">Number of token holders</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Token Operations Forms -->
+                    <div id="tokenOperationsForms" class="token-operations-container" style="display: none;">
+                        <div class="operations-grid">
+                            <!-- Mint Tokens Form -->
+                            <div class="operation-card">
+                                <h4>Mint Tokens</h4>
+                                <p>Increase token supply for the selected grove</p>
+                                <form id="mintTokensForm" class="token-operation-form">
+                                    <div class="form-group">
+                                        <label for="mintAmount">Amount to Mint</label>
+                                        <input type="number" id="mintAmount" name="amount" min="1" step="1"
+                                            placeholder="Enter token amount" required>
+                                        <small class="form-help">Number of tokens to create</small>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        Mint Tokens
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Burn Tokens Form -->
+                            <div class="operation-card">
+                                <h4>Burn Tokens</h4>
+                                <p>Decrease token supply for the selected grove</p>
+                                <form id="burnTokensForm" class="token-operation-form">
+                                    <div class="form-group">
+                                        <label for="burnAmount">Amount to Burn</label>
+                                        <input type="number" id="burnAmount" name="amount" min="1" step="1"
+                                            placeholder="Enter token amount" required>
+                                        <small class="form-help">Number of tokens to destroy</small>
+                                    </div>
+                                    <button type="submit" class="btn btn-danger">
+                                        Burn Tokens
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Token Operation History -->
+                    <div id="tokenOperationHistory" class="operation-history-container" style="display: none;">
+                        <div class="section-header">
+                            <h4>Operation History</h4>
+                            <small>Recent token operations for this grove</small>
+                        </div>
+                        <div class="operation-history-list" id="operationHistoryList">
+                            <!-- Operation history will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KYC Management Section -->
+                <div id="kycManagementSection" class="section">
+                    <div class="section-header">
+                        <h3>KYC Management</h3>
+                        <small>Manage KYC approval for token holders</small>
+                    </div>
+
+                    <!-- Grove Selection for KYC -->
+                    <div class="admin-grove-selector">
+                        <div class="form-group">
+                            <label for="kycGroveSelect">Select Grove</label>
+                            <select id="kycGroveSelect" class="grove-select">
+                                <option value="">Select a grove...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- KYC Management Interface -->
+                    <div id="kycManagementInterface" class="kyc-management-container" style="display: none;">
+                        <!-- Add Account for KYC -->
+                        <div class="kyc-add-account">
+                            <h4>Grant KYC Approval</h4>
+                            <form id="grantKYCForm" class="kyc-form">
+                                <div class="form-group">
+                                    <label for="kycAccountAddress">Account Address</label>
+                                    <input type="text" id="kycAccountAddress" name="accountAddress"
+                                        placeholder="0.0.xxxxx" required>
+                                    <small class="form-help">Hedera account ID to grant KYC approval</small>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    Grant KYC
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- KYC Status List -->
+                        <div class="kyc-accounts-list">
+                            <div class="section-header">
+                                <h4>Account KYC Status</h4>
+                                <small>List of accounts and their KYC approval status</small>
+                            </div>
+                            <div id="kycAccountsList">
+                                <!-- KYC accounts will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Token Holders Section -->
+                <div id="tokenHoldersSection" class="section">
+                    <div class="section-header">
+                        <h3>Token Holders</h3>
+                        <small>View all token holders for a grove</small>
+                    </div>
+
+                    <!-- Grove Selection for Holders -->
+                    <div class="admin-grove-selector">
+                        <div class="form-group">
+                            <label for="holdersGroveSelect">Select Grove</label>
+                            <select id="holdersGroveSelect" class="grove-select">
+                                <option value="">Select a grove...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Token Holders Display -->
+                    <div id="tokenHoldersDisplay" class="token-holders-container" style="display: none;">
+                        <!-- Export Button -->
+                        <div class="holders-actions">
+                            <button id="exportHoldersBtn" class="btn btn-secondary">
+                                Export to CSV
+                            </button>
+                        </div>
+
+                        <!-- Holders List -->
+                        <div class="holders-list-container">
+                            <table class="holders-table">
+                                <thead>
+                                    <tr>
+                                        <th>Account Address</th>
+                                        <th>Token Balance</th>
+                                        <th>Share %</th>
+                                        <th>KYC Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="holdersTableBody">
+                                    <!-- Holders will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="pagination-container" id="holdersPagination">
+                            <!-- Pagination controls will be added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading...</div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+    </div>
+
+    <!-- Utility Scripts -->
+    <script type="module" src="/js/errors.js"></script>
+    <script type="module" src="/js/error-handler.js"></script>
+    <script type="module" src="/js/notification-manager.js"></script>
+
+    <!-- Design System Scripts -->
+    <script type="module" src="/js/keyboard-navigation.js"></script>
+    <script type="module" src="/js/aria-semantic-enhancements.js"></script>
+    <script type="module" src="/js/screen-reader-announcer.js"></script>
+    <script type="module" src="/js/loading-states.js"></script>
+
+    <!-- Navigation -->
+    <script type="module" src="/js/api.js"></script>
+    <script type="module" src="/js/balance-poller.js"></script>
+    <script type="module" src="/js/marketplace.js"></script>
+    <script type="module" src="/js/price-oracle.js"></script>
+    <script type="module" src="/js/market-prices-display.js"></script>
+    <script type="module" src="/js/token-admin.js"></script>
+    <script type="module" src="/js/admin-panel.js"></script>
+    <script type="module" src="/js/farmer-dashboard.js"></script>
+    <script type="module" src="/js/farmer-revenue-tracking.js"></script>
+    <script type="module" src="/js/investor-portal.js"></script>
+    <script type="module" src="/js/investor-earnings.js"></script>
+    <script type="module" src="/js/dashboard-enhanced.js"></script>
+    <script type="module" src="/js/navigation.js"></script>
+
+    <!-- Wallet Management - Hedera Wallet Connect v1 -->
+    <script type="module" src="/wallet/index.js"></script>
+
+    <!-- Main App Controller (view management, navigation, dashboard) -->
+    <script type="module" src="/js/main.js"></script>
+    <script>
+        // FRESH START on every page load - no persistent flags
+        (function() {
+            'use strict';
+            
+            console.log('???? Initializing button event listeners (fresh page load)...');
+
+            // Check if we should navigate to a specific view
+            document.addEventListener('DOMContentLoaded', function () {
+                console.log('DOM content loaded, setting up view navigation...');
+
+                // Check if we should navigate to a specific view
+                const targetView = localStorage.getItem('targetView');
+                if (targetView) {
+                    localStorage.removeItem('targetView');
+                    // Delay to ensure everything is initialized
+                    setTimeout(() => {
+                        if (window.viewManager) {
+                            window.viewManager.switchView(targetView);
+                        }
+                    }, 100);
+                }
+
+                // Setup button handlers - FRESH on every page load
+                function setupWalletButtons() {
+                    console.log('???? Setting up button event listeners...');
+
+                    // Dashboard connect button - attach listener directly
+                    const dashboardConnectBtn = document.getElementById('dashboardConnectBtn');
+                    if (dashboardConnectBtn) {
+                        // Remove any existing event listeners
+                        const newBtn = dashboardConnectBtn.cloneNode(true);
+                        dashboardConnectBtn.parentNode.replaceChild(newBtn, dashboardConnectBtn);
+                        
+                        newBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            console.log('???? Dashboard connect button clicked, scrolling to navbar connect button...');
+                            
+                            const navbarConnectBtn = document.getElementById('connect-wallet-btn');
+                            if (navbarConnectBtn) {
+                                // Scroll to the button
+                                navbarConnectBtn.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'center'
+                                });
+
+                                // Add a temporary highlight effect
+                                navbarConnectBtn.style.transition = 'all 0.2s ease-in-out';
+                                navbarConnectBtn.style.transform = 'scale(1.1)';
+                                navbarConnectBtn.style.boxShadow = '0 0 15px rgba(255, 255, 255, 0.7)';
+
+                                // Remove the effect after a short delay
+                                setTimeout(() => {
+                                    navbarConnectBtn.style.transform = 'scale(1)';
+                                    navbarConnectBtn.style.boxShadow = '';
+                                }, 1500);
+                            }
+                        });
+                        console.log('   ??? Dashboard connect button listener attached');
+                    }
+
+                    console.log('   ??? All button listeners attached');
+                }
+
+                // Setup immediately - only once per DOMContentLoaded
+                setupWalletButtons();
+            });
+        })();
+    </script>
+    
+    <!-- Ensure farmer dashboard buttons are properly attached -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Retry attaching event listeners to farmer dashboard buttons
+            setTimeout(function() {
+                if (window.farmerDashboard && typeof window.farmerDashboard.setupEventListeners === 'function') {
+                    console.log('Reattaching farmer dashboard event listeners');
+                    window.farmerDashboard.setupEventListeners();
+                }
+            }, 1000);
+        });
+    </script>
+</body>

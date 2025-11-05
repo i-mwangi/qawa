@@ -1,0 +1,778 @@
+/**
+ * Touch Optimization for Mobile Devices
+ * Ensures minimum 44px touch targets and proper spacing
+ * 
+ * This file implements:
+ * - Minimum 44px touch targets for all interactive elements
+ * - Proper spacing between interactive elements
+ * - Optimized button sizes for mobile
+ * - Touch-friendly form controls
+ * 
+ * Requirements: 11.3 (Requirement 11.3 from requirements.md)
+ */
+
+/* ============================================
+   TOUCH TARGET MINIMUM SIZES
+   Requirement: Minimum 44px touch targets
+   ============================================ */
+
+/* Base touch target size */
+:root {
+  --touch-target-min: 44px;
+  --touch-target-comfortable: 48px;
+  --touch-spacing-min: 8px;
+}
+
+/* Apply minimum touch target to all interactive elements on mobile */
+@media (max-width: 767px) {
+  
+  /* Buttons */
+  .btn,
+  button {
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+    padding: var(--space-3) var(--space-5);
+  }
+
+  .btn-sm {
+    min-height: var(--touch-target-min);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .btn-lg {
+    min-height: var(--touch-target-comfortable);
+    padding: var(--space-4) var(--space-6);
+  }
+
+  /* Icon-only buttons */
+  .btn-icon-only {
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    padding: var(--space-3);
+  }
+
+  /* Links that act as buttons */
+  a.btn,
+  .btn-link {
+    min-height: var(--touch-target-min);
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-3) var(--space-4);
+  }
+
+  /* Navigation buttons */
+  .nav-btn,
+  .menu-item {
+    min-height: var(--touch-target-min);
+    padding: var(--space-3) var(--space-5);
+  }
+
+  /* Form inputs */
+  .form-input,
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="search"],
+  input[type="date"],
+  input[type="time"],
+  select,
+  .form-select {
+    min-height: var(--touch-target-min);
+    padding: var(--space-3) var(--space-4);
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  /* Checkboxes and radio buttons */
+  .form-check-input {
+    min-width: 24px;
+    min-height: 24px;
+    /* Add padding around for easier touch */
+    margin: var(--space-2);
+  }
+
+  .form-check {
+    min-height: var(--touch-target-min);
+    padding: var(--space-2) 0;
+  }
+
+  /* Toggle switches */
+  .form-switch {
+    min-height: var(--touch-target-min);
+    padding: var(--space-2) 0;
+  }
+
+  .form-switch-input {
+    min-width: 48px;
+    min-height: 28px;
+  }
+
+  /* Dropdown selects */
+  select,
+  .form-select {
+    min-height: var(--touch-target-min);
+    padding-right: calc(var(--space-4) + 28px); /* More space for dropdown arrow */
+  }
+
+  /* Card interactive areas */
+  .card-clickable,
+  .card-action {
+    min-height: var(--touch-target-min);
+  }
+
+  /* Table rows (when clickable) */
+  .data-table tbody tr {
+    min-height: var(--touch-target-comfortable);
+  }
+
+  .data-table td {
+    padding: var(--space-4) var(--space-4);
+  }
+
+  /* Tabs */
+  .tab-button,
+  .tab-item {
+    min-height: var(--touch-target-min);
+    padding: var(--space-3) var(--space-5);
+  }
+
+  /* Pagination buttons */
+  .pagination-btn,
+  .page-link {
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    padding: var(--space-3);
+  }
+
+  /* Close buttons */
+  .close-btn,
+  .modal-close,
+  .btn-close {
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    padding: var(--space-3);
+  }
+
+  /* Accordion headers */
+  .accordion-header,
+  .accordion-button {
+    min-height: var(--touch-target-comfortable);
+    padding: var(--space-4) var(--space-5);
+  }
+
+  /* Dropdown menu items */
+  .dropdown-item,
+  .menu-item {
+    min-height: var(--touch-target-min);
+    padding: var(--space-3) var(--space-5);
+  }
+
+  /* Badge buttons (if clickable) */
+  .badge.clickable,
+  button.badge {
+    min-height: 32px;
+    padding: var(--space-2) var(--space-4);
+  }
+
+  /* Icon buttons in cards */
+  .card-action-btn,
+  .card .btn-icon-only {
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+  }
+
+  /* Slider/Range inputs */
+  input[type="range"] {
+    min-height: var(--touch-target-min);
+    padding: var(--space-3) 0;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    width: 28px;
+    height: 28px;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* File upload buttons */
+  .form-file-label {
+    min-height: var(--touch-target-min);
+    padding: var(--space-3) var(--space-5);
+  }
+
+  /* Search inputs with buttons */
+  .search-btn,
+  .input-group .btn {
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+  }
+}
+
+/* ============================================
+   PROPER SPACING BETWEEN INTERACTIVE ELEMENTS
+   Requirement: Add proper spacing between interactive elements
+   ============================================ */
+
+@media (max-width: 767px) {
+  
+  /* Button groups - ensure spacing */
+  .btn-group {
+    gap: var(--space-3); /* 12px minimum */
+  }
+
+  .btn-group-vertical {
+    gap: var(--space-3);
+  }
+
+  /* Form groups - spacing between fields */
+  .form-group {
+    margin-bottom: var(--space-5); /* 20px */
+  }
+
+  /* Form inline groups */
+  .form-group-inline {
+    gap: var(--space-4);
+  }
+
+  /* Navigation menu items */
+  .nav-menu {
+    gap: var(--space-2);
+  }
+
+  .nav-btn {
+    margin-bottom: var(--space-2);
+  }
+
+  /* Sidebar menu items */
+  .sidebar-menu {
+    gap: var(--space-2);
+  }
+
+  /* Card grid spacing */
+  .card-grid {
+    gap: var(--space-4);
+  }
+
+  /* Stats grid spacing */
+  .stats-grid {
+    gap: var(--space-4);
+  }
+
+  /* List items */
+  .list-item {
+    margin-bottom: var(--space-3);
+  }
+
+  /* Checkbox/Radio groups */
+  .form-check {
+    margin-bottom: var(--space-4);
+  }
+
+  .form-radio-group,
+  .form-checkbox-group {
+    gap: var(--space-4);
+  }
+
+  /* Tab buttons */
+  .tab-list {
+    gap: var(--space-2);
+  }
+
+  /* Pagination */
+  .pagination {
+    gap: var(--space-2);
+  }
+
+  /* Action buttons in cards */
+  .card-actions {
+    gap: var(--space-3);
+  }
+
+  /* Modal actions */
+  .modal-actions,
+  .modal-footer {
+    gap: var(--space-3);
+  }
+
+  /* Dropdown items */
+  .dropdown-menu {
+    padding: var(--space-2);
+  }
+
+  .dropdown-item {
+    margin-bottom: var(--space-1);
+  }
+
+  /* Breadcrumb items */
+  .breadcrumb {
+    gap: var(--space-3);
+  }
+
+  /* Tag/Badge groups */
+  .tag-group,
+  .badge-group {
+    gap: var(--space-2);
+  }
+}
+
+/* ============================================
+   OPTIMIZED BUTTON SIZES FOR MOBILE
+   Requirement: Optimize button sizes for mobile
+   ============================================ */
+
+@media (max-width: 767px) {
+  
+  /* Primary actions - larger and more prominent */
+  .btn-primary {
+    min-height: var(--touch-target-comfortable);
+    padding: var(--space-4) var(--space-6);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  /* Full-width buttons for primary actions */
+  .btn-primary.btn-block,
+  .btn-mobile-block {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Secondary buttons - comfortable size */
+  .btn-secondary {
+    min-height: var(--touch-target-min);
+    padding: var(--space-3) var(--space-5);
+  }
+
+  /* Tertiary/text buttons - still touchable */
+  .btn-tertiary,
+  .btn-link {
+    min-height: var(--touch-target-min);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  /* Danger buttons - same as primary */
+  .btn-danger {
+    min-height: var(--touch-target-comfortable);
+    padding: var(--space-4) var(--space-6);
+  }
+
+  /* Icon buttons - square and touchable */
+  .btn-icon-only {
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-icon-only svg,
+  .btn-icon-only i {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Floating action button (FAB) */
+  .btn-fab {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-full);
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Small buttons - still meet minimum */
+  .btn-sm {
+    min-height: var(--touch-target-min);
+    padding: var(--space-3) var(--space-4);
+    font-size: 0.875rem;
+  }
+
+  /* Large buttons - extra comfortable */
+  .btn-lg {
+    min-height: 52px;
+    padding: var(--space-4) var(--space-8);
+    font-size: 1.125rem;
+  }
+
+  /* Button with icon - ensure icon doesn't make it too small */
+  .btn-icon {
+    padding: var(--space-3) var(--space-5);
+  }
+
+  .btn-icon svg,
+  .btn-icon i {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+}
+
+/* ============================================
+   TOUCH-FRIENDLY FORM CONTROLS
+   ============================================ */
+
+@media (max-width: 767px) {
+  
+  /* Larger form inputs */
+  .form-input,
+  input,
+  textarea,
+  select {
+    font-size: 16px; /* Prevents iOS zoom */
+    padding: var(--space-3) var(--space-4);
+  }
+
+  /* Larger checkboxes and radios */
+  .form-check-input {
+    width: 24px;
+    height: 24px;
+  }
+
+  .form-check-input[type="radio"] {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Larger toggle switches */
+  .form-switch-input {
+    width: 48px;
+    height: 28px;
+  }
+
+  .form-switch-input::after {
+    width: 20px;
+    height: 20px;
+    top: 3px;
+    left: 3px;
+  }
+
+  .form-switch-input:checked::after {
+    left: 25px;
+  }
+
+  /* Larger select dropdowns */
+  select,
+  .form-select {
+    background-size: 16px;
+    padding-right: calc(var(--space-4) + 32px);
+  }
+
+  /* Input groups - proper sizing */
+  .input-group-text {
+    min-height: var(--touch-target-min);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  /* Range sliders - larger thumb */
+  input[type="range"]::-webkit-slider-thumb {
+    width: 28px;
+    height: 28px;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* File upload - larger target */
+  .form-file-label {
+    min-height: var(--touch-target-comfortable);
+    padding: var(--space-4) var(--space-5);
+    font-size: 1rem;
+  }
+}
+
+/* ============================================
+   TOUCH FEEDBACK & ACTIVE STATES
+   ============================================ */
+
+@media (max-width: 767px) {
+  
+  /* Add touch feedback to all interactive elements */
+  .btn:active,
+  button:active,
+  .nav-btn:active,
+  .menu-item:active,
+  .card-clickable:active,
+  .form-check-input:active,
+  .form-switch-input:active {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
+
+  /* Prevent double-tap zoom on buttons */
+  .btn,
+  button,
+  a,
+  .nav-btn,
+  .menu-item {
+    touch-action: manipulation;
+  }
+
+  /* Smooth tap highlight */
+  * {
+    -webkit-tap-highlight-color: rgba(76, 175, 80, 0.2);
+  }
+
+  /* Remove tap highlight for non-interactive elements */
+  .card:not(.card-clickable),
+  .text,
+  p,
+  h1, h2, h3, h4, h5, h6,
+  span,
+  div:not([role="button"]) {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ============================================
+   SCROLLABLE AREAS - TOUCH OPTIMIZATION
+   ============================================ */
+
+@media (max-width: 767px) {
+  
+  /* Smooth scrolling on touch devices */
+  .scrollable,
+  .table-responsive,
+  .modal-body,
+  .sidebar-menu {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Larger scrollbars for touch */
+  .scrollable::-webkit-scrollbar,
+  .table-responsive::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollable::-webkit-scrollbar-thumb,
+  .table-responsive::-webkit-scrollbar-thumb {
+    background: rgba(76, 175, 80, 0.3);
+    border-radius: 4px;
+  }
+
+  /* Horizontal scroll indicators */
+  .table-responsive {
+    position: relative;
+  }
+
+  .table-responsive::after {
+    content: '→';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: linear-gradient(to left, var(--bg-secondary), transparent);
+    padding: var(--space-2) var(--space-4);
+    color: var(--text-tertiary);
+    pointer-events: none;
+    opacity: 0.7;
+  }
+}
+
+/* ============================================
+   MODAL & OVERLAY TOUCH OPTIMIZATION
+   ============================================ */
+
+@media (max-width: 767px) {
+  
+  /* Full-screen modals on mobile */
+  .modal-content {
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  /* Larger close button */
+  .modal-close,
+  .btn-close {
+    min-width: var(--touch-target-comfortable);
+    min-height: var(--touch-target-comfortable);
+    padding: var(--space-3);
+  }
+
+  /* Modal actions - full width buttons */
+  .modal-actions .btn,
+  .modal-footer .btn {
+    width: 100%;
+    min-height: var(--touch-target-comfortable);
+  }
+
+  /* Swipe-to-dismiss indicator */
+  .modal-header::before {
+    content: '';
+    position: absolute;
+    top: var(--space-2);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background: var(--border-default);
+    border-radius: var(--radius-full);
+  }
+}
+
+/* ============================================
+   NAVIGATION TOUCH OPTIMIZATION
+   ============================================ */
+
+@media (max-width: 767px) {
+  
+  /* Larger navigation items */
+  .nav-btn,
+  .nav-link {
+    min-height: var(--touch-target-comfortable);
+    padding: var(--space-4) var(--space-5);
+    font-size: 1rem;
+  }
+
+  /* Hamburger menu - larger touch target */
+  .nav-toggle {
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    padding: var(--space-3);
+  }
+
+  /* Sidebar menu items */
+  .menu-item {
+    min-height: var(--touch-target-comfortable);
+    padding: var(--space-4) var(--space-5);
+  }
+
+  /* Tab navigation */
+  .tab-button {
+    min-height: var(--touch-target-comfortable);
+    padding: var(--space-4) var(--space-5);
+    font-size: 1rem;
+  }
+
+  /* Breadcrumb links */
+  .breadcrumb-item a {
+    min-height: var(--touch-target-min);
+    padding: var(--space-2) var(--space-3);
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* ============================================
+   CARD TOUCH OPTIMIZATION
+   ============================================ */
+
+@media (max-width: 767px) {
+  
+  /* Clickable cards - larger touch area */
+  .card-clickable {
+    min-height: var(--touch-target-min);
+    cursor: pointer;
+  }
+
+  /* Card action buttons */
+  .card-actions .btn {
+    min-height: var(--touch-target-min);
+    padding: var(--space-3) var(--space-5);
+  }
+
+  /* Card footer buttons - full width */
+  .card-footer .btn {
+    width: 100%;
+    min-height: var(--touch-target-min);
+  }
+
+  /* Grove card buttons */
+  .card-grove .btn {
+    width: 100%;
+    min-height: var(--touch-target-comfortable);
+  }
+}
+
+/* ============================================
+   TABLE TOUCH OPTIMIZATION
+   ============================================ */
+
+@media (max-width: 767px) {
+  
+  /* Larger table cells for touch */
+  .data-table td,
+  .data-table th {
+    padding: var(--space-4) var(--space-4);
+    min-height: var(--touch-target-min);
+  }
+
+  /* Clickable rows */
+  .data-table tbody tr[role="button"],
+  .data-table tbody tr.clickable {
+    min-height: var(--touch-target-comfortable);
+  }
+
+  /* Action buttons in tables */
+  .data-table .btn {
+    min-height: 36px;
+    padding: var(--space-2) var(--space-4);
+  }
+
+  /* Sort buttons in headers */
+  .data-table th button,
+  .data-table th .sort-btn {
+    min-height: var(--touch-target-min);
+    padding: var(--space-2) var(--space-3);
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY - FOCUS INDICATORS
+   ============================================ */
+
+@media (max-width: 767px) {
+  
+  /* Larger focus indicators for touch devices */
+  .btn:focus-visible,
+  .nav-btn:focus-visible,
+  .menu-item:focus-visible,
+  .form-input:focus-visible,
+  .form-check-input:focus-visible {
+    outline: 3px solid var(--brand-primary);
+    outline-offset: 3px;
+  }
+}
+
+/* ============================================
+   LANDSCAPE ORIENTATION ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 767px) and (orientation: landscape) {
+  
+  /* Slightly reduce touch targets in landscape to fit more content */
+  .btn,
+  button,
+  .nav-btn,
+  .menu-item {
+    min-height: 40px;
+  }
+
+  .btn-primary,
+  .btn-danger {
+    min-height: 44px;
+  }
+
+  /* Reduce vertical spacing in landscape */
+  .form-group {
+    margin-bottom: var(--space-4);
+  }
+
+  .section {
+    padding: var(--space-4) 0;
+  }
+}

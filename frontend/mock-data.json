@@ -1,0 +1,101 @@
+{
+  "groves": [
+    {
+      "id": "1",
+      "groveName": "Sunrise Valley Grove",
+      "location": "Costa Rica, Central Valley",
+      "coordinates": {
+        "lat": 9.7489,
+        "lng": -83.7534
+      },
+      "treeCount": 150,
+      "coffeeVariety": "Arabica",
+      "expectedYieldPerTree": 4.5,
+      "healthScore": 85,
+      "verificationStatus": "verified",
+      "createdAt": "2024-01-15T00:00:00.000Z",
+      "farmerAddress": "0.0.123456"
+    },
+    {
+      "id": "2",
+      "groveName": "Mountain Peak Coffee",
+      "location": "Colombia, Huila",
+      "coordinates": {
+        "lat": 2.5358,
+        "lng": -75.5273
+      },
+      "treeCount": 200,
+      "coffeeVariety": "Bourbon",
+      "expectedYieldPerTree": 3.8,
+      "healthScore": 92,
+      "verificationStatus": "verified",
+      "createdAt": "2024-02-20T00:00:00.000Z",
+      "farmerAddress": "0.0.789012"
+    },
+    {
+      "id": "3",
+      "groveName": "moonrise",
+      "location": "mukurweini",
+      "latitude": -0.581889,
+      "longitude": 37.073737,
+      "treeCount": 1000,
+      "coffeeVariety": "Arabica",
+      "expectedYieldPerTree": 100,
+      "farmerAddress": "0.0.6967933",
+      "healthScore": 70,
+      "verificationStatus": "pending",
+      "createdAt": "2025-10-23T00:36:25.574Z"
+    },
+    {
+      "id": "4",
+      "groveName": "moonrise",
+      "location": "muranga ",
+      "latitude": -0.831709,
+      "longitude": 37.004922,
+      "treeCount": 100000,
+      "coffeeVariety": "Arabica",
+      "expectedYieldPerTree": 1000,
+      "farmerAddress": "0.0.6967933",
+      "healthScore": 98,
+      "verificationStatus": "pending",
+      "createdAt": "2025-10-23T01:28:13.560Z"
+    }
+  ],
+  "harvests": [
+    {
+      "id": "1",
+      "groveId": "1",
+      "groveName": "Sunrise Valley Grove",
+      "farmerAddress": "0.0.123456",
+      "harvestDate": "2024-11-15",
+      "yieldKg": 675,
+      "qualityGrade": 8,
+      "salePricePerKg": 4.25,
+      "totalRevenue": 2868.75,
+      "revenueDistributed": true
+    },
+    {
+      "id": "2",
+      "groveName": "moonrise",
+      "farmerAddress": "0.0.6967933",
+      "yieldKg": 1000,
+      "qualityGrade": 95,
+      "salePricePerKg": 5,
+      "harvestDate": "2025-10-23",
+      "notes": "",
+      "totalRevenue": 5000,
+      "revenueDistributed": false,
+      "createdAt": "2025-10-23T00:38:15.451Z"
+    }
+  ],
+  "prices": {
+    "arabica": 4.25,
+    "robusta": 2.85,
+    "bourbon": 4.5,
+    "typica": 4.1,
+    "caturra": 4.35,
+    "geisha": 8.5
+  },
+  "revenueDistributions": [],
+  "farmerWithdrawals": []
+}

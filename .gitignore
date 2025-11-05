@@ -1,0 +1,155 @@
+# Dependencies
+node_modules/
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+build/
+.out/
+
+# Database
+local-store/
+**/sqlite.db
+**/*.mdb
+**/*.mdb-lock
+**/*.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+tmp/
+temp/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS generated files
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+
+# Vercel
+.vercel/
+
+# Turso
+.turso/
+
+# Wallet
+turso-db-snapshots/
+
+# Backup files
+*.bak
+*.backup
+
+# Temporary files
+*.tmp
+*.temp
+
+# Environment files (except example)
+.env*
+!.env.example
+
+# Lock files (if using different package managers)
+yarn.lock
+package-lock.json
+
+# Sensitive files
+*.pem
+*.key
+*.crt
+testnet-credentials.json
+shared.json
+
+# Debug files
+debug/
+*.debug
+
+# Docker
+.dockerignore
+
+# Cache directories
+.cache/
+.parcel-cache/
+vite.config.ts.timestamp-*
+
+# ============================================
+# Test & Development Files
+# ============================================
+
+# Root test files
+test-hedera-sdk.ts
+create-test-usdc.ts
+loadIntoEnv.ts
+lookup-db.ts
+analyze-bundle.js
+optimize-images.js
+validate-js.js
+verify-vite-config.js
+transactions.json
+
+# Frontend test files
+frontend/test-revenue-api.html
+frontend/wallet-test.html
+frontend/wallet-modal-test.html
+frontend/notification-test.html
+frontend/modal-notification-test.html
+frontend/module-test.html
+frontend/import-test.html
+frontend/final-cdn-test.html
+frontend/hashconnect-setup.html
+frontend/debug-wallet.js
+frontend/check-wallet-state.js
+frontend/demo-helper.js
+frontend/simple-server.js
+frontend/temp-grove-tracker-content.html
+frontend/tree-health-dashboard.html
+
+# Backup files
+frontend/index.html.backup*
+frontend/index.html.bak
+frontend/*.backup
+frontend/*.bak
+
+# Mock data (optional - uncomment if you don't want to commit)
+# frontend/mock-data.json
+
+# Test scripts
+scripts/check-*.mjs
+scripts/fix-*.mjs
+scripts/fix-*.ts
+scripts/clean-*.mjs
+scripts/retry-*.mjs
+scripts/manual-*.mjs
+scripts/transfer-grove-29-*.ts
+scripts/transfer-grove-29-*.mjs
+scripts/mint-usdc-*.mjs
+scripts/create-platform-usdc.mjs
+scripts/verify-*.mjs
+
+# Temporary directories
+temp/
+tmp/
+
+# Documentation (deployment guides)
+docs
+RENDER_DEPLOYMENT.md
+TROUBLESHOOTING.md
+DEPLOYMENT_GUIDE.md
+DEPLOYMENT_GUIDE.md.bak
+DEPLOYMENT_GUIDE.md.backup
+DEPLOYMENT_GUIDE.md.bak.backup

@@ -1,0 +1,788 @@
+/**
+ * Accessibility Enhancements
+ * Professional accessibility features for Chai Coffee Investment Platform
+ * 
+ * This file contains:
+ * - Keyboard navigation support with visible focus indicators
+ * - Skip navigation links
+ * - Proper tab order management
+ * - WCAG AA compliance features
+ * - ARIA enhancements and semantic HTML support
+ * - Screen reader optimizations
+ */
+
+/* ============================================
+   SCREEN READER ONLY CONTENT
+   ============================================ */
+
+/* Hide content visually but keep it accessible to screen readers */
+.sr-only,
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Allow screen reader only content to be focusable */
+.sr-only-focusable:focus,
+.sr-only-focusable:active {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Skip to main content link */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--brand-primary, #4CAF50);
+  color: white;
+  padding: var(--space-3, 12px) var(--space-6, 24px);
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 0 0 var(--radius-sm, 6px) 0;
+  z-index: 10000;
+  transition: top 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 3px solid var(--brand-secondary, #66BB6A);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   ARIA LIVE REGIONS
+   ============================================ */
+
+/* ARIA live region announcers (hidden from view but accessible to screen readers) */
+#aria-announcer,
+#aria-live-polite,
+#aria-live-assertive,
+#aria-live-status,
+[role="status"][aria-live],
+[role="alert"][aria-live] {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Ensure live regions are always present in DOM */
+#aria-live-polite,
+#aria-live-assertive,
+#aria-live-status {
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ============================================
+   KEYBOARD NAVIGATION & FOCUS INDICATORS
+   ============================================ */
+
+/* Enhanced focus indicators for all interactive elements */
+*:focus {
+  outline: 2px solid var(--brand-primary, #4CAF50);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs, 4px);
+}
+
+/* High contrast focus for better visibility */
+*:focus-visible {
+  outline: 3px solid var(--brand-primary, #4CAF50);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(76, 175, 80, 0.1);
+}
+
+/* Button focus states */
+button:focus-visible,
+.btn:focus-visible,
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-tertiary:focus-visible {
+  outline: 3px solid var(--brand-primary, #4CAF50);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(76, 175, 80, 0.1);
+}
+
+/* Link focus states */
+a:focus-visible {
+  outline: 2px solid var(--brand-primary, #4CAF50);
+  outline-offset: 3px;
+  background-color: rgba(76, 175, 80, 0.1);
+  border-radius: var(--radius-xs, 4px);
+  text-decoration: underline;
+}
+
+/* Input focus states */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+.form-input:focus-visible {
+  outline: 3px solid var(--brand-primary, #4CAF50);
+  outline-offset: 0;
+  border-color: var(--brand-primary, #4CAF50);
+  box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.1);
+}
+
+/* Card focus states for keyboard navigation */
+.card:focus-visible,
+.grove-card:focus-visible,
+.stat-card:focus-visible,
+.portfolio-card:focus-visible,
+.transaction-card:focus-visible {
+  outline: 3px solid var(--brand-primary, #4CAF50);
+  outline-offset: 2px;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(76, 175, 80, 0.2);
+}
+
+/* Navigation item focus */
+.nav-btn:focus-visible,
+.menu-item:focus-visible,
+.nav-link:focus-visible {
+  outline: 3px solid var(--brand-primary, #4CAF50);
+  outline-offset: -3px;
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+/* Modal focus trap */
+.modal:focus {
+  outline: none;
+}
+
+.modal-content:focus {
+  outline: none;
+}
+
+/* Modal close button focus */
+.modal-close:focus-visible {
+  outline: 3px solid var(--brand-primary, #4CAF50);
+  outline-offset: 2px;
+  background-color: rgba(76, 175, 80, 0.2);
+}
+
+/* Remove focus outline for mouse users */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================
+   SKIP NAVIGATION LINKS
+   ============================================ */
+
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: var(--brand-primary, #4CAF50);
+  color: white;
+  padding: 12px 24px;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 0 0 6px 0;
+  z-index: 10000;
+  transition: top 0.2s ease-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 3px solid white;
+  outline-offset: -3px;
+}
+
+.skip-links {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+}
+
+/* ============================================
+   KEYBOARD NAVIGATION HELPERS
+   ============================================ */
+
+/* Indicate keyboard navigation mode */
+body.keyboard-nav *:focus {
+  outline: 3px solid var(--brand-primary, #4CAF50);
+  outline-offset: 2px;
+}
+
+/* Ensure interactive elements are keyboard accessible */
+[role="button"],
+[role="link"],
+[role="tab"],
+[role="menuitem"] {
+  cursor: pointer;
+}
+
+[role="button"]:focus-visible,
+[role="link"]:focus-visible,
+[role="tab"]:focus-visible,
+[role="menuitem"]:focus-visible {
+  outline: 3px solid var(--brand-primary, #4CAF50);
+  outline-offset: 2px;
+}
+
+/* Tab order management */
+[tabindex="0"],
+[tabindex="-1"] {
+  position: relative;
+}
+
+/* Ensure focusable elements have proper cursor */
+button,
+a,
+input,
+select,
+textarea,
+[tabindex]:not([tabindex="-1"]) {
+  cursor: pointer;
+}
+
+input,
+select,
+textarea {
+  cursor: text;
+}
+
+/* ============================================
+   FOCUS TRAP FOR MODALS
+   ============================================ */
+
+.modal-open {
+  overflow: hidden;
+}
+
+.modal-open .modal {
+  display: flex;
+}
+
+/* Prevent focus on background elements when modal is open */
+body.modal-open > *:not(.modal) {
+  pointer-events: none;
+}
+
+body.modal-open .modal {
+  pointer-events: auto;
+}
+
+/* ============================================
+   KEYBOARD SHORTCUTS INDICATOR
+   ============================================ */
+
+.keyboard-shortcut {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: var(--text-tertiary, #8a8a8a);
+}
+
+/* ============================================
+   ACCESSIBLE INTERACTIVE STATES
+   ============================================ */
+
+/* Ensure disabled elements are not focusable */
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Loading state should not be focusable */
+.loading,
+[aria-busy="true"] {
+  pointer-events: none;
+}
+
+/* ============================================
+   FOCUS WITHIN STATES
+   ============================================ */
+
+/* Highlight parent containers when child has focus */
+.form-group:focus-within {
+  position: relative;
+}
+
+.form-group:focus-within::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  border: 2px solid rgba(76, 175, 80, 0.2);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* Card focus within */
+.card:focus-within {
+  border-color: var(--brand-primary, #4CAF50);
+}
+
+/* ============================================
+   KEYBOARD NAVIGATION INDICATORS
+   ============================================ */
+
+/* Show keyboard navigation hints */
+.keyboard-hint {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  padding: 2px 6px;
+  background: rgba(76, 175, 80, 0.2);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: var(--brand-primary, #4CAF50);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+*:focus-visible .keyboard-hint {
+  opacity: 1;
+}
+
+/* ============================================
+   ACCESSIBLE DROPDOWN MENUS
+   ============================================ */
+
+.dropdown-menu {
+  position: absolute;
+  z-index: 1000;
+}
+
+.dropdown-menu:focus {
+  outline: none;
+}
+
+.dropdown-item:focus-visible {
+  outline: 2px solid var(--brand-primary, #4CAF50);
+  outline-offset: -2px;
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+/* ============================================
+   ACCESSIBLE TABS
+   ============================================ */
+
+[role="tablist"] {
+  display: flex;
+  gap: 8px;
+}
+
+[role="tab"] {
+  position: relative;
+}
+
+[role="tab"]:focus-visible {
+  outline: 3px solid var(--brand-primary, #4CAF50);
+  outline-offset: 2px;
+  z-index: 1;
+}
+
+[role="tab"][aria-selected="true"]:focus-visible {
+  outline-color: var(--brand-secondary, #66BB6A);
+}
+
+/* ============================================
+   ACCESSIBLE TOOLTIPS
+   ============================================ */
+
+[role="tooltip"] {
+  position: absolute;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* ============================================
+   RESPONSIVE KEYBOARD NAVIGATION
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Larger focus indicators on mobile */
+  *:focus-visible {
+    outline-width: 4px;
+    outline-offset: 4px;
+  }
+  
+  /* Larger skip links on mobile */
+  .skip-link {
+    padding: 16px 32px;
+    font-size: 1rem;
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .skip-link,
+  .keyboard-hint,
+  .keyboard-shortcut {
+    display: none;
+  }
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *:focus-visible {
+    transition: none;
+  }
+  
+  .skip-link {
+    transition: none;
+  }
+}
+
+
+/* ============================================
+   ARIA ENHANCEMENTS
+   ============================================ */
+
+/* Hidden elements with aria-hidden */
+[aria-hidden="true"] {
+  display: none !important;
+}
+
+/* Loading states with aria-busy */
+[aria-busy="true"] {
+  cursor: wait;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Invalid form fields */
+[aria-invalid="true"] {
+  border-color: var(--error, #EF5350) !important;
+  background-color: rgba(239, 83, 80, 0.05);
+}
+
+[aria-invalid="true"]:focus {
+  outline-color: var(--error, #EF5350);
+  box-shadow: 0 0 0 3px rgba(239, 83, 80, 0.1);
+}
+
+/* Required fields indicator */
+[aria-required="true"]::after,
+[required]::after {
+  content: " *";
+  color: var(--error, #EF5350);
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+/* Disabled elements */
+[aria-disabled="true"],
+[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Expanded/collapsed states */
+[aria-expanded="true"] .expand-icon {
+  transform: rotate(180deg);
+}
+
+[aria-expanded="false"] .expand-icon {
+  transform: rotate(0deg);
+}
+
+/* Selected states */
+[aria-selected="true"] {
+  background-color: rgba(76, 175, 80, 0.15);
+  border-left: 3px solid var(--brand-primary, #4CAF50);
+}
+
+/* Current page/section indicator */
+[aria-current="page"],
+[aria-current="true"] {
+  font-weight: 700;
+  color: var(--brand-primary, #4CAF50);
+  position: relative;
+}
+
+[aria-current="page"]::after,
+[aria-current="true"]::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--brand-primary, #4CAF50);
+}
+
+/* Modal dialog states */
+[role="dialog"][aria-modal="true"] {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+}
+
+/* Alert and status roles */
+[role="alert"],
+[role="status"] {
+  padding: var(--space-4, 16px);
+  border-radius: var(--radius-sm, 6px);
+  margin: var(--space-4, 16px) 0;
+}
+
+[role="alert"] {
+  background-color: rgba(239, 83, 80, 0.1);
+  border-left: 4px solid var(--error, #EF5350);
+  color: var(--error-light, #E57373);
+}
+
+[role="status"] {
+  background-color: rgba(66, 165, 245, 0.1);
+  border-left: 4px solid var(--info, #42A5F5);
+  color: var(--info-light, #64B5F6);
+}
+
+/* Progress bars */
+[role="progressbar"] {
+  position: relative;
+  height: 8px;
+  background-color: var(--bg-tertiary, #242424);
+  border-radius: var(--radius-full, 9999px);
+  overflow: hidden;
+}
+
+[role="progressbar"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--progress-value, 0%);
+  background: linear-gradient(90deg, var(--brand-primary, #4CAF50), var(--brand-secondary, #66BB6A));
+  transition: width 0.3s ease;
+}
+
+/* Feed role for activity feeds */
+[role="feed"] {
+  overflow-y: auto;
+  max-height: 500px;
+}
+
+[role="feed"] article {
+  border-bottom: 1px solid var(--border-subtle, #2a2a2a);
+  padding: var(--space-4, 16px);
+}
+
+/* Menu and menubar roles */
+[role="menubar"],
+[role="menu"] {
+  display: flex;
+  gap: var(--space-2, 8px);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+[role="menuitem"] {
+  cursor: pointer;
+  padding: var(--space-3, 12px) var(--space-4, 16px);
+  border-radius: var(--radius-sm, 6px);
+  transition: background-color 0.2s ease;
+}
+
+[role="menuitem"]:hover {
+  background-color: var(--bg-tertiary, #242424);
+}
+
+[role="menuitem"]:focus {
+  outline: 2px solid var(--brand-primary, #4CAF50);
+  outline-offset: 2px;
+}
+
+/* Table roles */
+[role="table"] {
+  display: table;
+  width: 100%;
+}
+
+[role="rowgroup"] {
+  display: table-row-group;
+}
+
+[role="row"] {
+  display: table-row;
+}
+
+[role="columnheader"],
+[role="rowheader"] {
+  display: table-cell;
+  font-weight: 600;
+  text-align: left;
+}
+
+[role="cell"] {
+  display: table-cell;
+}
+
+/* Search role */
+[role="search"] {
+  position: relative;
+}
+
+[role="searchbox"] {
+  padding-left: var(--space-10, 40px);
+}
+
+/* Tab roles */
+[role="tablist"] {
+  display: flex;
+  gap: var(--space-2, 8px);
+  border-bottom: 2px solid var(--border-default, #333333);
+}
+
+[role="tab"] {
+  padding: var(--space-3, 12px) var(--space-6, 24px);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary, #b4b4b4);
+  font-weight: 500;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+[role="tab"]:hover {
+  color: var(--text-primary, #ffffff);
+}
+
+[role="tab"][aria-selected="true"] {
+  color: var(--brand-primary, #4CAF50);
+  font-weight: 600;
+}
+
+[role="tab"][aria-selected="true"]::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--brand-primary, #4CAF50);
+}
+
+[role="tabpanel"] {
+  padding: var(--space-6, 24px);
+}
+
+[role="tabpanel"][aria-hidden="true"] {
+  display: none;
+}
+
+/* ============================================
+   SEMANTIC HTML ENHANCEMENTS
+   ============================================ */
+
+/* Main landmark */
+main[role="main"] {
+  min-height: calc(100vh - 80px);
+  padding: var(--space-6, 24px);
+}
+
+/* Navigation landmarks */
+nav[role="navigation"] {
+  position: relative;
+}
+
+/* Article and section landmarks */
+article,
+section[role="region"] {
+  margin-bottom: var(--space-8, 32px);
+}
+
+/* Complementary content */
+aside[role="complementary"] {
+  padding: var(--space-6, 24px);
+  background-color: var(--bg-secondary, #1a1a1a);
+  border-radius: var(--radius-md, 10px);
+}
+
+/* Form landmarks */
+form[role="form"],
+form[role="search"] {
+  position: relative;
+}
+
+/* ============================================
+   HIGH CONTRAST MODE SUPPORT
+   ============================================ */
+
+@media (prefers-contrast: high) {
+  *:focus,
+  *:focus-visible {
+    outline-width: 4px;
+    outline-offset: 4px;
+  }
+
+  [aria-invalid="true"] {
+    border-width: 3px;
+  }
+
+  [aria-current="page"]::after,
+  [aria-current="true"]::after {
+    height: 4px;
+  }
+}
+
+/* ============================================
+   PRINT STYLES FOR ACCESSIBILITY
+   ============================================ */
+
+@media print {
+  /* Show skip links in print */
+  .skip-link {
+    position: static;
+    display: block;
+  }
+
+  /* Hide decorative elements */
+  [aria-hidden="true"] {
+    display: none !important;
+  }
+
+  /* Ensure focus indicators are visible */
+  *:focus {
+    outline: 2px solid #000;
+  }
+}
