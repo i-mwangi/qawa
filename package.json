@@ -45,7 +45,8 @@
     "dev:vite": "pnpm run api:mock & pnpm run frontend:vite",
     "dev:full": "pnpm run build && pnpm run api & pnpm run frontend & pnpm run providers",
     "test:turso": "tsx test-turso-connection.ts",
-    "migrate:turso": "tsx migrate-to-turso.ts"
+    "migrate:turso": "tsx migrate-to-turso.ts",
+    "config:validate": "tsx scripts/test-config-validation.ts"
   },
   "keywords": [],
   "author": "",

@@ -29,7 +29,7 @@ services:
       - key: NODE_VERSION
         value: 18
       - key: API_PORT
-        value: 3005
+        value: 3001
       - key: NODE_ENV
         value: production
       

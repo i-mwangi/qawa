@@ -1381,3 +1381,209 @@
 .token-id-display .copy-btn:hover {
     background: #2563eb;
 }
+
+/* Investor Withdrawal Styles */
+.highlight-card {
+    border: 2px solid #4CAF50 !important;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%) !important;
+}
+
+.withdrawal-form {
+    background: rgba(42, 42, 42, 0.5);
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 16px;
+}
+
+.input-with-max {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.input-with-max .form-input {
+    flex: 1;
+}
+
+.input-with-max .btn {
+    flex-shrink: 0;
+    min-width: 60px;
+}
+
+.form-help {
+    display: block;
+    margin-top: 8px;
+    color: #999;
+    font-size: 0.875rem;
+}
+
+.form-help span {
+    color: #4CAF50;
+    font-weight: 600;
+}
+
+.withdrawal-info {
+    background: rgba(76, 175, 80, 0.05);
+    border: 1px solid rgba(76, 175, 80, 0.2);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+    color: #ccc;
+    font-size: 0.875rem;
+}
+
+.info-item:last-child {
+    margin-bottom: 0;
+}
+
+.info-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.withdrawal-history-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.withdrawal-item {
+    background: rgba(42, 42, 42, 0.5);
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+}
+
+.withdrawal-item:hover {
+    border-color: #4CAF50;
+    transform: translateX(4px);
+}
+
+.withdrawal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.withdrawal-amount {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #4CAF50;
+}
+
+.withdrawal-status {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.withdrawal-status.completed {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+}
+
+.withdrawal-status.pending {
+    background: rgba(255, 193, 7, 0.2);
+    color: #FFC107;
+}
+
+.withdrawal-status.failed {
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+}
+
+.withdrawal-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: #999;
+    font-size: 0.875rem;
+}
+
+.withdrawal-date {
+    color: #ccc;
+}
+
+.withdrawal-tx-link {
+    color: #4CAF50;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s ease;
+}
+
+.withdrawal-tx-link:hover {
+    color: #66BB6A;
+    text-decoration: underline;
+}
+
+.withdrawal-tx-link svg {
+    width: 14px;
+    height: 14px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+    font-style: italic;
+}
+
+/* Loading states for withdrawal */
+.withdrawal-form.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.withdrawal-form.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border: 3px solid #333;
+    border-top-color: #4CAF50;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .withdrawal-form {
+        padding: 16px;
+    }
+    
+    .input-with-max {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .input-with-max .btn {
+        width: 100%;
+    }
+    
+    .withdrawal-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}

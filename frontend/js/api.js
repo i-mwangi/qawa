@@ -23,7 +23,7 @@ export class CoffeeTreeAPI {
                 // Local development
                 const isDocker = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
                 const apiHost = isDocker ? 'api_mock' : 'localhost';
-                const apiPort = import.meta.env?.VITE_API_PORT || '3005';
+                const apiPort = import.meta.env?.VITE_API_PORT || '3001';
                 this.baseURL = `http://${apiHost}:${apiPort}`;
             }
         } else {
@@ -951,6 +951,37 @@ export class CoffeeTreeAPI {
      */
     async getInvestorClaimHistory(investorAddress, limit = 50) {
         return this.request(`/api/investor/claims/${investorAddress}?limit=${limit}`);
+    }
+
+    /**
+     * Process investor withdrawal
+     * @param {string} investorAddress - Investor's wallet address
+     * @param {number} amount - Amount to withdraw in cents
+     * @returns {Promise<Object>} Withdrawal result with transaction details
+     */
+    async processInvestorWithdrawal(investorAddress, amount) {
+        return this.request('/api/investor/withdraw', {
+            method: 'POST',
+            body: { investorAddress, amount }
+        });
+    }
+
+    /**
+     * Get investor withdrawal history
+     * @param {string} investorAddress - Investor's wallet address
+     * @returns {Promise<Object>} Withdrawal history
+     */
+    async getInvestorWithdrawalHistory(investorAddress) {
+        return this.request(`/api/investor/withdrawals/${investorAddress}`);
+    }
+
+    /**
+     * Get investor transaction history (purchases, distributions, withdrawals)
+     * @param {string} investorAddress - Investor's wallet address
+     * @returns {Promise<Object>} Complete transaction history
+     */
+    async getInvestorTransactionHistory(investorAddress) {
+        return this.request(`/api/investor/transactions/${investorAddress}`);
     }
 }
 

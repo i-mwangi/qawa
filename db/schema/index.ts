@@ -157,6 +157,7 @@ export const coffeeGroves = sqliteTable("coffee_groves", {
     groveName: text("grove_name").unique().notNull(),
     farmerAddress: text("farmer_address").notNull(),
     tokenAddress: text("token_address").unique(),
+    tokenSymbol: text("token_symbol"),
     location: text("location").notNull(),
     coordinatesLat: real("coordinates_lat"),
     coordinatesLng: real("coordinates_lng"),
@@ -165,16 +166,19 @@ export const coffeeGroves = sqliteTable("coffee_groves", {
     plantingDate: integer("planting_date"),
     expectedYieldPerTree: integer("expected_yield_per_tree"),
     totalTokensIssued: integer("total_tokens_issued"),
+    tokensSold: integer("tokens_sold").default(0).notNull(),
     tokensPerTree: integer("tokens_per_tree"),
     verificationStatus: text("verification_status").default("pending"),
     currentHealthScore: integer("current_health_score"),
+    isTokenized: integer("is_tokenized", { mode: 'boolean' }).default(false),
+    tokenizedAt: integer("tokenized_at"),
     createdAt: integer("created_at").default(Date.now()),
     updatedAt: integer("updated_at").default(Date.now())
 }, (table) => {
     return {
         farmerAddressIdx: index("coffee_groves_farmer_address_idx").on(table.farmerAddress),
         groveNameIdx: index("coffee_groves_name_idx").on(table.groveName),
-
+        tokensSoldIdx: index("coffee_groves_tokens_sold_idx").on(table.tokensSold)
     }
 });
 
@@ -224,7 +228,17 @@ export const revenueDistributions = sqliteTable("revenue_distributions", {
     tokenAmount: integer("token_amount").notNull(),
     revenueShare: integer("revenue_share").notNull(),
     distributionDate: integer("distribution_date").notNull(),
-    transactionHash: text("transaction_hash")
+    transactionHash: text("transaction_hash"),
+    // Payment tracking fields
+    paymentStatus: text("payment_status"), // 'pending' | 'completed' | 'failed'
+    transactionId: text("transaction_id"),
+    paidAt: integer("paid_at")
+}, (table) => {
+    return {
+        holderAddressIdx: index("revenue_distributions_holder_idx").on(table.holderAddress),
+        harvestIdIdx: index("revenue_distributions_harvest_idx").on(table.harvestId),
+        paymentStatusIdx: index("revenue_distributions_payment_status_idx").on(table.paymentStatus)
+    }
 })
 
 export const farmerVerifications = sqliteTable("farmer_verifications", {
@@ -467,6 +481,27 @@ export const farmerBalances = sqliteTable("farmer_balances", {
     totalWithdrawn: integer("total_withdrawn").notNull().default(0),
     lastWithdrawalAt: integer("last_withdrawal_at"),
     updatedAt: integer("updated_at").default(Date.now())
+});
+
+export const investorWithdrawals = sqliteTable("investor_withdrawals", {
+    id: text("id").unique().primaryKey().notNull(),
+    investorAddress: text("investor_address").notNull(),
+    amount: integer("amount").notNull(), // In cents
+    status: text("status").notNull(), // 'pending' | 'completed' | 'failed'
+    transactionHash: text("transaction_hash"),
+    transactionId: text("transaction_id"),
+    blockExplorerUrl: text("block_explorer_url"),
+    errorMessage: text("error_message"),
+    requestedAt: integer("requested_at").notNull(),
+    completedAt: integer("completed_at"),
+    createdAt: integer("created_at").default(Date.now()),
+    updatedAt: integer("updated_at").default(Date.now())
+}, (table) => {
+    return {
+        investorAddressIdx: index("investor_withdrawals_investor_idx").on(table.investorAddress),
+        statusIdx: index("investor_withdrawals_status_idx").on(table.status),
+        requestedAtIdx: index("investor_withdrawals_requested_idx").on(table.requestedAt)
+    }
 });
 
 // Export earnings and distribution tables

@@ -29,24 +29,24 @@ class LendingPoolManager {
         if (!apiClient) {
             throw new Error('API client is required for LendingPoolManager');
         }
-        
+
         this.apiClient = apiClient;
         this.walletManager = walletManager;
-        
+
         // Cache for lending pool data
         this.poolCache = new Map();
         this.loanCache = new Map();
         this.poolCacheTimeout = 120000; // 2 minutes cache for pool stats
         this.loanCacheTimeout = 30000; // 30 seconds cache for loan data
-        
+
         // Constants for loan calculations
         this.COLLATERALIZATION_RATIO = 1.25; // 125% collateral required
         this.LIQUIDATION_THRESHOLD = 0.90; // 90% of collateral value
         this.REPAYMENT_MULTIPLIER = 1.10; // 110% repayment amount
-        
+
         // Initialize state
         this.initialized = true;
-        
+
         console.log('LendingPoolManager initialized');
     }
 
@@ -71,13 +71,13 @@ class LendingPoolManager {
     async _getCachedOrFetch(key, fetchFn, timeout) {
         const cached = this.poolCache.get(key) || this.loanCache.get(key);
         const now = Date.now();
-        
+
         if (cached && (now - cached.timestamp) < timeout) {
             return cached.data;
         }
-        
+
         const data = await fetchFn();
-        
+
         // Store in appropriate cache based on timeout
         if (timeout === this.poolCacheTimeout) {
             this.poolCache.set(key, {
@@ -90,7 +90,7 @@ class LendingPoolManager {
                 timestamp: now
             });
         }
-        
+
         return data;
     }
 
@@ -139,11 +139,11 @@ class LendingPoolManager {
         if (typeof amount !== 'number' || isNaN(amount)) {
             throw new Error(`${fieldName} must be a valid number`);
         }
-        
+
         if (amount < 0) {
             throw new Error(`${fieldName} cannot be negative`);
         }
-        
+
         if (amount === 0) {
             throw new Error(`${fieldName} must be greater than zero`);
         }
@@ -160,7 +160,7 @@ class LendingPoolManager {
         if (!accountId || typeof accountId !== 'string') {
             throw new Error(`${fieldName} is required and must be a string`);
         }
-        
+
         // Basic validation for Hedera account ID format (0.0.xxxxx)
         const accountIdPattern = /^0\.0\.\d+$/;
         if (!accountIdPattern.test(accountId)) {
@@ -191,11 +191,11 @@ class LendingPoolManager {
         if (totalLiquidity === 0 || totalLPTokens === 0) {
             return usdcAmount;
         }
-        
+
         // Calculate LP tokens based on proportional share of pool
         // lpTokens = (usdcAmount / totalLiquidity) * totalLPTokens
         const lpTokens = (usdcAmount / totalLiquidity) * totalLPTokens;
-        
+
         return lpTokens;
     }
 
@@ -212,11 +212,11 @@ class LendingPoolManager {
         if (totalLPTokens === 0) {
             throw new Error('Pool has no LP tokens in circulation');
         }
-        
+
         // Calculate USDC based on proportional share of pool
         // usdcAmount = (lpTokenAmount / totalLPTokens) * totalLiquidity
         const usdcAmount = (lpTokenAmount / totalLPTokens) * totalLiquidity;
-        
+
         return usdcAmount;
     }
 
@@ -231,7 +231,7 @@ class LendingPoolManager {
         if (totalLPTokens === 0) {
             return 0;
         }
-        
+
         return (userLPTokens / totalLPTokens) * 100;
     }
 
@@ -250,37 +250,37 @@ class LendingPoolManager {
         this._validateInitialization();
         this._validateAccountId(assetAddress, 'Asset address');
         this._validateAmount(amount, 'Liquidity amount');
-        
+
         // Show loading spinner
-        const loadingId = loadingManager ? 
+        const loadingId = loadingManager ?
             loadingManager.showLoading('provide-liquidity', 'Providing liquidity...') : null;
-        
+
         try {
             // Get current pool statistics to calculate LP token amount
             const poolStats = await this.apiClient.getPoolStatistics(assetAddress);
-            
+
             if (!poolStats) {
                 throw new Error('Unable to fetch pool statistics');
             }
-            
+
             // Calculate LP token amount based on pool share
             const lpTokenAmount = this._calculateLPTokensToMint(
                 amount,
                 poolStats.totalLiquidity || 0,
                 poolStats.totalLPTokens || 0
             );
-            
+
             // Call API to provide liquidity
             const result = await this.apiClient.provideLiquidity(assetAddress, amount);
-            
+
             if (!result || !result.success) {
                 throw new Error(result?.error || 'Failed to provide liquidity');
             }
-            
+
             // Clear cache to force refresh on next fetch
             this.clearCache(`pool_${assetAddress}`, 'pool');
             this.clearCache('all_pools', 'pool');
-            
+
             return {
                 success: true,
                 lpTokenAmount: lpTokenAmount,
@@ -291,7 +291,7 @@ class LendingPoolManager {
                 ),
                 message: `Successfully provided ${amount} USDC liquidity`
             };
-            
+
         } catch (error) {
             console.error('Error providing liquidity:', error);
             throw new Error(`Failed to provide liquidity: ${error.message}`);
@@ -314,51 +314,51 @@ class LendingPoolManager {
         this._validateInitialization();
         this._validateAccountId(assetAddress, 'Asset address');
         this._validateAmount(lpTokenAmount, 'LP token amount');
-        
+
         // Show loading spinner
-        const loadingId = loadingManager ? 
+        const loadingId = loadingManager ?
             loadingManager.showLoading('withdraw-liquidity', 'Withdrawing liquidity...') : null;
-        
+
         try {
             // Get current pool statistics to calculate USDC amount
             const poolStats = await this.apiClient.getPoolStatistics(assetAddress);
-            
+
             if (!poolStats) {
                 throw new Error('Unable to fetch pool statistics');
             }
-            
+
             // Validate user has sufficient LP tokens
             if (poolStats.userLPBalance && lpTokenAmount > poolStats.userLPBalance) {
                 throw new Error(
                     `Insufficient LP tokens. Available: ${poolStats.userLPBalance}, Requested: ${lpTokenAmount}`
                 );
             }
-            
+
             // Calculate USDC amount to receive based on pool share
             const usdcAmount = this._calculateUSDCFromLPTokens(
                 lpTokenAmount,
                 poolStats.totalLiquidity || 0,
                 poolStats.totalLPTokens || 0
             );
-            
+
             // Validate pool has sufficient available liquidity
             if (poolStats.availableLiquidity && usdcAmount > poolStats.availableLiquidity) {
                 throw new Error(
                     `Insufficient pool liquidity. Available: ${poolStats.availableLiquidity}, Requested: ${usdcAmount}`
                 );
             }
-            
+
             // Call API to withdraw liquidity
             const result = await this.apiClient.withdrawLiquidity(assetAddress, lpTokenAmount);
-            
+
             if (!result || !result.success) {
                 throw new Error(result?.error || 'Failed to withdraw liquidity');
             }
-            
+
             // Clear cache to force refresh on next fetch
             this.clearCache(`pool_${assetAddress}`, 'pool');
             this.clearCache('all_pools', 'pool');
-            
+
             return {
                 success: true,
                 usdcAmount: usdcAmount,
@@ -367,7 +367,7 @@ class LendingPoolManager {
                 rewards: result.rewards || 0,
                 message: `Successfully withdrew ${usdcAmount} USDC from pool`
             };
-            
+
         } catch (error) {
             console.error('Error withdrawing liquidity:', error);
             throw new Error(`Failed to withdraw liquidity: ${error.message}`);
@@ -385,7 +385,7 @@ class LendingPoolManager {
      */
     async getLendingPools() {
         this._validateInitialization();
-        
+
         // Implementation will be added in Task 8.1
         throw new Error('getLendingPools not yet implemented');
     }
@@ -398,7 +398,7 @@ class LendingPoolManager {
     async getPoolStatistics(assetAddress) {
         this._validateInitialization();
         this._validateAccountId(assetAddress, 'Asset address');
-        
+
         // Implementation will be added in Task 8.1
         throw new Error('getPoolStatistics not yet implemented');
     }
@@ -416,12 +416,12 @@ class LendingPoolManager {
     calculateCollateralRequired(loanAmount, assetPrice) {
         this._validateAmount(loanAmount, 'Loan amount');
         this._validateAmount(assetPrice, 'Asset price');
-        
+
         // Calculate collateral required at 125% collateralization ratio
         // collateral = (loanAmount * COLLATERALIZATION_RATIO) / assetPrice
         const collateralValue = loanAmount * this.COLLATERALIZATION_RATIO;
         const collateralAmount = collateralValue / assetPrice;
-        
+
         return collateralAmount;
     }
 
@@ -434,11 +434,11 @@ class LendingPoolManager {
     calculateLiquidationPrice(collateralAmount, loanAmount) {
         this._validateAmount(collateralAmount, 'Collateral amount');
         this._validateAmount(loanAmount, 'Loan amount');
-        
+
         // Calculate liquidation price at 90% threshold
         // liquidationPrice = loanAmount / (collateralAmount * LIQUIDATION_THRESHOLD)
         const liquidationPrice = loanAmount / (collateralAmount * this.LIQUIDATION_THRESHOLD);
-        
+
         return liquidationPrice;
     }
 
@@ -449,10 +449,10 @@ class LendingPoolManager {
      */
     calculateRepaymentAmount(loanAmount) {
         this._validateAmount(loanAmount, 'Loan amount');
-        
+
         // Calculate repayment amount at 110% of original loan
         const repaymentAmount = loanAmount * this.REPAYMENT_MULTIPLIER;
-        
+
         return repaymentAmount;
     }
 
@@ -467,24 +467,24 @@ class LendingPoolManager {
             throw new Error('Loan details are required');
         }
         this._validateAmount(currentPrice, 'Current price');
-        
+
         // Validate loan details structure
         if (!loanDetails.collateralAmount || !loanDetails.loanAmountUSDC) {
             throw new Error('Loan details must include collateralAmount and loanAmountUSDC');
         }
-        
+
         const collateralAmount = loanDetails.collateralAmount;
         const loanAmount = loanDetails.loanAmountUSDC;
-        
+
         // Calculate current collateral value
         const collateralValue = collateralAmount * currentPrice;
-        
+
         // Calculate health factor
         // healthFactor = (collateralValue * LIQUIDATION_THRESHOLD) / loanAmount
         // If healthFactor > 1, loan is healthy
         // If healthFactor < 1, loan is at risk of liquidation
         const healthFactor = (collateralValue * this.LIQUIDATION_THRESHOLD) / loanAmount;
-        
+
         return healthFactor;
     }
 
@@ -498,7 +498,7 @@ class LendingPoolManager {
         this._validateInitialization();
         this._validateAccountId(assetAddress, 'Asset address');
         this._validateAmount(loanAmount, 'Loan amount');
-        
+
         // Implementation will be added in Task 8.2
         throw new Error('calculateLoanTerms not yet implemented');
     }
@@ -514,11 +514,11 @@ class LendingPoolManager {
         this._validateInitialization();
         this._validateAccountId(assetAddress, 'Asset address');
         this._validateAmount(loanAmount, 'Loan amount');
-        
+
         // Show loading spinner
-        const loadingId = loadingManager ? 
+        const loadingId = loadingManager ?
             loadingManager.showLoading('take-loan', 'Processing loan...') : null;
-        
+
         try {
             // Implementation will be added in Task 8.2
             throw new Error('takeOutLoan not yet implemented');
@@ -539,11 +539,11 @@ class LendingPoolManager {
     async repayLoan(assetAddress, loadingManager = null) {
         this._validateInitialization();
         this._validateAccountId(assetAddress, 'Asset address');
-        
+
         // Show loading spinner
-        const loadingId = loadingManager ? 
+        const loadingId = loadingManager ?
             loadingManager.showLoading('repay-loan', 'Repaying loan...') : null;
-        
+
         try {
             // Implementation will be added in Task 8.2
             throw new Error('repayLoan not yet implemented');
@@ -565,7 +565,7 @@ class LendingPoolManager {
         this._validateInitialization();
         this._validateAccountId(borrowerAddress, 'Borrower address');
         this._validateAccountId(assetAddress, 'Asset address');
-        
+
         // Implementation will be added in Task 8.2
         throw new Error('getLoanDetails not yet implemented');
     }
@@ -577,4 +577,219 @@ if (typeof module !== 'undefined' && module.exports) {
         LendingPoolManager,
         LoanError
     };
+}
+
+// ========================================================================
+// Credit Score Integration for Lending Section
+// ========================================================================
+
+/**
+ * Fetch credit score from API
+ */
+async function fetchCreditScore(accountId) {
+    try {
+        const response = await fetch(`/api/credit-score/${accountId}`);
+        if (!response.ok) {
+            if (response.status === 404) {
+                return null; // No credit history
+            }
+            throw new Error('Failed to fetch credit score');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching credit score:', error);
+        throw error;
+    }
+}
+
+/**
+ * Render credit score card
+ */
+function renderCreditScoreCard(scoreData) {
+    const { currentScore, tier, maxLoanAmount, totalLoans, earlyPayments, onTimePayments, latePayments } = scoreData;
+
+    // Determine color based on tier
+    const tierColors = {
+        excellent: { bg: 'rgba(34, 197, 94, 0.1)', border: 'rgba(34, 197, 94, 0.3)', text: '#22c55e', icon: '🟢' },
+        good: { bg: 'rgba(59, 130, 246, 0.1)', border: 'rgba(59, 130, 246, 0.3)', text: '#3b82f6', icon: '🔵' },
+        fair: { bg: 'rgba(234, 179, 8, 0.1)', border: 'rgba(234, 179, 8, 0.3)', text: '#eab308', icon: '🟡' },
+        poor: { bg: 'rgba(239, 68, 68, 0.1)', border: 'rgba(239, 68, 68, 0.3)', text: '#ef4444', icon: '🔴' }
+    };
+
+    const colors = tierColors[tier] || tierColors.fair;
+    const progress = Math.min((currentScore / 850) * 100, 100);
+
+    return `
+        <div style="background: var(--bg-glass, rgba(60, 45, 38, 0.5)); backdrop-filter: blur(5px); border: 1px solid var(--border-glass, rgba(199, 172, 149, 0.2)); border-radius: 12px; padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div>
+                    <div style="font-size: 0.875rem; color: var(--text-dark, #B0A090); margin-bottom: 4px;">Your Credit Score</div>
+                    <div style="font-size: 2.5rem; font-weight: 700; color: ${colors.text};">${currentScore}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 1.5rem; margin-bottom: 4px;">${colors.icon}</div>
+                    <div style="font-size: 0.875rem; font-weight: 600; color: ${colors.text}; text-transform: capitalize;">${tier}</div>
+                </div>
+            </div>
+            
+            <div style="width: 100%; background: rgba(0, 0, 0, 0.3); border-radius: 9999px; height: 8px; margin-bottom: 16px; overflow: hidden;">
+                <div style="height: 100%; background: ${colors.text}; width: ${progress}%; transition: width 0.3s ease;"></div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-light, #F5EFE6);">${totalLoans}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-dark, #B0A090);">Total</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.25rem; font-weight: 700; color: #22c55e;">${earlyPayments}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-dark, #B0A090);">Early</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.25rem; font-weight: 700; color: #3b82f6;">${onTimePayments}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-dark, #B0A090);">On-time</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.25rem; font-weight: 700; color: #ef4444;">${latePayments}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-dark, #B0A090);">Late</div>
+                </div>
+            </div>
+            
+            <div style="background: ${colors.bg}; border: 1px solid ${colors.border}; border-radius: 8px; padding: 12px;">
+                <div style="font-size: 0.875rem; color: var(--text-light, #F5EFE6); font-weight: 600; margin-bottom: 4px;">
+                    Max Loan Amount: <span style="color: ${colors.text};">$${maxLoanAmount.toLocaleString()}</span>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-dark, #B0A090);">
+                    Based on your ${tier} credit tier
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Initialize credit score display in the lending section
+ */
+async function initializeCreditScoreInLending() {
+    const creditScoreContainer = document.getElementById('creditScoreContainer');
+    const refreshButton = document.getElementById('refreshCreditScore');
+
+    if (!creditScoreContainer) {
+        console.warn('Credit score container not found in lending section');
+        return;
+    }
+
+    // Get connected wallet address
+    const walletAddress = window.walletManager?.getConnectedAccount?.() ||
+        window.accountId ||
+        localStorage.getItem('connectedAccount');
+
+    if (!walletAddress) {
+        creditScoreContainer.innerHTML = `
+            <div style="background: var(--bg-glass, rgba(60, 45, 38, 0.5)); backdrop-filter: blur(5px); border: 1px solid var(--border-glass, rgba(199, 172, 149, 0.2)); border-radius: 12px; padding: 24px; text-align: center;">
+                <p style="color: var(--text-light, #F5EFE6); margin: 0;">
+                    <i class="fas fa-wallet" style="font-size: 2rem; margin-bottom: 12px; display: block; opacity: 0.5;"></i>
+                    Connect your wallet to view your credit score
+                </p>
+            </div>
+        `;
+        return;
+    }
+
+    // Show loading state
+    creditScoreContainer.innerHTML = `
+        <div style="background: var(--bg-glass, rgba(60, 45, 38, 0.5)); backdrop-filter: blur(5px); border: 1px solid var(--border-glass, rgba(199, 172, 149, 0.2)); border-radius: 12px; padding: 24px; text-align: center;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--text-dark, #B0A090);"></i>
+            <p style="color: var(--text-light, #F5EFE6); margin-top: 12px;">Loading credit score...</p>
+        </div>
+    `;
+
+    // Load and display credit score
+    try {
+        const scoreData = await fetchCreditScore(walletAddress);
+
+        if (!scoreData) {
+            // No credit history
+            creditScoreContainer.innerHTML = `
+                <div style="background: var(--bg-glass, rgba(60, 45, 38, 0.5)); backdrop-filter: blur(5px); border: 1px solid var(--border-glass, rgba(199, 172, 149, 0.2)); border-radius: 12px; padding: 24px; text-align: center;">
+                    <p style="color: var(--text-light, #F5EFE6); margin: 0;">
+                        <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 12px; display: block; opacity: 0.5;"></i>
+                        No credit history yet. Take out your first loan to start building your credit score!
+                    </p>
+                </div>
+            `;
+        } else {
+            // Render credit score card
+            creditScoreContainer.innerHTML = renderCreditScoreCard(scoreData);
+        }
+    } catch (error) {
+        console.error('Error loading credit score:', error);
+        creditScoreContainer.innerHTML = `
+            <div style="background: var(--bg-glass, rgba(60, 45, 38, 0.5)); backdrop-filter: blur(5px); border: 1px solid var(--border-glass, rgba(199, 172, 149, 0.2)); border-radius: 12px; padding: 24px; text-align: center;">
+                <p style="color: var(--text-light, #F5EFE6); margin: 0;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 12px; display: block; opacity: 0.5;"></i>
+                    Unable to load credit score. Please try again later.
+                </p>
+            </div>
+        `;
+    }
+
+    // Setup refresh button
+    if (refreshButton && !refreshButton.dataset.listenerAttached) {
+        refreshButton.dataset.listenerAttached = 'true';
+        refreshButton.addEventListener('click', async () => {
+            refreshButton.disabled = true;
+            const originalHTML = refreshButton.innerHTML;
+            refreshButton.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Refreshing...';
+
+            try {
+                await initializeCreditScoreInLending();
+            } catch (error) {
+                console.error('Error refreshing credit score:', error);
+            } finally {
+                refreshButton.disabled = false;
+                refreshButton.innerHTML = originalHTML;
+            }
+        });
+    }
+}
+
+// Auto-initialize when lending section becomes visible
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('Credit score module loaded');
+
+        // Watch for lending section visibility
+        const observer = new MutationObserver((mutations) => {
+            const lendingSection = document.getElementById('lendingSection');
+            if (lendingSection && lendingSection.classList.contains('active')) {
+                console.log('Lending section became active, initializing credit score');
+                initializeCreditScoreInLending();
+            }
+        });
+
+        // Start observing
+        const investorView = document.getElementById('investorView');
+        if (investorView) {
+            observer.observe(investorView, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class']
+            });
+        }
+
+        // Also check if lending section is already active
+        setTimeout(() => {
+            const lendingSection = document.getElementById('lendingSection');
+            if (lendingSection && lendingSection.classList.contains('active')) {
+                console.log('Lending section already active, initializing credit score');
+                initializeCreditScoreInLending();
+            }
+        }, 1000);
+    });
+}
+
+// Export for manual initialization if needed
+if (typeof window !== 'undefined') {
+    window.initializeCreditScoreInLending = initializeCreditScoreInLending;
 }

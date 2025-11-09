@@ -31,6 +31,22 @@ class InvestorEarnings {
                 this.handleSelectAll(e.target.checked);
             });
         }
+
+        // Withdrawal form
+        const withdrawalForm = document.getElementById('investorWithdrawalForm');
+        if (withdrawalForm) {
+            withdrawalForm.addEventListener('submit', (e) => {
+                this.handleWithdrawalSubmit(e);
+            });
+        }
+
+        // Max withdrawal button
+        const maxWithdrawalBtn = document.getElementById('maxWithdrawalBtn');
+        if (maxWithdrawalBtn) {
+            maxWithdrawalBtn.addEventListener('click', () => {
+                this.setMaxWithdrawalAmount();
+            });
+        }
     }
 
     /**
@@ -57,26 +73,31 @@ class InvestorEarnings {
             // Show loading state
             this.showLoadingState();
 
-            // Fetch both balance and earnings in parallel with timeout
-            console.log('[Investor Earnings] Fetching balance and earnings in parallel...');
-            const [balanceResponse, earningsResponse] = await Promise.race([
+            // Fetch balance, earnings, and withdrawal history in parallel with timeout
+            console.log('[Investor Earnings] Fetching balance, earnings, and withdrawal history...');
+            const [balanceResponse, earningsResponse, withdrawalHistoryResponse] = await Promise.race([
                 Promise.all([
                     window.coffeeAPI.getInvestorBalance(investorAddress),
-                    window.coffeeAPI.getInvestorUnclaimedEarnings(investorAddress)
+                    window.coffeeAPI.getInvestorUnclaimedEarnings(investorAddress),
+                    window.coffeeAPI.getInvestorWithdrawalHistory(investorAddress)
                 ]),
                 new Promise((_, reject) => setTimeout(() => reject(new Error('Request timeout')), 10000))
             ]);
             
             console.log('[Investor Earnings] Balance response:', balanceResponse);
             console.log('[Investor Earnings] Earnings response:', earningsResponse);
+            console.log('[Investor Earnings] Withdrawal history response:', withdrawalHistoryResponse);
 
             if (balanceResponse && balanceResponse.success) {
-                this.balance = balanceResponse.data;
+                this.balance = balanceResponse.balance || balanceResponse.data;
                 console.log('[Investor Earnings] Balance data:', this.balance);
             } else {
                 console.warn('[Investor Earnings] Balance request failed:', balanceResponse);
                 // Set default balance with $0
                 this.balance = {
+                    totalEarned: 0,
+                    totalWithdrawn: 0,
+                    availableBalance: 0,
                     totalEarningsThisMonth: 0,
                     totalClaimed: 0,
                     unclaimedPrimaryMarket: 0,
@@ -93,9 +114,19 @@ class InvestorEarnings {
                 console.warn('[Investor Earnings] Earnings request failed:', earningsResponse);
                 this.unclaimedEarnings = [];
             }
+
+            if (withdrawalHistoryResponse && withdrawalHistoryResponse.success) {
+                this.withdrawalHistory = withdrawalHistoryResponse.withdrawals || [];
+                console.log('[Investor Earnings] Withdrawal history:', this.withdrawalHistory);
+            } else {
+                console.warn('[Investor Earnings] Withdrawal history request failed:', withdrawalHistoryResponse);
+                this.withdrawalHistory = [];
+            }
             
+            this.renderBalanceSummary();
             this.renderEarningsSummary();
             this.renderUnclaimedEarnings();
+            this.renderWithdrawalHistory();
             this.hideLoadingState();
             
             console.log('[Investor Earnings] Data loaded successfully');
@@ -104,6 +135,9 @@ class InvestorEarnings {
             console.error('[Investor Earnings] Error loading earnings data:', error);
             // Show $0 balances instead of error
             this.balance = {
+                totalEarned: 0,
+                totalWithdrawn: 0,
+                availableBalance: 0,
                 totalEarningsThisMonth: 0,
                 totalClaimed: 0,
                 unclaimedPrimaryMarket: 0,
@@ -112,9 +146,31 @@ class InvestorEarnings {
                 totalUnclaimed: 0
             };
             this.unclaimedEarnings = [];
+            this.withdrawalHistory = [];
+            this.renderBalanceSummary();
             this.renderEarningsSummary();
             this.renderUnclaimedEarnings();
+            this.renderWithdrawalHistory();
             this.hideLoadingState();
+        }
+    }
+
+    /**
+     * Render balance summary (Total Earned, Withdrawn, Available)
+     */
+    renderBalanceSummary() {
+        if (!this.balance) return;
+
+        // Update balance cards
+        this.updateSummaryCard('totalEarned', this.balance.totalEarned || 0);
+        this.updateSummaryCard('totalWithdrawn', this.balance.totalWithdrawn || 0);
+        this.updateSummaryCard('availableBalance', this.balance.availableBalance || 0);
+        
+        // Update available balance help text
+        const availableBalanceHelp = document.getElementById('availableBalanceHelp');
+        if (availableBalanceHelp) {
+            const displayValue = ((this.balance.availableBalance || 0) / 100).toFixed(2);
+            availableBalanceHelp.textContent = `$${displayValue}`;
         }
     }
 
@@ -125,16 +181,16 @@ class InvestorEarnings {
         if (!this.balance) return;
 
         // Update total earnings this month
-        this.updateSummaryCard('totalEarningsThisMonth', this.balance.totalEarningsThisMonth);
+        this.updateSummaryCard('totalEarningsThisMonth', this.balance.totalEarningsThisMonth || 0);
         
         // Update claimed earnings
-        this.updateSummaryCard('totalClaimed', this.balance.totalClaimed);
+        this.updateSummaryCard('totalClaimed', this.balance.totalClaimed || 0);
         
         // Update unclaimed breakdown
-        this.updateSummaryCard('unclaimedPrimaryMarket', this.balance.unclaimedPrimaryMarket);
-        this.updateSummaryCard('unclaimedSecondaryMarket', this.balance.unclaimedSecondaryMarket);
-        this.updateSummaryCard('unclaimedLpInterest', this.balance.unclaimedLpInterest);
-        this.updateSummaryCard('totalUnclaimed', this.balance.totalUnclaimed);
+        this.updateSummaryCard('unclaimedPrimaryMarket', this.balance.unclaimedPrimaryMarket || 0);
+        this.updateSummaryCard('unclaimedSecondaryMarket', this.balance.unclaimedSecondaryMarket || 0);
+        this.updateSummaryCard('unclaimedLpInterest', this.balance.unclaimedLpInterest || 0);
+        this.updateSummaryCard('totalUnclaimed', this.balance.totalUnclaimed || 0);
     }
 
     /**
@@ -399,6 +455,151 @@ class InvestorEarnings {
     }
 
     /**
+     * Set max withdrawal amount
+     */
+    setMaxWithdrawalAmount() {
+        const withdrawalInput = document.getElementById('withdrawalAmount');
+        if (withdrawalInput && this.balance) {
+            const maxAmount = ((this.balance.availableBalance || 0) / 100).toFixed(2);
+            withdrawalInput.value = maxAmount;
+        }
+    }
+
+    /**
+     * Handle withdrawal form submission
+     */
+    async handleWithdrawalSubmit(e) {
+        e.preventDefault();
+
+        const investorAddress = window.walletManager?.getAccountId();
+        if (!investorAddress) {
+            this.showNotification('Please connect your wallet', 'error');
+            return;
+        }
+
+        const withdrawalInput = document.getElementById('withdrawalAmount');
+        const amount = parseFloat(withdrawalInput.value);
+
+        if (!amount || amount <= 0) {
+            this.showNotification('Please enter a valid amount', 'error');
+            return;
+        }
+
+        const availableBalance = (this.balance?.availableBalance || 0) / 100;
+        if (amount > availableBalance) {
+            this.showNotification(`Amount exceeds available balance ($${availableBalance.toFixed(2)})`, 'error');
+            return;
+        }
+
+        try {
+            // Show loading
+            const form = document.getElementById('investorWithdrawalForm');
+            if (form) {
+                form.classList.add('loading');
+            }
+            this.showNotification('Processing withdrawal...', 'info');
+
+            // Convert to cents for API
+            const amountInCents = Math.round(amount * 100);
+
+            // Process withdrawal
+            const response = await window.coffeeAPI.processInvestorWithdrawal(
+                investorAddress,
+                amountInCents
+            );
+
+            if (form) {
+                form.classList.remove('loading');
+            }
+
+            if (response.success) {
+                this.showNotification(`Successfully withdrew $${amount.toFixed(2)}!`, 'success');
+                
+                // Clear form
+                withdrawalInput.value = '';
+                
+                // Reload data
+                await this.loadEarningsData(investorAddress);
+            } else {
+                const errorMsg = response.error || 'Withdrawal failed';
+                // Check if error is about token association
+                if (errorMsg.includes('associate') || errorMsg.includes('USDC token') || errorMsg.includes('TOKEN_NOT_ASSOCIATED')) {
+                    this.showTokenAssociationModal(errorMsg);
+                } else {
+                    this.showNotification(errorMsg, 'error');
+                }
+            }
+        } catch (error) {
+            const form = document.getElementById('investorWithdrawalForm');
+            if (form) {
+                form.classList.remove('loading');
+            }
+            
+            console.error('Error processing withdrawal:', error);
+            const errorMsg = error.message || 'Error processing withdrawal';
+            
+            // Check if error is about token association
+            if (errorMsg.includes('associate') || errorMsg.includes('USDC token') || errorMsg.includes('TOKEN_NOT_ASSOCIATED')) {
+                this.showTokenAssociationModal(errorMsg);
+            } else {
+                this.showNotification(errorMsg, 'error');
+            }
+        }
+    }
+
+    /**
+     * Render withdrawal history
+     */
+    renderWithdrawalHistory() {
+        const container = document.getElementById('withdrawalHistoryList');
+        if (!container) return;
+
+        if (!this.withdrawalHistory || this.withdrawalHistory.length === 0) {
+            container.innerHTML = '<p class="empty-state">No withdrawals yet</p>';
+            return;
+        }
+
+        container.innerHTML = this.withdrawalHistory.map(withdrawal => {
+            const amount = (withdrawal.amount / 100).toFixed(2);
+            const date = new Date(withdrawal.requestedAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            const status = withdrawal.status || 'pending';
+            const txHash = withdrawal.transactionHash || withdrawal.transactionId;
+            const hashscanUrl = txHash ? `https://hashscan.io/testnet/transaction/${txHash}` : null;
+
+            return `
+                <div class="withdrawal-item">
+                    <div class="withdrawal-header">
+                        <span class="withdrawal-amount">$${amount}</span>
+                        <span class="withdrawal-status ${status}">${status}</span>
+                    </div>
+                    <div class="withdrawal-details">
+                        <span class="withdrawal-date">${date}</span>
+                        ${hashscanUrl ? `
+                            <a href="${hashscanUrl}" target="_blank" rel="noopener noreferrer" class="withdrawal-tx-link">
+                                View on HashScan
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                    <polyline points="15 3 21 3 21 9"></polyline>
+                                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                                </svg>
+                            </a>
+                        ` : ''}
+                        ${withdrawal.errorMessage ? `
+                            <span style="color: #f44336; font-size: 0.8rem;">Error: ${withdrawal.errorMessage}</span>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    /**
      * Show token association instructions modal
      */
     showTokenAssociationModal(errorMessage) {
@@ -463,7 +664,7 @@ class InvestorEarnings {
                             <li>Enter token ID: <strong style="color: #10b981;">${tokenId}</strong></li>
                             <li>Click <strong style="color: #f3f4f6;">"Associate"</strong></li>
                             <li>Approve the transaction (~$0.05 HBAR)</li>
-                            <li>Come back and try claiming again!</li>
+                            <li>Come back and try withdrawing again!</li>
                         </ol>
                     </div>
                     

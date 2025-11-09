@@ -7,7 +7,7 @@ import { pathToFileURL } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const serverPath = 'api/server.ts';
+const serverPath = join(__dirname, 'api', 'dev-server.ts');
 
 console.log('🚀 Starting API server...');
 console.log('📁 Server path:', serverPath);

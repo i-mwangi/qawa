@@ -2,8 +2,11 @@
 /**
  * Farmer Dashboard Management
  * Handles all farmer-specific functionality including grove management,
- * harvest reporting, revenue tracking, and tree health monitoring
+ * harvest reporting, revenue tracking, tree health monitoring, and credit scoring
  */
+
+// Import credit score manager
+import CreditScoreManager from './credit-score.js';
 
 class FarmerDashboard {
     constructor() {
@@ -25,6 +28,9 @@ class FarmerDashboard {
         };
         this.verificationChecked = false;
         this.verificationStatus = null;
+        
+        // Initialize credit score manager
+        this.creditScoreManager = new CreditScoreManager();
 
         // Defer initialization until the DOM is fully loaded
         if (document.readyState === 'loading') {
@@ -386,16 +392,33 @@ class FarmerDashboard {
             treeCount: parseInt(formData.get('treeCount')),
             coffeeVariety: formData.get('coffeeVariety'),
             expectedYieldPerTree: parseFloat(formData.get('expectedYield')),
+            tokensPerTree: parseInt(formData.get('tokensPerTree')) || 10, // Include tokens per tree
             farmerAddress: window.walletManager?.getAccountId() // Include farmer address
         };
 
         try {
+            // Show loading notification
+            this.showNotification('Registering grove and creating tokens...', 'info');
+            
             // Corrected: Use the 'registerGrove' method which exists in api.js
             if (window.coffeeAPI && typeof window.coffeeAPI.registerGrove === 'function') {
                 const response = await window.coffeeAPI.registerGrove(groveData);
 
                 if (response && response.success) {
-                    this.showNotification('Grove added successfully', 'success');
+                    // Check if tokenization was successful
+                    if (response.tokenization && response.tokenization.success) {
+                        const totalTokens = response.tokenization.totalTokens;
+                        const tokenSymbol = response.tokenization.tokenSymbol;
+                        this.showNotification(
+                            `Grove registered! ${totalTokens} ${tokenSymbol} tokens created on Hedera.`, 
+                            'success'
+                        );
+                    } else {
+                        this.showNotification(
+                            'Grove registered successfully (tokenization pending)', 
+                            'success'
+                        );
+                    }
                     this.closeModals();
                     this.loadGroves(groveData.farmerAddress); // Refresh the groves list
                 } else {
@@ -726,11 +749,51 @@ class FarmerDashboard {
                         await window.farmerRevenueTracking.loadTransactionHistory(farmerAddress);
                     }
                     break;
+                case 'credit':
+                    // Load credit score
+                    await this.loadCreditScore(farmerAddress);
+                    break;
                 // Add cases for other sections here
             }
         } catch (error) {
             console.error(`Failed to load data for section ${section}:`, error);
             this.showNotification(`Error loading ${section} data.`, 'error');
+        }
+    }
+
+    /**
+     * Load credit score for farmer
+     */
+    async loadCreditScore(farmerAddress) {
+        console.log('Loading credit score for:', farmerAddress);
+        
+        try {
+            await this.creditScoreManager.initializeCreditScoreDisplay(
+                'creditScoreContainer',
+                farmerAddress
+            );
+            
+            // Setup refresh button
+            const refreshBtn = document.getElementById('refreshCreditScore');
+            if (refreshBtn) {
+                refreshBtn.onclick = async () => {
+                    refreshBtn.disabled = true;
+                    refreshBtn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Refreshing...';
+                    
+                    try {
+                        await this.creditScoreManager.refreshCreditScore('creditScoreContainer');
+                        this.showNotification('Credit score refreshed successfully', 'success');
+                    } catch (error) {
+                        this.showNotification('Failed to refresh credit score', 'error');
+                    } finally {
+                        refreshBtn.disabled = false;
+                        refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+                    }
+                };
+            }
+        } catch (error) {
+            console.error('Error loading credit score:', error);
+            this.showNotification('Failed to load credit score', 'error');
         }
     }
 
@@ -2361,8 +2424,8 @@ class FarmerDashboard {
         try {
             const response = await window.coffeeAPI.getHarvestHistory(farmerAddress);
 
-            // Fix: Backend returns data.harvests, not data directly
-            const harvests = response.success && response.data && response.data.harvests ? response.data.harvests : [];
+            // Backend returns response.harvests directly
+            const harvests = response.success && response.harvests ? response.harvests : [];
             
             if (harvests.length > 0) {
                 console.log(`âœ… Loaded ${harvests.length} harvests from database`);
@@ -2494,14 +2557,14 @@ class FarmerDashboard {
     calculateFarmerShare(harvest) {
         if (harvest.farmerShare) return harvest.farmerShare;
         const totalRevenue = harvest.totalRevenue || (harvest.yieldKg * (harvest.salePricePerKg || 5));
-        return Math.floor(totalRevenue * 0.3);
+        return Math.floor(totalRevenue * 0.3); // 30% to farmer
     }
 
     // Helper function to calculate investor share (70%)
     calculateInvestorShare(harvest) {
         if (harvest.investorShare) return harvest.investorShare;
         const totalRevenue = harvest.totalRevenue || (harvest.yieldKg * (harvest.salePricePerKg || 5));
-        return Math.floor(totalRevenue * 0.7);
+        return Math.floor(totalRevenue * 0.7); // 70% to investors
     }
 
     // Helper function to get total revenue

@@ -11,6 +11,12 @@ export default defineConfig(({ mode }) => {
   
   return {
     root: 'frontend',
+    test: {
+      globals: true,
+      environment: 'node',
+      include: ['tests/**/*.{test,spec}.{js,ts}'],
+      root: __dirname,
+    },
     publicDir: 'public',
     build: {
       outDir: 'dist',

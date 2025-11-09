@@ -91,9 +91,20 @@ vite.config.ts.timestamp-*
 # Test & Development Files
 # ============================================
 
+# Test directories
+tests/
+*.test.ts
+*.test.js
+*.spec.ts
+*.spec.js
+
 # Root test files
-test-hedera-sdk.ts
-create-test-usdc.ts
+test-*.mjs
+test-*.ts
+test-*.js
+check-*.mjs
+create-test-*.ts
+start-server.mjs
 loadIntoEnv.ts
 lookup-db.ts
 analyze-bundle.js
@@ -103,7 +114,7 @@ verify-vite-config.js
 transactions.json
 
 # Frontend test files
-frontend/test-revenue-api.html
+frontend/test-*.html
 frontend/wallet-test.html
 frontend/wallet-modal-test.html
 frontend/notification-test.html
@@ -112,44 +123,74 @@ frontend/module-test.html
 frontend/import-test.html
 frontend/final-cdn-test.html
 frontend/hashconnect-setup.html
-frontend/debug-wallet.js
-frontend/check-wallet-state.js
+frontend/debug-*.js
+frontend/check-*.js
 frontend/demo-helper.js
 frontend/simple-server.js
-frontend/temp-grove-tracker-content.html
+frontend/temp-*.html
 frontend/tree-health-dashboard.html
+frontend/api-server.js
 
 # Backup files
+*.backup
+*.bak
 frontend/index.html.backup*
 frontend/index.html.bak
 frontend/*.backup
 frontend/*.bak
 
-# Mock data (optional - uncomment if you don't want to commit)
-# frontend/mock-data.json
-
-# Test scripts
+# Development scripts (keep essential migration scripts)
+scripts/test-*.ts
+scripts/test-*.mjs
+scripts/check-*.ts
 scripts/check-*.mjs
-scripts/fix-*.mjs
+scripts/validate-*.ts
+scripts/verify-*.ts
+scripts/verify-*.mjs
 scripts/fix-*.ts
+scripts/fix-*.mjs
 scripts/clean-*.mjs
 scripts/retry-*.mjs
+scripts/complete-*.mjs
+scripts/manual-*.ts
 scripts/manual-*.mjs
-scripts/transfer-grove-29-*.ts
-scripts/transfer-grove-29-*.mjs
+scripts/transfer-grove-*.ts
+scripts/transfer-grove-*.mjs
+scripts/transfer-tokens-*.ts
+scripts/transfer-tokens-*.mjs
 scripts/mint-usdc-*.mjs
+scripts/mint-usdc-*.ts
 scripts/create-platform-usdc.mjs
-scripts/verify-*.mjs
+scripts/create-lp-usdc-token.mjs
+scripts/create-test-*.ts
+scripts/nuke-and-reload/
+scripts/*.cjs
+scripts/compile.sh
+
+# Development servers
+api/dev-server.ts
 
 # Temporary directories
 temp/
 tmp/
 
-# Documentation (deployment guides)
-docs
+# Documentation files (keep README and LICENSE)
+docs/
+.kiro/
+CHANGELOG.md
+CODE_OF_CONDUCT.md
+SECURITY.md
+TOKENIZATION-QUICK-START.md
 RENDER_DEPLOYMENT.md
 TROUBLESHOOTING.md
 DEPLOYMENT_GUIDE.md
 DEPLOYMENT_GUIDE.md.bak
 DEPLOYMENT_GUIDE.md.backup
 DEPLOYMENT_GUIDE.md.bak.backup
+
+# Render ignore file (not needed in git)
+.renderignore
+
+# Production exclude documentation
+docs/PRODUCTION-EXCLUDE-FILES.md
+docs/DEVELOPMENT-AND-TEST-FILES.md

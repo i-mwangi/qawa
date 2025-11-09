@@ -29,6 +29,7 @@
     <link rel="stylesheet" href="/css/dark-theme.css">
     <link rel="stylesheet" href="/css/dashboard-enhanced.css">
     <link rel="stylesheet" href="/css/purchase-modal.css">
+    <link rel="stylesheet" href="/css/credit-score.css">
     <link rel="stylesheet" href="/styles/marketplace.css">
 
     <!-- Wallet Connection Styles -->
@@ -47,11 +48,14 @@
         }
 
         .verification-skip-banner {
-            background-color: #3e2723; /* A dark brown color from the palette */
-            color: #f5efe6; /* Light text color */
+            background-color: #3e2723;
+            /* A dark brown color from the palette */
+            color: #f5efe6;
+            /* Light text color */
             padding: 1rem;
             text-align: center;
-            border-bottom: 1px solid #5d4037; /* A slightly lighter brown for the border */
+            border-bottom: 1px solid #5d4037;
+            /* A slightly lighter brown for the border */
         }
 
         .verification-skip-banner .banner-inner {
@@ -59,7 +63,8 @@
             justify-content: center;
             align-items: center;
             gap: 1rem;
-            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            flex-wrap: wrap;
+            /* Allow wrapping on smaller screens */
         }
 
         .verification-skip-banner .btn {
@@ -81,7 +86,8 @@
             height: 100%;
             background-color: rgba(0, 0, 0, 0.6);
             z-index: 10000;
-            /* backdrop-filter: blur(4px); */ /* REMOVED: This was blurring notifications */
+            /* backdrop-filter: blur(4px); */
+            /* REMOVED: This was blurring notifications */
         }
 
         /* Ensure modal content is above its overlay */
@@ -106,7 +112,10 @@
             border-radius: var(--border-radius-lg);
         }
 
-        .health-overview-card, .yield-projections-card, .alerts-card, .recommendations-card {
+        .health-overview-card,
+        .yield-projections-card,
+        .alerts-card,
+        .recommendations-card {
             grid-column: span 1;
         }
 
@@ -122,7 +131,8 @@
 
         .sensor-chart-container {
             position: relative;
-            height: 250px; /* Give charts a fixed height */
+            height: 250px;
+            /* Give charts a fixed height */
             background-color: var(--color-background-light);
             padding: 1rem;
             border-radius: var(--border-radius-md);
@@ -139,6 +149,7 @@
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 1.5rem;
         }
+
         .price-card {
             background: linear-gradient(145deg, var(--color-background-light), var(--color-background-dark));
             border-radius: var(--border-radius-lg);
@@ -146,72 +157,84 @@
             display: flex;
             flex-direction: column;
             border: 1px solid var(--color-border);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
         }
+
         .price-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
+
         .price-card-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 0.5rem;
         }
+
         .price-card-title {
             display: flex;
             align-items: center;
             gap: 0.75rem;
         }
+
         .price-card-title h4 {
             margin: 0;
             font-size: 1.25rem;
             color: var(--color-text-light);
         }
+
         .price-card-current .price-value {
             font-size: 1.75rem;
             font-weight: 700;
             color: var(--color-text-light);
         }
+
         .price-card-current .price-unit {
             font-size: 1rem;
             color: var(--color-text-dark);
             margin-left: 0.25rem;
         }
+
         .price-card-change {
             font-size: 1rem;
             font-weight: 600;
             margin-bottom: 1rem;
         }
+
         .price-card-body {
             flex-grow: 1;
             display: flex;
             align-items: center;
             margin-bottom: 1rem;
         }
+
         .price-card-chart {
             width: 100%;
             height: 50px;
         }
+
         .variety-icon-svg {
             width: 32px;
             height: 32px;
             flex-shrink: 0;
         }
+
         .price-card-footer {
             margin-top: auto;
             padding-top: 1rem;
             border-top: 1px solid var(--color-border);
         }
+
         .grade-range {
             display: flex;
             justify-content: space-between;
             font-size: 0.9rem;
             color: var(--color-text-dark);
         }
-        /* === End Fix === */
 
+        /* === End Fix === */
     </style>
 </head>
 
@@ -616,11 +639,19 @@
                                             </div>
                                         </div>
 
-                                        <div class="form-group">
-                                            <label class="form-label" for="expectedYield">Expected Yield per Tree
-                                                (kg/year)</label>
-                                            <input class="form-input" type="number" id="expectedYield"
-                                                name="expectedYield" step="0.1" min="0" required>
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label class="form-label" for="expectedYield">Expected Yield per Tree
+                                                    (kg/year)</label>
+                                                <input class="form-input" type="number" id="expectedYield"
+                                                    name="expectedYield" step="0.1" min="0" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label" for="tokensPerTree">Tokens per Tree</label>
+                                                <input class="form-input" type="number" id="tokensPerTree"
+                                                    name="tokensPerTree" value="10" min="1" max="100" required>
+                                                <small class="form-help-text">Number of ownership tokens to create per tree (default: 10)</small>
+                                            </div>
                                         </div>
 
                                         <div class="form-group">
@@ -863,7 +894,8 @@
                                     <form id="groveWithdrawalForm" class="withdrawal-form">
                                         <div class="form-group">
                                             <label class="form-label" for="revenueGroveSelector">Select Grove</label>
-                                            <select class="form-select" id="revenueGroveSelector" name="groveId" required>
+                                            <select class="form-select" id="revenueGroveSelector" name="groveId"
+                                                required>
                                                 <option value="">Select a grove to withdraw from</option>
                                             </select>
                                         </div>
@@ -882,7 +914,8 @@
 
                                             <input type="hidden" id="groveWithdrawalAmount" name="amount">
 
-                                            <button type="submit" class="btn btn-primary btn-block" id="groveWithdrawBtn">
+                                            <button type="submit" class="btn btn-primary btn-block"
+                                                id="groveWithdrawBtn">
                                                 <i class="fas fa-wallet"></i> Withdraw Full Amount
                                             </button>
                                         </div>
@@ -1267,12 +1300,94 @@
                         <!-- Earnings Section -->
                         <div id="earningsSection" class="section">
                             <div class="section-header">
-                                <h3>My Earnings</h3>
-                                <small>Track and claim your investment returns</small>
+                                <h3>My Earnings & Withdrawals</h3>
+                                <small>Track your investment returns and withdraw your earnings</small>
                             </div>
 
-                            <!-- Earnings Summary -->
+                            <!-- Balance & Withdrawal Summary -->
                             <div class="earnings-stats" id="earningsSummaryContainer">
+                                <div class="stat-card card-stat">
+                                    <h4>Total Earned</h4>
+                                    <div class="stat-value" id="totalEarned">$0.00</div>
+                                    <small class="stat-label">All-time earnings from distributions</small>
+                                </div>
+                                <div class="stat-card card-stat">
+                                    <h4>Total Withdrawn</h4>
+                                    <div class="stat-value" id="totalWithdrawn">$0.00</div>
+                                    <small class="stat-label">Total withdrawn to wallet</small>
+                                </div>
+                                <div class="stat-card card-stat highlight-card">
+                                    <h4>Available Balance</h4>
+                                    <div class="stat-value" id="availableBalance">$0.00</div>
+                                    <small class="stat-label">Ready to withdraw</small>
+                                </div>
+                            </div>
+
+                            <!-- Withdrawal Section -->
+                            <div class="earnings-section-container">
+                                <div class="section-header">
+                                    <h4>💰 Withdraw Earnings</h4>
+                                    <small>Transfer your available balance to your wallet as USDC</small>
+                                </div>
+
+                                <form id="investorWithdrawalForm" class="withdrawal-form">
+                                    <div class="form-group">
+                                        <label class="form-label" for="withdrawalAmount">
+                                            Withdrawal Amount (USD)
+                                        </label>
+                                        <div class="input-with-max">
+                                            <input 
+                                                type="number" 
+                                                id="withdrawalAmount" 
+                                                class="form-input" 
+                                                placeholder="0.00" 
+                                                step="0.01" 
+                                                min="0"
+                                                required>
+                                            <button type="button" class="btn btn-secondary btn-sm" id="maxWithdrawalBtn">
+                                                Max
+                                            </button>
+                                        </div>
+                                        <small class="form-help">
+                                            Available: <span id="availableBalanceHelp">$0.00</span>
+                                        </small>
+                                    </div>
+
+                                    <div class="withdrawal-info">
+                                        <div class="info-item">
+                                            <span class="info-icon">ℹ️</span>
+                                            <span>USDC will be transferred directly to your connected wallet</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-icon">⚡</span>
+                                            <span>Transaction typically completes in seconds</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-icon">🔒</span>
+                                            <span>Ensure USDC token is associated with your wallet</span>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary btn-block" id="withdrawEarningsBtn">
+                                        Withdraw to Wallet
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Withdrawal History -->
+                            <div class="earnings-section-container">
+                                <div class="section-header">
+                                    <h4>📜 Withdrawal History</h4>
+                                    <small>Your past USDC withdrawals</small>
+                                </div>
+
+                                <div id="withdrawalHistoryList" class="withdrawal-history-list">
+                                    <p class="empty-state">No withdrawals yet</p>
+                                </div>
+                            </div>
+
+                            <!-- Legacy Earnings Summary (kept for backward compatibility) -->
+                            <div class="earnings-stats" style="margin-top: 2rem;">
                                 <div class="stat-card card-stat">
                                     <h4>Total Earnings (This Month)</h4>
                                     <div class="stat-value" id="totalEarningsThisMonth">$0.00</div>
@@ -1291,7 +1406,7 @@
                                     <h4>Unclaimed Earnings</h4>
                                     <small>Earnings available to claim by source</small>
                                 </div>
-                                
+
                                 <div class="unclaimed-breakdown">
                                     <div class="breakdown-card">
                                         <div class="breakdown-header">
@@ -1301,7 +1416,7 @@
                                         <div class="breakdown-value" id="unclaimedPrimaryMarket">$0.00</div>
                                         <small class="breakdown-desc">From direct grove purchases</small>
                                     </div>
-                                    
+
                                     <div class="breakdown-card">
                                         <div class="breakdown-header">
                                             <span class="breakdown-icon">🔄</span>
@@ -1310,7 +1425,7 @@
                                         <div class="breakdown-value" id="unclaimedSecondaryMarket">$0.00</div>
                                         <small class="breakdown-desc">From tokens acquired from others</small>
                                     </div>
-                                    
+
                                     <div class="breakdown-card">
                                         <div class="breakdown-header">
                                             <span class="breakdown-icon">💧</span>
@@ -1319,7 +1434,7 @@
                                         <div class="breakdown-value" id="unclaimedLpInterest">$0.00</div>
                                         <small class="breakdown-desc">From liquidity provision</small>
                                     </div>
-                                    
+
                                     <div class="breakdown-card breakdown-total">
                                         <div class="breakdown-header">
                                             <span class="breakdown-icon">💰</span>
@@ -1337,7 +1452,7 @@
                                     <h4>Claim Earnings</h4>
                                     <small>Select earnings to claim (supports partial claims)</small>
                                 </div>
-                                
+
                                 <div class="claim-controls">
                                     <label class="checkbox-label">
                                         <input type="checkbox" id="selectAllEarnings">
@@ -1353,7 +1468,8 @@
                                 </div>
 
                                 <form id="investorClaimForm" class="claim-form">
-                                    <button type="submit" class="btn btn-primary btn-block" id="claimEarningsBtn" disabled>
+                                    <button type="submit" class="btn btn-primary btn-block" id="claimEarningsBtn"
+                                        disabled>
                                         Select earnings to claim
                                     </button>
                                 </form>
@@ -1489,6 +1605,46 @@
                                                     Liquidity</button>
                                             </div>
                                         </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Credit Score Section -->
+                            <div class="credit-score-lending-container" style="margin-bottom: 2rem;">
+                                <div class="section-header">
+                                    <h4>Your Credit Score</h4>
+                                    <button id="refreshCreditScore" class="btn btn-secondary btn-sm">
+                                        <i class="fas fa-sync-alt"></i> Refresh
+                                    </button>
+                                </div>
+
+                                <div id="creditScoreContainer">
+                                    <!-- Credit score card will be rendered here -->
+                                </div>
+
+                                <div class="credit-score-info-panel" style="margin-top: 16px;">
+                                    <div
+                                        style="background: var(--bg-glass, rgba(60, 45, 38, 0.5)); backdrop-filter: blur(5px); border: 1px solid var(--border-glass, rgba(199, 172, 149, 0.2)); border-radius: 12px; padding: 16px;">
+                                        <h5 style="color: #FFFFFF; margin-bottom: 12px; font-size: 1rem;">How Credit
+                                            Scores Affect Your Loans</h5>
+                                        <div
+                                            style="color: var(--text-light, #F5EFE6); line-height: 1.6; font-size: 0.875rem;">
+                                            <p style="margin-bottom: 10px;">Your credit score determines your maximum
+                                                loan amount:</p>
+                                            <ul style="list-style: none; padding-left: 0; margin-bottom: 12px;">
+                                                <li style="margin-bottom: 6px;">🟢 <strong>Excellent (750+):</strong> Up
+                                                    to $10,000 loans</li>
+                                                <li style="margin-bottom: 6px;">🔵 <strong>Good (650-749):</strong> Up
+                                                    to $5,000 loans</li>
+                                                <li style="margin-bottom: 6px;">🟡 <strong>Fair (550-649):</strong> Up
+                                                    to $2,000 loans</li>
+                                                <li style="margin-bottom: 6px;">🔴 <strong>Poor (300-549):</strong> Up
+                                                    to $500 loans</li>
+                                            </ul>
+                                            <p style="margin-bottom: 0; font-size: 0.8125rem; opacity: 0.9;">💡
+                                                <strong>Tip:</strong> Pay loans early or on-time to improve your score
+                                                and unlock higher loan limits!</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1749,7 +1905,8 @@
                             </div>
                             <form id="investorDocumentsForm">
                                 <div class="form-group">
-                                    <label for="investorIdentityDocument">???? Government-Issued Identity Document</label>
+                                    <label for="investorIdentityDocument">???? Government-Issued Identity
+                                        Document</label>
                                     <small class="form-help">National ID, passport, driver's license, or state-issued ID
                                         card</small>
                                     <input type="file" id="investorIdentityDocument" name="identityDocument"
@@ -2037,11 +2194,217 @@
 
     <!-- Main App Controller (view management, navigation, dashboard) -->
     <script type="module" src="/js/main.js"></script>
+
+    <!-- Credit Score Integration for Lending Section -->
+    <script>
+        // Credit Score Display for Investor Lending Section
+        (function () {
+            'use strict';
+
+            console.log('💳 Credit Score Module Initializing...');
+
+            // Fetch credit score from API
+            async function fetchCreditScore(accountId) {
+                try {
+                    // Use the API client if available, otherwise construct URL
+                    const apiBaseURL = window.apiClient?.baseURL || 'http://localhost:3001';
+                    const response = await fetch(`${apiBaseURL}/api/credit-score/${accountId}`);
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            return null; // No credit history
+                        }
+                        throw new Error('Failed to fetch credit score');
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error fetching credit score:', error);
+                    throw error;
+                }
+            }
+
+            // Render credit score card
+            function renderCreditScoreCard(scoreData) {
+                const { currentScore, tier, maxLoanAmount, totalLoans, earlyPayments, onTimePayments, latePayments } = scoreData;
+
+                const tierColors = {
+                    excellent: { bg: 'rgba(34, 197, 94, 0.1)', border: 'rgba(34, 197, 94, 0.3)', text: '#22c55e', icon: '🟢' },
+                    good: { bg: 'rgba(59, 130, 246, 0.1)', border: 'rgba(59, 130, 246, 0.3)', text: '#3b82f6', icon: '🔵' },
+                    fair: { bg: 'rgba(234, 179, 8, 0.1)', border: 'rgba(234, 179, 8, 0.3)', text: '#eab308', icon: '🟡' },
+                    poor: { bg: 'rgba(239, 68, 68, 0.1)', border: 'rgba(239, 68, 68, 0.3)', text: '#ef4444', icon: '🔴' }
+                };
+
+                const colors = tierColors[tier] || tierColors.fair;
+                const progress = Math.min((currentScore / 850) * 100, 100);
+
+                return `
+                    <div style="background: var(--bg-glass, rgba(60, 45, 38, 0.5)); backdrop-filter: blur(5px); border: 1px solid var(--border-glass, rgba(199, 172, 149, 0.2)); border-radius: 12px; padding: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-dark, #B0A090); margin-bottom: 4px;">Your Credit Score</div>
+                                <div style="font-size: 2.5rem; font-weight: 700; color: ${colors.text};">${currentScore}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 1.5rem; margin-bottom: 4px;">${colors.icon}</div>
+                                <div style="font-size: 0.875rem; font-weight: 600; color: ${colors.text}; text-transform: capitalize;">${tier}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="width: 100%; background: rgba(0, 0, 0, 0.3); border-radius: 9999px; height: 8px; margin-bottom: 16px; overflow: hidden;">
+                            <div style="height: 100%; background: ${colors.text}; width: ${progress}%; transition: width 0.3s ease;"></div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-light, #F5EFE6);">${totalLoans}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-dark, #B0A090);">Total</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 700; color: #22c55e;">${earlyPayments}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-dark, #B0A090);">Early</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 700; color: #3b82f6;">${onTimePayments}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-dark, #B0A090);">On-time</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 700; color: #ef4444;">${latePayments}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-dark, #B0A090);">Late</div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: ${colors.bg}; border: 1px solid ${colors.border}; border-radius: 8px; padding: 12px;">
+                            <div style="font-size: 0.875rem; color: var(--text-light, #F5EFE6); font-weight: 600; margin-bottom: 4px;">
+                                Max Loan Amount: <span style="color: ${colors.text};">$${maxLoanAmount.toLocaleString()}</span>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-dark, #B0A090);">
+                                Based on your ${tier} credit tier
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Initialize credit score display
+            async function initializeCreditScore() {
+                const creditScoreContainer = document.getElementById('creditScoreContainer');
+                const refreshButton = document.getElementById('refreshCreditScore');
+
+                if (!creditScoreContainer) {
+                    return;
+                }
+
+                console.log('💳 Initializing credit score display...');
+
+                // Get wallet address
+                const walletAddress = window.walletManager?.getAccountId?.() ||
+                    window.accountId ||
+                    localStorage.getItem('connectedAccount');
+
+                if (!walletAddress) {
+                    creditScoreContainer.innerHTML = `
+                        <div style="background: var(--bg-glass, rgba(60, 45, 38, 0.5)); backdrop-filter: blur(5px); border: 1px solid var(--border-glass, rgba(199, 172, 149, 0.2)); border-radius: 12px; padding: 24px; text-align: center;">
+                            <p style="color: var(--text-light, #F5EFE6); margin: 0;">
+                                <i class="fas fa-wallet" style="font-size: 2rem; margin-bottom: 12px; display: block; opacity: 0.5;"></i>
+                                Connect your wallet to view your credit score
+                            </p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Show loading
+                creditScoreContainer.innerHTML = `
+                    <div style="background: var(--bg-glass, rgba(60, 45, 38, 0.5)); backdrop-filter: blur(5px); border: 1px solid var(--border-glass, rgba(199, 172, 149, 0.2)); border-radius: 12px; padding: 24px; text-align: center;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--text-dark, #B0A090);"></i>
+                        <p style="color: var(--text-light, #F5EFE6); margin-top: 12px;">Loading credit score...</p>
+                    </div>
+                `;
+
+                try {
+                    const scoreData = await fetchCreditScore(walletAddress);
+
+                    if (!scoreData) {
+                        creditScoreContainer.innerHTML = `
+                            <div style="background: var(--bg-glass, rgba(60, 45, 38, 0.5)); backdrop-filter: blur(5px); border: 1px solid var(--border-glass, rgba(199, 172, 149, 0.2)); border-radius: 12px; padding: 24px; text-align: center;">
+                                <p style="color: var(--text-light, #F5EFE6); margin: 0;">
+                                    <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 12px; display: block; opacity: 0.5;"></i>
+                                    No credit history yet. Take out your first loan to start building your credit score!
+                                </p>
+                            </div>
+                        `;
+                    } else {
+                        creditScoreContainer.innerHTML = renderCreditScoreCard(scoreData);
+                        console.log('💳 Credit score loaded successfully:', scoreData.currentScore);
+                    }
+                } catch (error) {
+                    console.error('Error loading credit score:', error);
+                    creditScoreContainer.innerHTML = `
+                        <div style="background: var(--bg-glass, rgba(60, 45, 38, 0.5)); backdrop-filter: blur(5px); border: 1px solid var(--border-glass, rgba(199, 172, 149, 0.2)); border-radius: 12px; padding: 24px; text-align: center;">
+                            <p style="color: var(--text-light, #F5EFE6); margin: 0;">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 12px; display: block; opacity: 0.5;"></i>
+                                Unable to load credit score. Please try again later.
+                            </p>
+                        </div>
+                    `;
+                }
+
+                // Setup refresh button
+                if (refreshButton && !refreshButton.dataset.listenerAttached) {
+                    refreshButton.dataset.listenerAttached = 'true';
+                    refreshButton.addEventListener('click', async () => {
+                        refreshButton.disabled = true;
+                        const originalHTML = refreshButton.innerHTML;
+                        refreshButton.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Refreshing...';
+
+                        try {
+                            await initializeCreditScore();
+                        } finally {
+                            refreshButton.disabled = false;
+                            refreshButton.innerHTML = originalHTML;
+                        }
+                    });
+                }
+            }
+
+            // Watch for lending section to become active
+            const observer = new MutationObserver((mutations) => {
+                const lendingSection = document.getElementById('lendingSection');
+                if (lendingSection && lendingSection.classList.contains('active')) {
+                    console.log('💳 Lending section active, loading credit score...');
+                    initializeCreditScore();
+                }
+            });
+
+            // Start observing when DOM is ready
+            document.addEventListener('DOMContentLoaded', () => {
+                const investorView = document.getElementById('investorView');
+                if (investorView) {
+                    observer.observe(investorView, {
+                        attributes: true,
+                        subtree: true,
+                        attributeFilter: ['class']
+                    });
+                }
+
+                // Check if already active
+                setTimeout(() => {
+                    const lendingSection = document.getElementById('lendingSection');
+                    if (lendingSection && lendingSection.classList.contains('active')) {
+                        initializeCreditScore();
+                    }
+                }, 1000);
+            });
+
+            // Export for manual use
+            window.initializeCreditScore = initializeCreditScore;
+        })();
+    </script>
+
     <script>
         // FRESH START on every page load - no persistent flags
-        (function() {
+        (function () {
             'use strict';
-            
+
             console.log('???? Initializing button event listeners (fresh page load)...');
 
             // Check if we should navigate to a specific view
@@ -2070,11 +2433,11 @@
                         // Remove any existing event listeners
                         const newBtn = dashboardConnectBtn.cloneNode(true);
                         dashboardConnectBtn.parentNode.replaceChild(newBtn, dashboardConnectBtn);
-                        
-                        newBtn.addEventListener('click', function(e) {
+
+                        newBtn.addEventListener('click', function (e) {
                             e.preventDefault();
                             console.log('???? Dashboard connect button clicked, scrolling to navbar connect button...');
-                            
+
                             const navbarConnectBtn = document.getElementById('connect-wallet-btn');
                             if (navbarConnectBtn) {
                                 // Scroll to the button
@@ -2106,12 +2469,12 @@
             });
         })();
     </script>
-    
+
     <!-- Ensure farmer dashboard buttons are properly attached -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Retry attaching event listeners to farmer dashboard buttons
-            setTimeout(function() {
+            setTimeout(function () {
                 if (window.farmerDashboard && typeof window.farmerDashboard.setupEventListeners === 'function') {
                     console.log('Reattaching farmer dashboard event listeners');
                     window.farmerDashboard.setupEventListeners();

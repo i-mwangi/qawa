@@ -15,7 +15,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const PORT = parseInt(process.env.API_PORT || '3005');
+const PORT = parseInt(process.env.API_PORT || '3001');
 const DATA_FILE = path.join(__dirname, 'mock-data.json');
 
 // Helper function to make HTTP requests to backend
