@@ -27,6 +27,7 @@ The Chai Platform connects coffee farmers with investors through blockchain tech
 - **Farmers** to register their groves and tokenize their coffee trees
 - **Investors** to purchase tokens representing ownership in coffee production
 - **Transparent revenue distribution** from coffee sales to token holders
+- **Earnings withdrawal** allowing investors to withdraw their earnings as USDC directly to their wallet
 - **Real-time monitoring** of tree health and environmental conditions
 - **Secure wallet integration** for all platform interactions
 - **Lending system** that allows investors to either provide liquidity to earn interest or take out loans using their coffee tree tokens as collateral
@@ -579,6 +580,14 @@ VITE_WALLETCONNECT_PROJECT_ID=your-project-id-here
 
 The platform includes a comprehensive lending system that allows investors to either provide liquidity to earn interest or take out loans using their coffee tree tokens as collateral.
 
+### Earnings & Withdrawals
+
+Investors can track and withdraw their earnings:
+- **View Balance:** See total earned, total withdrawn, and available balance
+- **Withdraw Earnings:** Transfer available balance as USDC directly to your wallet
+- **Transaction History:** View complete withdrawal history with HashScan links
+- **Token Association:** Automatic guidance for USDC token association if needed
+
 ### Lending Pools
 
 Investors can provide liquidity to lending pools and earn passive income through Annual Percentage Yield (APY):
@@ -831,6 +840,98 @@ The `vercel.json` file configures:
 
 **Issue:** Environment variables undefined
 - **Solution:** Redeploy after adding variables (they're injected at build time)
+
+---
+
+## 🚀 Render Deployment
+
+The platform can also be deployed on Render for production hosting:
+
+### Quick Deploy
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com)
+
+### Manual Deployment Steps
+
+1. **Push to GitHub:**
+   ```bash
+   git push origin main
+   ```
+
+2. **Create Render Account:**
+   - Visit [render.com](https://render.com)
+   - Sign up or log in
+   - Connect your GitHub account
+
+3. **Create New Web Service:**
+   - Click "New +" → "Web Service"
+   - Select your repository
+   - Configure the service
+
+4. **Configure Build Settings:**
+   ```yaml
+   Build Command: pnpm install && pnpm run build
+   Start Command: node api/index.js
+   ```
+
+5. **Add Environment Variables:**
+   
+   In Render Dashboard → Environment → Environment Variables, add:
+
+   | Name | Value | Required |
+   |------|-------|----------|
+   | `HEDERA_NETWORK` | `testnet` or `mainnet` | ✅ Yes |
+   | `HEDERA_OPERATOR_ID` | Your Hedera account ID | ✅ Yes |
+   | `HEDERA_OPERATOR_KEY` | Your Hedera private key | ✅ Yes |
+   | `VITE_WALLETCONNECT_PROJECT_ID` | Your WalletConnect project ID | ✅ Yes |
+   | `VITE_HEDERA_NETWORK` | `testnet` or `mainnet` | ✅ Yes |
+   | `TURSO_DATABASE_URL` | Your Turso database URL | ⚠️ Optional |
+   | `TURSO_AUTH_TOKEN` | Your Turso auth token | ⚠️ Optional |
+   | `NODE_ENV` | `production` | ✅ Yes |
+
+6. **Deploy:**
+   - Click "Create Web Service"
+   - Render will automatically build and deploy
+   - Your app will be live at `https://your-app.onrender.com`
+
+### Render Configuration
+
+The `render.yaml` file in the project root configures:
+- Build command and start command
+- Environment variables
+- Health check endpoints
+- Auto-deploy from GitHub
+
+### Automatic Deployments
+
+Render automatically deploys when you push to your main branch:
+```bash
+git push origin main
+# Render detects the push and deploys automatically
+```
+
+### Troubleshooting Render Deployment
+
+**Issue:** Build fails with missing dependencies
+- **Solution:** Ensure `package.json` has all dependencies listed, run `pnpm install` locally first
+
+**Issue:** App crashes on startup
+- **Solution:** Check Render logs for errors, verify all required environment variables are set
+
+**Issue:** Database connection fails
+- **Solution:** Verify `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` are correctly set
+
+**Issue:** Wallet connection not working
+- **Solution:** Ensure `VITE_WALLETCONNECT_PROJECT_ID` is set and rebuild the app
+
+### Monitoring
+
+Render provides built-in monitoring:
+- **Logs:** View real-time logs in the Render dashboard
+- **Metrics:** CPU, memory, and request metrics
+- **Alerts:** Set up alerts for downtime or errors
+
+---
 
 ## 🧪 Testing
 

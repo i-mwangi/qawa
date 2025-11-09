@@ -194,3 +194,18 @@ DEPLOYMENT_GUIDE.md.bak.backup
 # Production exclude documentation
 docs/PRODUCTION-EXCLUDE-FILES.md
 docs/DEVELOPMENT-AND-TEST-FILES.md
+
+# Build-only configuration files (not needed at runtime)
+vite.config.js
+tsup.config.ts
+drizzle-orm.d.ts
+
+# Platform-specific deployment files (Vercel not used on Render)
+.vercelignore
+vercel.json
+
+# Cleanup scripts
+remove-tracked-files.bat
+remove-tracked-files.sh
+remove-unnecessary-production-files.bat
+REMOVE-FROM-GITHUB.md
