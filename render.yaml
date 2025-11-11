@@ -1,7 +1,7 @@
 services:
   # Static Site - Frontend (Vite build)
   - type: web
-    name: chai-platform-frontend
+    name: qawa-platform-frontend
     env: static
     buildCommand: pnpm install && pnpm run frontend:build
     staticPublishPath: ./frontend/dist
@@ -13,7 +13,7 @@ services:
       - key: NODE_VERSION
         value: 18
       - key: VITE_API_URL
-        value: https://chai-platform-api.onrender.com
+        value: https://qawa-platform-api.onrender.com
       - key: VITE_WALLETCONNECT_PROJECT_ID
         value: 39948bbdaaebec2790629f3e9589793a
       - key: VITE_HEDERA_NETWORK
@@ -21,7 +21,7 @@ services:
 
   # Web Service - Mock API Server (Simple, No Build Required)
   - type: web
-    name: chai-platform-api
+    name: qawa-platform-api
     env: node
     buildCommand: pnpm install
     startCommand: node frontend/api-server.js
