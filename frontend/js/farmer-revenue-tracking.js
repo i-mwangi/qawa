@@ -37,7 +37,7 @@ class FarmerRevenueTracking {
      */
     async loadRevenueData(farmerAddress) {
         console.log('[Revenue Tracking] Loading data for farmer:', farmerAddress);
-        
+
         try {
             // Show loading state
             this.showLoadingState();
@@ -54,10 +54,10 @@ class FarmerRevenueTracking {
             if (response.success && response.data) {
                 this.groveBalances = response.data.groves || [];
                 console.log('[Revenue Tracking] Grove balances:', this.groveBalances);
-                
+
                 this.renderRevenueMetrics();
                 this.populateGroveSelector();
-                
+
                 console.log('[Revenue Tracking] Data loaded successfully');
             } else {
                 console.error('[Revenue Tracking] Failed response:', response);
@@ -114,8 +114,16 @@ class FarmerRevenueTracking {
         const selector = document.getElementById('revenueGroveSelector');
         if (!selector) return;
 
+        // Filter out groves with no available balance
+        const grovesWithBalance = this.groveBalances.filter(grove => grove.availableBalance > 0);
+
+        if (grovesWithBalance.length === 0) {
+            selector.innerHTML = '<option value="">No groves with available balance</option>';
+            return;
+        }
+
         selector.innerHTML = '<option value="">Select a grove</option>' +
-            this.groveBalances.map(grove => `
+            grovesWithBalance.map(grove => `
                 <option value="${grove.groveId}">
                     ${grove.groveName || `Grove #${grove.groveId}`} - 
                     Available: $${(grove.availableBalance / 100).toFixed(2)}
@@ -175,7 +183,7 @@ class FarmerRevenueTracking {
         // Extract token ID from error message
         const tokenIdMatch = errorMessage.match(/0\.0\.\d+/);
         const tokenId = tokenIdMatch ? tokenIdMatch[0] : '0.0.7144320';
-        
+
         // Create modal HTML
         const modalHtml = `
             <div class="modal-overlay" id="tokenAssociationModal" style="
@@ -254,16 +262,16 @@ class FarmerRevenueTracking {
                 </div>
             </div>
         `;
-        
+
         // Remove existing modal if any
         const existingModal = document.getElementById('tokenAssociationModal');
         if (existingModal) {
             existingModal.remove();
         }
-        
+
         // Add modal to page
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        
+
         // Close on overlay click
         document.getElementById('tokenAssociationModal').addEventListener('click', (e) => {
             if (e.target.id === 'tokenAssociationModal') {
@@ -331,17 +339,17 @@ class FarmerRevenueTracking {
 
             if (response.success) {
                 // Show success with transaction details
-                const message = response.data?.blockExplorerUrl 
+                const message = response.data?.blockExplorerUrl
                     ? `Withdrawal successful! <a href="${response.data.blockExplorerUrl}" target="_blank">View on HashScan</a>`
                     : 'Withdrawal successful!';
                 this.showNotification(message, 'success');
-                
+
                 // Reload revenue data
                 await this.loadRevenueData(farmerAddress);
-                
+
                 // Clear form
                 this.clearWithdrawalForm();
-                
+
                 // Reset selector
                 const selector = document.getElementById('revenueGroveSelector');
                 if (selector) {
@@ -358,7 +366,7 @@ class FarmerRevenueTracking {
             }
         } catch (error) {
             console.error('Error processing withdrawal:', error);
-            
+
             // Check if error is about token association
             const errorMsg = error.message || 'Error processing withdrawal';
             if (errorMsg.includes('associate') || errorMsg.includes('USDC token')) {
@@ -378,7 +386,7 @@ class FarmerRevenueTracking {
         this.updateMetricCard('availableBalance', 0);
         this.updateMetricCard('pendingDistribution', 0);
         this.updateMetricCard('totalWithdrawn', 0);
-        
+
         // Clear grove selector
         const selector = document.getElementById('revenueGroveSelector');
         if (selector) {
@@ -392,13 +400,13 @@ class FarmerRevenueTracking {
     showError(message) {
         // Show error in a notification instead of replacing the container
         this.showNotification(message, 'error');
-        
+
         // Reset to zero values
         this.updateMetricCard('thisMonthDistributed', 0);
         this.updateMetricCard('availableBalance', 0);
         this.updateMetricCard('pendingDistribution', 0);
         this.updateMetricCard('totalWithdrawn', 0);
-        
+
         // Clear grove selector
         const selector = document.getElementById('revenueGroveSelector');
         if (selector) {
@@ -429,13 +437,13 @@ class FarmerRevenueTracking {
         try {
             const response = await fetch(`/api/farmer/withdrawals/${farmerAddress}`);
             const result = await response.json();
-            
+
             if (!result.success) {
                 console.error('Failed to load withdrawal history:', result.error);
                 return;
             }
-            
-            this.displayWithdrawalHistory(result.data);
+
+            this.displayWithdrawalHistory(result.withdrawals);
         } catch (error) {
             console.error('Error loading withdrawal history:', error);
         }
@@ -447,7 +455,7 @@ class FarmerRevenueTracking {
     displayWithdrawalHistory(withdrawals) {
         const container = document.getElementById('withdrawalHistoryList');
         if (!container) return;
-        
+
         if (!withdrawals || withdrawals.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
@@ -457,7 +465,7 @@ class FarmerRevenueTracking {
             `;
             return;
         }
-        
+
         container.innerHTML = withdrawals.map(w => `
             <div class="withdrawal-item">
                 <div class="withdrawal-header">
@@ -484,16 +492,81 @@ class FarmerRevenueTracking {
         try {
             const response = await fetch(`/api/farmer/transactions/${farmerAddress}`);
             const result = await response.json();
-            
+
             if (!result.success) {
                 console.error('Failed to load transaction history:', result.error);
                 return;
             }
+
+            // Store transactions for export
+            this.transactions = result.transactions || [];
             
-            this.displayTransactionHistory(result.data);
+            this.displayTransactionHistory(this.transactions);
+            this.setupExportButton();
         } catch (error) {
             console.error('Error loading transaction history:', error);
         }
+    }
+
+    /**
+     * Setup export to CSV button
+     */
+    setupExportButton() {
+        const exportBtn = document.getElementById('exportFarmerTransactionsBtn');
+        if (exportBtn) {
+            // Remove old listener if exists
+            const newBtn = exportBtn.cloneNode(true);
+            exportBtn.parentNode.replaceChild(newBtn, exportBtn);
+            
+            // Add new listener
+            newBtn.addEventListener('click', () => this.exportTransactionsToCSV());
+        }
+    }
+
+    /**
+     * Export transactions to CSV
+     */
+    exportTransactionsToCSV() {
+        if (!this.transactions || this.transactions.length === 0) {
+            alert('No transactions to export');
+            return;
+        }
+
+        // Create CSV header
+        const headers = ['Date', 'Type', 'Grove', 'Amount (USDC)', 'Status', 'Transaction Hash'];
+        
+        // Create CSV rows
+        const rows = this.transactions.map(t => {
+            const date = new Date(t.date).toLocaleString();
+            const type = t.type === 'earning' ? 'Harvest Earnings' : 'Withdrawal';
+            const grove = t.groveName || 'N/A';
+            const amount = t.amount.toFixed(2);
+            const status = t.status;
+            const hash = t.transactionHash || 'N/A';
+            
+            return [date, type, grove, amount, status, hash];
+        });
+
+        // Combine headers and rows
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+        ].join('\n');
+
+        // Create download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', `farmer-transactions-${Date.now()}.csv`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        console.log('Exported', this.transactions.length, 'transactions to CSV');
     }
 
     /**
@@ -507,7 +580,7 @@ class FarmerRevenueTracking {
             console.error('[Transaction History] Container #farmerTransactionsList not found');
             return;
         }
-        
+
         if (!transactions || transactions.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
@@ -517,20 +590,20 @@ class FarmerRevenueTracking {
             `;
             return;
         }
-        
+
         // Update stats
         const totalTransactions = transactions.length;
-        const completedTransactions = transactions.filter(t => 
+        const completedTransactions = transactions.filter(t =>
             t.status === 'completed' || t.status === 'distributed'
         ).length;
-        const pendingTransactions = transactions.filter(t => 
+        const pendingTransactions = transactions.filter(t =>
             t.status === 'pending' || t.status === 'unclaimed'
         ).length;
-        
+
         document.getElementById('farmerTotalTransactions').textContent = totalTransactions;
         document.getElementById('farmerCompletedTransactions').textContent = completedTransactions;
         document.getElementById('farmerPendingTransactions').textContent = pendingTransactions;
-        
+
         // Display transactions
         console.log('[Transaction History] Generating HTML for', transactions.length, 'transactions');
         const html = transactions.map(t => {
@@ -538,7 +611,7 @@ class FarmerRevenueTracking {
             const typeIcon = t.type === 'earning' ? '💰' : '💸';
             const typeLabel = t.type === 'earning' ? 'Harvest Earnings' : 'Withdrawal';
             const amountClass = isPositive ? 'amount-positive' : 'amount-negative';
-            
+
             return `
                 <div class="transaction-item">
                     <div class="transaction-icon">${typeIcon}</div>
@@ -563,7 +636,7 @@ class FarmerRevenueTracking {
                 </div>
             `;
         }).join('');
-        
+
         console.log('[Transaction History] Setting innerHTML, length:', html.length);
         container.innerHTML = html;
         console.log('[Transaction History] HTML set, container children:', container.children.length);

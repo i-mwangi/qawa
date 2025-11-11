@@ -1,4 +1,4 @@
-﻿
+
 /**
  * Farmer Dashboard Management
  * Handles all farmer-specific functionality including grove management,
@@ -28,7 +28,7 @@ class FarmerDashboard {
         };
         this.verificationChecked = false;
         this.verificationStatus = null;
-        
+
         // Initialize credit score manager
         this.creditScoreManager = new CreditScoreManager();
 
@@ -52,7 +52,7 @@ class FarmerDashboard {
     // Performance: Get cached data
     getCachedData(cacheKey) {
         if (this.isCacheValid(cacheKey)) {
-            console.log(`âœ… Using cached data for ${cacheKey}`);
+            console.log(`✅ Using cached data for ${cacheKey}`);
             return this.dataCache[cacheKey].data;
         }
         return null;
@@ -149,7 +149,7 @@ class FarmerDashboard {
         banner.className = 'verification-skip-banner';
         banner.innerHTML = `
             <div class="banner-inner">
-                <span>âš ï¸ Complete farmer verification to access all features, or skip for now.</span>
+                <span>⚠️ Complete farmer verification to access all features, or skip for now.</span>
                 <button class="btn btn-primary" id="skipVerificationBtn">Skip Verification</button>
                 <button class="btn btn-secondary" id="dismissBannerBtn">Dismiss</button>
             </div>
@@ -213,7 +213,8 @@ class FarmerDashboard {
             }
         } catch (error) {
             console.error('Error skipping verification:', error);
-            this.showNotification('Failed to update settings. Please try again.', 'error');
+            const friendlyError = window.translateError ? window.translateError(error) : 'Failed to update settings. Please try again.';
+            this.showNotification(friendlyError, 'error');
         }
     }
 
@@ -236,7 +237,7 @@ class FarmerDashboard {
         // Remove this line as it's causing issues
         // this.removeEventListeners();
 
-        console.log('ðŸ”§ Setting up farmer dashboard event listeners using delegation...');
+        console.log('🔧 Setting up farmer dashboard event listeners using delegation...');
 
         // Use event delegation for better reliability
         const farmerDashboard = document.querySelector('#farmerView'); // Target the main view container
@@ -264,7 +265,7 @@ class FarmerDashboard {
             if (isButton('addGroveBtn')) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('ðŸ“ Add Grove button clicked');
+                console.log('📝 Add Grove button clicked');
                 this.showGroveModal();
                 return;
             }
@@ -272,7 +273,7 @@ class FarmerDashboard {
             if (isButton('addHarvestBtn')) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('ðŸŒ¾ Add Harvest button clicked');
+                console.log('🌾 Add Harvest button clicked');
                 this.showHarvestModal();
                 return;
             }
@@ -323,19 +324,19 @@ class FarmerDashboard {
             withdrawalForm.addEventListener('submit', this.boundHandleWithdrawalSubmit);
         }
 
-        console.log('âœ… Farmer dashboard event listeners setup complete');
+        console.log('✅ Farmer dashboard event listeners setup complete');
     }
 
     setupMap() {
         // Only initialize the map if it doesn't already exist
         if (this.map) {
-            console.log('ðŸ—ºï¸ Map already initialized. Invalidating size.');
+            console.log('🗺️ Map already initialized. Invalidating size.');
             // If the modal was hidden, the map needs its size re-validated
             setTimeout(() => this.map.invalidateSize(), 100);
             return;
         }
 
-        console.log('ðŸ—ºï¸ Initializing map for the first time...');
+        console.log('🗺️ Initializing map for the first time...');
         const groveMapEl = document.getElementById('groveMap');
         if (!groveMapEl) {
             console.warn('Grove map container not found, skipping setup');
@@ -345,16 +346,16 @@ class FarmerDashboard {
         this.map = L.map(groveMapEl).setView([0, 0], 2);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: 'Â© OpenStreetMap contributors'
+            attribution: '© OpenStreetMap contributors'
         }).addTo(this.map);
 
         // Add a marker when clicking on the map
         this.map.on('click', (e) => {
-            console.log('📍 Map clicked at', e.latlng);
+            console.log('?? Map clicked at', e.latlng);
             this.handleMapClick(e);
         });
 
-        console.log('âœ… Map setup complete');
+        console.log('✅ Map setup complete');
     }
 
     closeModals() {
@@ -399,7 +400,7 @@ class FarmerDashboard {
         try {
             // Show loading notification
             this.showNotification('Registering grove and creating tokens...', 'info');
-            
+
             // Corrected: Use the 'registerGrove' method which exists in api.js
             if (window.coffeeAPI && typeof window.coffeeAPI.registerGrove === 'function') {
                 const response = await window.coffeeAPI.registerGrove(groveData);
@@ -410,12 +411,12 @@ class FarmerDashboard {
                         const totalTokens = response.tokenization.totalTokens;
                         const tokenSymbol = response.tokenization.tokenSymbol;
                         this.showNotification(
-                            `Grove registered! ${totalTokens} ${tokenSymbol} tokens created on Hedera.`, 
+                            `Grove registered! ${totalTokens} ${tokenSymbol} tokens created on Hedera.`,
                             'success'
                         );
                     } else {
                         this.showNotification(
-                            'Grove registered successfully (tokenization pending)', 
+                            'Grove registered successfully (tokenization pending)',
                             'success'
                         );
                     }
@@ -429,21 +430,22 @@ class FarmerDashboard {
             }
         } catch (error) {
             console.error('Error adding grove:', error);
-            this.showNotification('Failed to add grove. Please try again.', 'error');
+            const friendlyError = window.translateError ? window.translateError(error) : 'Failed to add grove. Please try again.';
+            this.showNotification(friendlyError, 'error');
         }
     }
 
     async handleHarvestSubmit(e) {
         e.preventDefault();
-        
+
         // Prevent double submission
         if (this.isSubmittingHarvest) {
-            console.log('⚠️ Harvest submission already in progress, ignoring duplicate');
+            console.log('?? Harvest submission already in progress, ignoring duplicate');
             return;
         }
-        
+
         this.isSubmittingHarvest = true;
-        
+
         const formData = new FormData(e.target);
 
         const groveId = formData.get('groveId');
@@ -474,7 +476,7 @@ class FarmerDashboard {
             createdAt: new Date().toISOString()
         };
 
-        console.log('ðŸ“Š Submitting harvest report:', harvestData);
+        console.log('📊 Submitting harvest report:', harvestData);
 
         // Submit to backend (required - no local fallback)
         try {
@@ -661,7 +663,8 @@ class FarmerDashboard {
                     })
                     .catch(error => {
                         console.error('Error searching location:', error);
-                        this.showNotification('Error searching for location. Please check your connection.', 'error');
+                        const friendlyError = window.translateError ? window.translateError(error) : 'Unable to search for location. Please check your internet connection.';
+                        this.showNotification(friendlyError, 'error');
                     });
             }
         }
@@ -757,7 +760,8 @@ class FarmerDashboard {
             }
         } catch (error) {
             console.error(`Failed to load data for section ${section}:`, error);
-            this.showNotification(`Error loading ${section} data.`, 'error');
+            const friendlyError = window.translateError ? window.translateError(error) : `Unable to load ${section} data. Please try again.`;
+            this.showNotification(friendlyError, 'error');
         }
     }
 
@@ -766,25 +770,26 @@ class FarmerDashboard {
      */
     async loadCreditScore(farmerAddress) {
         console.log('Loading credit score for:', farmerAddress);
-        
+
         try {
             await this.creditScoreManager.initializeCreditScoreDisplay(
                 'creditScoreContainer',
                 farmerAddress
             );
-            
+
             // Setup refresh button
             const refreshBtn = document.getElementById('refreshCreditScore');
             if (refreshBtn) {
                 refreshBtn.onclick = async () => {
                     refreshBtn.disabled = true;
                     refreshBtn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Refreshing...';
-                    
+
                     try {
                         await this.creditScoreManager.refreshCreditScore('creditScoreContainer');
                         this.showNotification('Credit score refreshed successfully', 'success');
                     } catch (error) {
-                        this.showNotification('Failed to refresh credit score', 'error');
+                        const friendlyError = window.translateError ? window.translateError(error) : 'Unable to refresh credit score. Please try again.';
+                        this.showNotification(friendlyError, 'error');
                     } finally {
                         refreshBtn.disabled = false;
                         refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
@@ -793,7 +798,8 @@ class FarmerDashboard {
             }
         } catch (error) {
             console.error('Error loading credit score:', error);
-            this.showNotification('Failed to load credit score', 'error');
+            const friendlyError = window.translateError ? window.translateError(error) : 'Unable to load credit score. Please try again.';
+            this.showNotification(friendlyError, 'error');
         }
     }
 
@@ -851,7 +857,7 @@ class FarmerDashboard {
                     </div>
                     ${grove.latitude && grove.longitude ? `
                     <div class="grove-coordinates">
-                        <small>📍 ${grove.latitude.toFixed(6)}, ${grove.longitude.toFixed(6)}</small>
+                        <small><i class="fas fa-globe"></i> ${grove.latitude.toFixed(6)}, ${grove.longitude.toFixed(6)}</small>
                     </div>
                     ` : ''}
                 </div>
@@ -859,7 +865,7 @@ class FarmerDashboard {
                 <!-- Grove Metrics Grid -->
                 <div class="grove-metrics-section">
                     <div class="metric-item">
-                        <div class="metric-icon">🌳</div>
+                        <div class="metric-icon"><i class="fas fa-tree"></i></div>
                         <div class="metric-content">
                             <span class="metric-label">Trees</span>
                             <span class="metric-value">${(grove.treeCount || 0).toLocaleString()}</span>
@@ -867,7 +873,7 @@ class FarmerDashboard {
                     </div>
                     
                     <div class="metric-item">
-                        <div class="metric-icon">☕</div>
+                        <div class="metric-icon"><i class="fas fa-seedling"></i></div>
                         <div class="metric-content">
                             <span class="metric-label">Variety</span>
                             <span class="metric-value">${grove.coffeeVariety || 'N/A'}</span>
@@ -875,7 +881,7 @@ class FarmerDashboard {
                     </div>
                     
                     <div class="metric-item">
-                        <div class="metric-icon">📊</div>
+                        <div class="metric-icon"><i class="fas fa-chart-line"></i></div>
                         <div class="metric-content">
                             <span class="metric-label">Expected Yield</span>
                             <span class="metric-value">${(grove.expectedYieldPerTree || 0).toLocaleString()} kg/tree</span>
@@ -883,7 +889,7 @@ class FarmerDashboard {
                     </div>
                     
                     <div class="metric-item">
-                        <div class="metric-icon">💚</div>
+                        <div class="metric-icon"><i class="fas fa-heartbeat"></i></div>
                         <div class="metric-content">
                             <span class="metric-label">Health Score</span>
                             <span class="metric-value health-score-${healthClass}">${healthScore}</span>
@@ -994,6 +1000,44 @@ class FarmerDashboard {
                     <button class="modal-close">&times;</button>
                 </div>
                 <div class="modal-body">
+                    ${grove.isTokenized && grove.tokenAddress && grove.farmerAddress !== '0.0.5792828' ? `
+                    <!-- Token Claim Section (hidden for operator account) -->
+                    <div class="detail-section">
+                        <h5><i class="fas fa-gift"></i> 🎁 Claim Your Grove Tokens</h5>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Token Symbol</span>
+                                <span class="detail-value highlight-green">${grove.tokenSymbol || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Total Tokens</span>
+                                <span class="detail-value highlight-green">${(grove.totalTokensIssued || 0).toLocaleString()}</span>
+                            </div>
+                            <div class="detail-item full-width">
+                                <span class="detail-label">Token ID</span>
+                                <span class="detail-value mono-text">${grove.tokenAddress}</span>
+                            </div>
+                            <div class="detail-item full-width" style="margin-top: 1rem;">
+                                <button class="btn btn-primary btn-large claim-tokens-btn" data-token-id="${grove.tokenAddress}" data-grove-id="${grove.id}" style="width: 100%; padding: 1rem; font-size: 1.1rem;">
+                                    🎁 Claim Your Tokens Now
+                                </button>
+                            </div>
+                            <div class="detail-item full-width" style="margin-top: 1rem; padding: 1rem; background: rgba(76, 175, 80, 0.1); border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.3);">
+                                <span class="detail-label" style="color: #4CAF50; margin-bottom: 0.75rem; display: block;">What happens when you click:</span>
+                                <div style="color: #ccc; font-size: 0.9rem; line-height: 1.6;">
+                                    <div style="margin-bottom: 0.5rem;">1️⃣ HashPack wallet opens automatically</div>
+                                    <div style="margin-bottom: 0.5rem;">2️⃣ You associate the token (~$0.05 HBAR fee)</div>
+                                    <div style="margin-bottom: 0.5rem;">3️⃣ Tokens transfer to your wallet automatically</div>
+                                    <div>4️⃣ Done! Refresh your wallet to see tokens ✅</div>
+                                </div>
+                            </div>
+                            <div class="detail-item full-width" style="text-align: center; margin-top: 0.5rem;">
+                                <span class="detail-label" style="font-size: 0.85rem;">💡 This is a one-time process. Takes about 30 seconds.</span>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+                    
                     <!-- Grove Overview Section -->
                     <div class="detail-section">
                         <h5><i class="fas fa-map-marked-alt"></i> Location & Identification</h5>
@@ -1020,7 +1064,7 @@ class FarmerDashboard {
                             <div class="detail-item full-width">
                                 <span class="detail-label">GPS Coordinates</span>
                                 <span class="detail-value mono-text">
-                                    📍 Lat: ${grove.latitude.toFixed(6)}, Long: ${grove.longitude.toFixed(6)}
+                                    ?? Lat: ${grove.latitude.toFixed(6)}, Long: ${grove.longitude.toFixed(6)}
                                 </span>
                             </div>
                             ` : ''}
@@ -1079,7 +1123,7 @@ class FarmerDashboard {
                             <div class="detail-item">
                                 <span class="detail-label">Status</span>
                                 <span class="detail-value">
-                                    ${grove.verificationStatus === 'verified' ? '✅ Active & Verified' : 'Pending Verification'}
+                                    ${grove.verificationStatus === 'verified' ? '✅ Active & Verified' : '⏳ Pending Verification'}
                                 </span>
                             </div>
                         </div>
@@ -1131,6 +1175,16 @@ class FarmerDashboard {
 
         closeBtn.addEventListener('click', () => modal.remove());
         overlay.addEventListener('click', () => modal.remove());
+
+        // Claim tokens button functionality
+        const claimBtn = modal.querySelector('.claim-tokens-btn');
+        if (claimBtn) {
+            claimBtn.addEventListener('click', async () => {
+                const tokenId = claimBtn.dataset.tokenId;
+                const groveId = claimBtn.dataset.groveId;
+                await this.claimGroveTokens(tokenId, groveId, grove.groveName);
+            });
+        }
     }
 
     manageGrove(groveId) {
@@ -1290,7 +1344,7 @@ class FarmerDashboard {
                                                placeholder="e.g., 65" step="0.1">
                                     </div>
                                     <div class="form-group">
-                                        <label for="temperature">Avg Temperature (Â°C)</label>
+                                        <label for="temperature">Avg Temperature (°C)</label>
                                         <input type="number" id="temperature" step="0.1" 
                                                placeholder="e.g., 22.5">
                                     </div>
@@ -1465,10 +1519,10 @@ class FarmerDashboard {
 
             // Prevent double submission
             if (this.isSubmittingHarvest) {
-                console.log('⚠️ Harvest submission already in progress, ignoring duplicate');
+                console.log('?? Harvest submission already in progress, ignoring duplicate');
                 return;
             }
-            
+
             this.isSubmittingHarvest = true;
 
             const submitBtn = harvestForm.querySelector('button[type="submit"]');
@@ -1693,12 +1747,12 @@ class FarmerDashboard {
             let notificationTitle = '';
 
             if (updateData.type === 'harvest') {
-                notificationTitle = `ðŸŒ¾ New Harvest: ${updateData.groveName}`;
+                notificationTitle = `🌾 New Harvest: ${updateData.groveName}`;
                 notificationMessage = `Harvest of ${updateData.amount}kg (${updateData.quality} quality) reported on ${new Date(updateData.date).toLocaleDateString()}.`;
             } else if (updateData.type === 'health') {
-                const trend = updateData.healthScore > (updateData.previousScore || 0) ? 'ðŸ“ˆ improved' :
-                    updateData.healthScore < (updateData.previousScore || 0) ? 'ðŸ“‰ decreased' : 'âž¡ï¸ unchanged';
-                notificationTitle = `ðŸ’š Health Update: ${updateData.groveName}`;
+                const trend = updateData.healthScore > (updateData.previousScore || 0) ? '📈 improved' :
+                    updateData.healthScore < (updateData.previousScore || 0) ? '📉 decreased' : '➡️ unchanged';
+                notificationTitle = `💚 Health Update: ${updateData.groveName}`;
                 notificationMessage = `Health score ${trend} to ${updateData.healthScore}/100. Status: ${updateData.diseaseStatus}.`;
             }
 
@@ -1744,7 +1798,7 @@ class FarmerDashboard {
     // Load tree health section - populate grove selector
     async loadTreeHealthSection(farmerAddress) {
         console.log('[Tree Health] Loading section for farmer:', farmerAddress);
-        
+
         const selector = document.getElementById('healthGroveSelector');
         if (!selector) {
             console.error('[Tree Health] Grove selector not found');
@@ -1753,17 +1807,17 @@ class FarmerDashboard {
 
         // Show loading state
         selector.innerHTML = '<option value="">Loading groves...</option>';
-        
+
         try {
             // Always fetch fresh grove data for tree health section
             console.log('[Tree Health] Fetching groves from API...');
             const response = await window.coffeeAPI.getGroves(farmerAddress);
             console.log('[Tree Health] API response:', response);
-            
+
             if (response.success && response.groves) {
                 this.groves = response.groves;
                 console.log('[Tree Health] Loaded', this.groves.length, 'groves');
-                
+
                 if (this.groves.length > 0) {
                     selector.innerHTML = '<option value="">Select a grove...</option>' +
                         this.groves.map(grove => `
@@ -1771,9 +1825,9 @@ class FarmerDashboard {
                                 ${grove.groveName || `Grove #${grove.id}`}
                             </option>
                         `).join('');
-                    
+
                     console.log('[Tree Health] Grove selector populated with', this.groves.length, 'groves');
-                    
+
                     // Set up event listener for grove selection
                     selector.removeEventListener('change', this.boundHealthGroveChange);
                     this.boundHealthGroveChange = (e) => {
@@ -1794,14 +1848,15 @@ class FarmerDashboard {
         } catch (error) {
             selector.innerHTML = '<option value="">Error loading groves</option>';
             console.error('[Tree Health] Error loading section:', error);
-            this.showNotification('Error loading tree health section', 'error');
+            const friendlyError = window.translateError ? window.translateError(error) : 'Unable to load tree health data. Please try again.';
+            this.showNotification(friendlyError, 'error');
         }
     }
 
     // Load tree health data for a grove
     async loadTreeHealth(groveId) {
         console.log('[Tree Health] Loading health data for grove:', groveId);
-        
+
         try {
             // Try to fetch real data, but use mock data if it fails
             let healthData = null;
@@ -1857,14 +1912,15 @@ class FarmerDashboard {
 
         } catch (error) {
             console.error('[Tree Health] Error loading health data:', error);
-            this.showNotification('Error loading tree health data', 'error');
+            const friendlyError = window.translateError ? window.translateError(error) : 'Unable to load tree health data. Please try again.';
+            this.showNotification(friendlyError, 'error');
         }
     }
 
     generateMockHealthData(groveId) {
         const now = Date.now();
         const healthScore = 75 + Math.floor(Math.random() * 15); // 75-90
-        
+
         return [{
             id: 1,
             groveId: groveId,
@@ -2021,12 +2077,12 @@ class FarmerDashboard {
                 </div>
             </div>
             <div class="yield-explanation">
-                ${yieldImpact > 0.1 ? 
-                    '<p class="positive">✅ Current conditions are favorable for above-average yield.</p>' :
-                    yieldImpact < -0.1 ?
-                    '<p class="negative">⚠️ Current conditions may reduce expected yield. Follow recommendations to improve.</p>' :
-                    '<p class="neutral">ℹ️ Current conditions are within normal range for expected yield.</p>'
-                }
+                ${yieldImpact > 0.1 ?
+                '<p class="positive">? Current conditions are favorable for above-average yield.</p>' :
+                yieldImpact < -0.1 ?
+                    '<p class="negative">?? Current conditions may reduce expected yield. Follow recommendations to improve.</p>' :
+                    '<p class="neutral">?? Current conditions are within normal range for expected yield.</p>'
+            }
             </div>
         `;
     }
@@ -2042,7 +2098,7 @@ class FarmerDashboard {
 
     renderAlertsInContainer(container, alerts) {
         if (!alerts || alerts.length === 0) {
-            container.innerHTML = '<p>No active alerts. Your grove is in good condition! ✅</p>';
+            container.innerHTML = '<p>No active alerts. Your grove is in good condition! ?</p>';
             return;
         }
 
@@ -2079,25 +2135,25 @@ class FarmerDashboard {
         }
 
         const latest = healthData[0];
-        
+
         // Safely parse JSON fields
         let recommendations = [];
         let riskFactors = [];
-        
+
         try {
             if (latest.recommendations) {
-                recommendations = typeof latest.recommendations === 'string' 
-                    ? JSON.parse(latest.recommendations) 
+                recommendations = typeof latest.recommendations === 'string'
+                    ? JSON.parse(latest.recommendations)
                     : latest.recommendations;
             }
         } catch (e) {
             console.warn('Failed to parse recommendations:', e);
         }
-        
+
         try {
             if (latest.riskFactors) {
-                riskFactors = typeof latest.riskFactors === 'string' 
-                    ? JSON.parse(latest.riskFactors) 
+                riskFactors = typeof latest.riskFactors === 'string'
+                    ? JSON.parse(latest.riskFactors)
                     : latest.riskFactors;
             }
         } catch (e) {
@@ -2105,14 +2161,14 @@ class FarmerDashboard {
         }
 
         if (recommendations.length === 0 && riskFactors.length === 0) {
-            container.innerHTML = '<p>✅ No specific recommendations. Your grove is healthy!</p>';
+            container.innerHTML = '<p>? No specific recommendations. Your grove is healthy!</p>';
             return;
         }
 
         container.innerHTML = `
             ${riskFactors.length > 0 ? `
                 <div class="risk-factors">
-                    <h5>⚠️ Risk Factors:</h5>
+                    <h5>?? Risk Factors:</h5>
                     <ul>
                         ${riskFactors.map(risk => `<li>${this.formatRiskFactor(risk)}</li>`).join('')}
                     </ul>
@@ -2120,7 +2176,7 @@ class FarmerDashboard {
             ` : ''}
             ${recommendations.length > 0 ? `
                 <div class="recommendations-list">
-                    <h5>💡 Recommendations:</h5>
+                    <h5>?? Recommendations:</h5>
                     <ul>
                         ${recommendations.map(rec => `<li>${rec}</li>`).join('')}
                     </ul>
@@ -2146,7 +2202,7 @@ class FarmerDashboard {
 
         // Group sensor data by type
         const groupedData = this.groupSensorDataByType(sensorData);
-        
+
         container.innerHTML = `
             <div class="sensor-charts-container">
                 <div class="sensor-charts-grid">
@@ -2175,22 +2231,22 @@ class FarmerDashboard {
         const now = Date.now();
         const mockData = [];
         const sensorTypes = ['soil_moisture', 'temperature', 'humidity', 'ph', 'light', 'rainfall'];
-        
+
         // Generate 24 hours of data (one reading per hour)
         for (let i = 24; i >= 0; i--) {
             const timestamp = now - (i * 60 * 60 * 1000);
-            
+
             sensorTypes.forEach(type => {
                 let value;
                 const hour = new Date(timestamp).getHours();
-                
-                switch(type) {
+
+                switch (type) {
                     case 'soil_moisture':
                         // 40-70% with daily variation
                         value = 55 + Math.sin(hour / 24 * Math.PI * 2) * 10 + (Math.random() - 0.5) * 5;
                         break;
                     case 'temperature':
-                        // 15-30°C with daily cycle
+                        // 15-30�C with daily cycle
                         value = 22 + Math.sin((hour - 6) / 24 * Math.PI * 2) * 8 + (Math.random() - 0.5) * 2;
                         break;
                     case 'humidity':
@@ -2211,7 +2267,7 @@ class FarmerDashboard {
                         value = Math.random() < 0.1 ? Math.random() * 5 : 0;
                         break;
                 }
-                
+
                 mockData.push({
                     sensorType: type,
                     value: Math.max(0, value),
@@ -2220,7 +2276,7 @@ class FarmerDashboard {
                 });
             });
         }
-        
+
         return mockData;
     }
 
@@ -2232,12 +2288,12 @@ class FarmerDashboard {
             }
             grouped[reading.sensorType].push(reading);
         });
-        
+
         // Sort each group by timestamp
         Object.keys(grouped).forEach(type => {
             grouped[type].sort((a, b) => a.timestamp - b.timestamp);
         });
-        
+
         return grouped;
     }
 
@@ -2246,7 +2302,7 @@ class FarmerDashboard {
         if (!canvas) return;
 
         const ctx = canvas.getContext('2d');
-        
+
         // Destroy existing chart if it exists
         if (canvas.chart) {
             canvas.chart.destroy();
@@ -2369,12 +2425,12 @@ class FarmerDashboard {
 
     getAlertIcon(severity) {
         const icons = {
-            'CRITICAL': '🔴',
-            'HIGH': '🟠',
-            'MEDIUM': '🟡',
-            'LOW': '🔵'
+            'CRITICAL': '??',
+            'HIGH': '??',
+            'MEDIUM': '??',
+            'LOW': '??'
         };
-        return icons[severity] || '⚠️';
+        return icons[severity] || '??';
     }
 
     formatRiskFactor(risk) {
@@ -2404,7 +2460,7 @@ class FarmerDashboard {
     getSensorUnit(type) {
         const units = {
             'soil_moisture': '%',
-            'temperature': '°C',
+            'temperature': '�C',
             'humidity': '%',
             'ph': '',
             'light': 'lux',
@@ -2413,22 +2469,43 @@ class FarmerDashboard {
         return units[type] || '';
     }
 
+    async loadHarvestsForChart(farmerAddress) {
+        // Load harvests data without updating UI (for chart rendering)
+        console.log('?? Loading harvests data for chart:', farmerAddress);
+
+        try {
+            const response = await window.coffeeAPI.getHarvestHistory(farmerAddress);
+            const harvests = response.success && response.harvests ? response.harvests : [];
+
+            if (harvests.length > 0) {
+                console.log(`? Loaded ${harvests.length} harvests for chart`);
+                this.harvests = harvests;
+            } else {
+                console.log('?? No harvests found for chart');
+                this.harvests = [];
+            }
+        } catch (error) {
+            console.error('Failed to load harvests for chart:', error.message);
+            this.harvests = [];
+        }
+    }
+
     async loadHarvests(farmerAddress) {
         const container = document.getElementById('harvestList');
         if (!container) return;
 
         container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading harvests...</div>';
 
-        console.log('ðŸ“¥ Loading harvests from backend for:', farmerAddress);
+        console.log('📥 Loading harvests from backend for:', farmerAddress);
 
         try {
             const response = await window.coffeeAPI.getHarvestHistory(farmerAddress);
 
             // Backend returns response.harvests directly
             const harvests = response.success && response.harvests ? response.harvests : [];
-            
+
             if (harvests.length > 0) {
-                console.log(`âœ… Loaded ${harvests.length} harvests from database`);
+                console.log(`✅ Loaded ${harvests.length} harvests from database`);
                 this.harvests = harvests; // Update local array with backend data
 
                 container.innerHTML = `
@@ -2659,6 +2736,9 @@ class FarmerDashboard {
             withdrawalGroveSelect.addEventListener('change', this.handleGroveChange);
         }
 
+        // Load harvests first (needed for chart data)
+        await this.loadHarvestsForChart(farmerAddress);
+
         // Load revenue stats from backend API
         await this.loadRevenueStats(farmerAddress);
 
@@ -2673,15 +2753,15 @@ class FarmerDashboard {
         try {
             // Fetch harvest stats from backend
             const statsResponse = await window.coffeeAPI.getHarvestStats(farmerAddress);
-            
+
             // Fetch farmer balance from backend
             const balanceResponse = await window.coffeeAPI.getFarmerBalance(farmerAddress);
 
             if (statsResponse.success && statsResponse.data) {
                 const stats = statsResponse.data;
-                
+
                 console.log('[Revenue] Stats from API:', stats);
-                
+
                 // Update total and monthly earnings (legacy support)
                 const totalEarningsEl = document.getElementById('totalEarnings');
                 const monthlyEarningsEl = document.getElementById('monthlyEarnings');
@@ -2691,19 +2771,19 @@ class FarmerDashboard {
 
             if (balanceResponse.success && balanceResponse.data) {
                 const balance = balanceResponse.data;
-                
+
                 console.log('[Revenue] Balance from API:', balance);
-                
+
                 // Update withdrawal stats
                 // Convert from cents to dollars (values are in cents from API)
                 const availableBalance = (balance.availableBalance || 0) / 100;
                 const pendingBalance = (balance.pendingDistribution || balance.pendingBalance || 0) / 100;
                 const totalWithdrawn = (balance.totalWithdrawn || 0) / 100;
-                
+
                 document.getElementById('farmerAvailableBalance').textContent = `$${availableBalance.toFixed(2)}`;
                 document.getElementById('farmerPendingBalance').textContent = `$${pendingBalance.toFixed(2)}`;
                 document.getElementById('farmerTotalWithdrawn').textContent = `$${totalWithdrawn.toFixed(2)}`;
-                
+
                 // Store for withdrawal (in dollars)
                 this.totalAvailableBalance = availableBalance;
             } else {
@@ -2783,22 +2863,38 @@ class FarmerDashboard {
             this.monthlyRevenueChartInstance.destroy();
         }
 
-        // Calculate monthly revenue data
+        // Calculate monthly revenue data for last 12 months
         const FARMER_SHARE = 0.30;
-        const currentYear = new Date().getFullYear();
-        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const now = new Date();
+        const monthNames = [];
         const monthlyData = new Array(12).fill(0);
 
-        // Aggregate revenue by month
+        // Generate labels for last 12 months
+        for (let i = 11; i >= 0; i--) {
+            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            monthNames.push(date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }));
+        }
+
+        // Aggregate revenue by month (last 12 months)
         this.harvests.forEach(harvest => {
-            const harvestDate = new Date(typeof harvest.harvestDate === 'number' ? harvest.harvestDate * 1000 : harvest.harvestDate);
-            if (harvestDate.getFullYear() === currentYear) {
-                const month = harvestDate.getMonth();
-                const revenue = harvest.totalRevenue || (harvest.yieldKg * harvest.salePricePerKg);
-                const farmerEarnings = revenue * FARMER_SHARE;
-                monthlyData[month] += farmerEarnings;
+            // harvestDate is already in milliseconds from the API
+            const harvestDate = new Date(harvest.harvestDate);
+
+            // Calculate months ago
+            const monthsAgo = (now.getFullYear() - harvestDate.getFullYear()) * 12 + (now.getMonth() - harvestDate.getMonth());
+            console.log(`Harvest: ${harvestDate.toLocaleDateString()}, monthsAgo=${monthsAgo}, farmerShare=$${harvest.farmerShare}`);
+
+            // Only include if within last 12 months
+            if (monthsAgo >= 0 && monthsAgo < 12) {
+                const index = 11 - monthsAgo; // Reverse index (oldest to newest)
+                // Use farmerShare directly from API (already calculated as 30% of revenue)
+                const farmerEarnings = harvest.farmerShare || 0;
+                monthlyData[index] += farmerEarnings;
+                console.log(`Adding harvest from ${harvestDate.toLocaleDateString()}: $${farmerEarnings} to index ${index}`);
             }
         });
+
+        console.log('Monthly data for chart:', monthlyData);
 
         // Create the chart
         const ctx = canvas.getContext('2d');
@@ -2847,7 +2943,7 @@ class FarmerDashboard {
                         padding: 12,
                         displayColors: true,
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 let label = context.dataset.label || '';
                                 if (label) {
                                     label += ': ';
@@ -2866,7 +2962,7 @@ class FarmerDashboard {
                             font: {
                                 size: 12
                             },
-                            callback: function(value) {
+                            callback: function (value) {
                                 return '$' + value.toFixed(0);
                             }
                         },
@@ -2894,12 +2990,12 @@ class FarmerDashboard {
             }
         });
 
-        console.log('✅ Monthly revenue chart rendered with data:', monthlyData);
+        console.log('? Monthly revenue chart rendered with data:', monthlyData);
     }
 
     updateWithdrawalBalance(groveId) {
         console.log('[Withdrawal] Updating balance for grove:', groveId);
-        
+
         const helpText = document.getElementById('withdrawalHelp');
         if (!helpText) {
             console.warn('[Withdrawal] Help text element not found');
@@ -2933,7 +3029,7 @@ class FarmerDashboard {
 
         // Store for max button
         this.currentGroveBalance = availableForGrove;
-        
+
         console.log('[Withdrawal] Grove balance updated:', {
             groveId,
             groveRevenue,
@@ -2944,7 +3040,7 @@ class FarmerDashboard {
 
     handleWithdrawMax() {
         console.log('[Withdrawal] Max button clicked');
-        
+
         const groveSelect = document.getElementById('withdrawalGrove');
         const amountInput = document.getElementById('withdrawalAmount');
 
@@ -3036,93 +3132,77 @@ class FarmerDashboard {
         document.getElementById('withdrawalHelp').textContent = 'Available: $0.00';
     }
 
-    loadWithdrawalHistory(farmerAddress) {
+    async loadWithdrawalHistory(farmerAddress) {
         const container = document.getElementById('withdrawalHistoryList');
         if (!container) return;
 
-        if (!this.withdrawals || this.withdrawals.length === 0) {
-            container.innerHTML = '<div class="empty-state"><p>No withdrawal history yet.</p></div>';
-            return;
-        }
+        container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
 
-        container.innerHTML = `
-            <div class="withdrawal-list">
-                ${this.withdrawals.map(withdrawal => `
+        try {
+            const response = await window.coffeeAPI.getFarmerWithdrawalHistory(farmerAddress);
+            const withdrawals = response.success && response.withdrawals ? response.withdrawals : [];
+
+            if (withdrawals.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No withdrawal history yet.</p></div>';
+                return;
+            }
+
+            this.withdrawals = withdrawals;
+
+            const items = withdrawals.map(w => {
+                const amount = ((w.amount || 0) / 100).toFixed(2);
+                const date = new Date(w.requestedAt || w.completedAt || Date.now()).toLocaleDateString();
+                const status = w.status === 'completed' ? '✅ Completed' : '⏳ Pending';
+                const txLink = w.transactionHash ?
+                    `<div class="detail"><span class="detail-label">Transaction</span><a href="${w.blockExplorerUrl || '#'}" target="_blank" class="detail-value mono-text">${w.transactionHash.substring(0, 15)}...</a></div>`
+                    : '';
+
+                return `
                     <div class="withdrawal-item">
                         <div class="withdrawal-header">
                             <div class="withdrawal-info">
-                                <h5>${withdrawal.groveName}</h5>
-                                <span class="withdrawal-date">
-                                    <i class="fas fa-calendar"></i> 
-                                    ${new Date(withdrawal.timestamp).toLocaleDateString()}
-                                </span>
+                                <h5>${w.groveName || 'Grove'}</h5>
+                                <span class="withdrawal-date"><i class="fas fa-calendar"></i> ${date}</span>
                             </div>
-                            <div class="withdrawal-status ${withdrawal.status}">
-                                ${withdrawal.status === 'completed' ? '✅ Completed' : '⏳ Pending'}
-                            </div>
+                            <div class="withdrawal-status ${w.status}">${status}</div>
                         </div>
                         <div class="withdrawal-details">
                             <div class="detail">
                                 <span class="detail-label">Amount</span>
-                                <span class="detail-value">$${withdrawal.amount.toFixed(2)}</span>
+                                <span class="detail-value">$${amount}</span>
                             </div>
-                            <div class="detail">
-                                <span class="detail-label">Transaction</span>
-                                <span class="detail-value mono-text">${withdrawal.transactionHash.substring(0, 10)}...</span>
-                            </div>                                </div>
-                                <div class="harvest-distribution">
-                                    <div class="metric">
-                                        <span class="metric-label">Farmer Share (30%)</span>
-                                        <span class="metric-value">$$${this.calculateFarmerShare(harvest).toLocaleString()}</span>
-                                    </div>
-                                    <div class="metric">
-                                        <span class="metric-label">Investor Share (70%)</span>
-                                        <span class="metric-value">$$${this.calculateInvestorShare(harvest).toLocaleString()}</span>
-                                    </div>
+                            ${txLink}
                         </div>
                     </div>
-                `).join('')}
-            </div>
-        `;
+                `;
+            }).join('');
+
+            container.innerHTML = `<div class="withdrawal-list">${items}</div>`;
+        } catch (error) {
+            console.error('Failed to load withdrawal history:', error);
+            container.innerHTML = '<div class="empty-state"><p>Failed to load withdrawal history.</p></div>';
+        }
     }
 
     // Load pricing section - initialize market prices display
     async loadPricingSection() {
         console.log('[Pricing] Loading market prices section');
-        
+
         try {
             // Check if MarketPricesDisplay is available
             if (typeof window.MarketPricesDisplay === 'undefined') {
                 console.warn('[Pricing] MarketPricesDisplay not loaded yet, waiting...');
-                // Wait a bit for the script to load
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                if (typeof window.MarketPricesDisplay === 'undefined') {
-                    console.error('[Pricing] MarketPricesDisplay still not available');
-                    this.showNotification('Market prices module not loaded', 'error');
-                    return;
-                }
+                setTimeout(() => this.loadPricingSection(), 100);
+                return;
             }
 
-            // Ensure priceOracle is available
-            if (!window.priceOracle) {
-                console.log('[Pricing] Initializing price oracle...');
-                if (window.PriceOracleManager && window.coffeeAPI) {
-                    window.priceOracle = new window.PriceOracleManager(window.coffeeAPI);
-                }
-            }
-
-            // Initialize market prices display if not already done
+            // Initialize market prices display
             if (!this.marketPricesDisplay) {
-                console.log('[Pricing] Creating new MarketPricesDisplay instance');
                 this.marketPricesDisplay = new window.MarketPricesDisplay(window.coffeeAPI);
                 await this.marketPricesDisplay.initialize();
-                console.log('[Pricing] Market prices display initialized successfully');
             } else {
-                // Refresh prices if already initialized
-                console.log('[Pricing] Refreshing existing market prices');
+                // Just refresh the data if already initialized
                 await this.marketPricesDisplay.loadPrices();
-                console.log('[Pricing] Market prices refreshed');
             }
         } catch (error) {
             console.error('[Pricing] Error loading pricing section:', error);
@@ -3131,11 +3211,165 @@ class FarmerDashboard {
         }
     }
 
+    /**
+     * Claim grove tokens - triggers HashPack association
+     */
+    async claimGroveTokens(tokenId, groveId, groveName) {
+        console.log('[ClaimTokens] Starting claim process for token:', tokenId);
+
+        try {
+            // Check if HashPack is connected
+            const accountId = window.walletManager?.getAccountId();
+            
+            if (!accountId) {
+                this.showNotification('Please connect your HashPack wallet first', 'warning');
+                return;
+            }
+
+            // Show loading state
+            const claimBtn = document.querySelector('.claim-tokens-btn');
+            if (claimBtn) {
+                claimBtn.disabled = true;
+                claimBtn.innerHTML = '⏳ Opening HashPack...';
+            }
+
+            // Trigger HashPack to associate token
+            this.showNotification(`Opening HashPack to associate token ${tokenId}...`, 'info');
+
+            // Use HashConnect to trigger token association
+            // This will open HashPack and prompt the user to associate the token
+            try {
+                // Create a simple message for the user
+                const message = `Please associate token ${tokenId} in your HashPack wallet to claim your ${groveName} grove tokens. This costs about $0.05 HBAR.`;
+
+                this.showNotification(message, 'info', 10000);
+
+                // Open HashPack with instructions
+                const instructions = `
+                    <div style="text-align: left; padding: 20px;">
+                        <h3>📱 Steps to Claim Your Tokens:</h3>
+                        <ol style="line-height: 2;">
+                            <li>Open your <strong>HashPack wallet</strong></li>
+                            <li>Go to the <strong>"Tokens"</strong> tab</li>
+                            <li>Click the <strong>"+"</strong> button</li>
+                            <li>Enter Token ID: <code style="background: #f0f0f0; padding: 4px 8px; border-radius: 4px;">${tokenId}</code></li>
+                            <li>Click <strong>"Associate"</strong></li>
+                            <li>Confirm the transaction (~$0.05 HBAR)</li>
+                            <li>Come back here and click <strong>"Check Status"</strong></li>
+                        </ol>
+                        <div style="margin-top: 20px; padding: 16px; background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 8px; color: var(--color-text-light, #e0e0e0);">
+                            <strong>💡 Tip:</strong> Copy the token ID above and paste it in HashPack
+                        </div>
+                    </div>
+                `;
+
+                // Create instruction modal
+                const instructionModal = document.createElement('div');
+                instructionModal.className = 'modal active';
+                instructionModal.innerHTML = `
+                    <div class="modal-overlay"></div>
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4>🎁 Claim Your Grove Tokens</h4>
+                            <button class="modal-close">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            ${instructions}
+                            <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: center;">
+                                <button class="btn btn-secondary copy-token-btn" data-token="${tokenId}">
+                                    📋 Copy Token ID
+                                </button>
+                                <button class="btn btn-primary check-status-btn" data-grove-id="${groveId}" data-token-id="${tokenId}">
+                                    ✅ Check Status
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(instructionModal);
+
+                // Copy button handler
+                const copyBtn = instructionModal.querySelector('.copy-token-btn');
+                copyBtn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(tokenId);
+                    copyBtn.innerHTML = '✅ Copied!';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = '📋 Copy Token ID';
+                    }, 2000);
+                });
+
+                // Check status button handler
+                const checkBtn = instructionModal.querySelector('.check-status-btn');
+                checkBtn.addEventListener('click', async () => {
+                    checkBtn.disabled = true;
+                    checkBtn.innerHTML = '⏳ Checking...';
+
+                    // Call backend to check association and transfer tokens
+                    try {
+                        const apiUrl = window.location.hostname === 'localhost' 
+                            ? 'http://localhost:3001'
+                            : window.location.origin;
+                        const response = await fetch(`${apiUrl}/api/farmer/claim-tokens/${groveId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ farmerAddress: accountId })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            this.showNotification('🎉 Tokens claimed successfully! Check your HashPack wallet.', 'success');
+                            instructionModal.remove();
+                            // Refresh grove list
+                            await this.loadGroves(accountId);
+                        } else {
+                            // Show user-friendly error message
+                            const errorMsg = result.error || 'Failed to claim tokens';
+                            this.showNotification(errorMsg, 'error');
+                        }
+                    } catch (error) {
+                        console.error('[ClaimTokens] Error checking status:', error);
+                        const friendlyError = window.translateError ? window.translateError(error) : 'Unable to check token status. Please try again.';
+                        this.showNotification(friendlyError, 'error');
+                    } finally {
+                        checkBtn.disabled = false;
+                        checkBtn.innerHTML = '✅ Check Status';
+                    }
+                });
+
+                // Close button handler
+                const closeBtn = instructionModal.querySelector('.modal-close');
+                const overlay = instructionModal.querySelector('.modal-overlay');
+                closeBtn.addEventListener('click', () => instructionModal.remove());
+                overlay.addEventListener('click', () => instructionModal.remove());
+
+            } catch (error) {
+                console.error('[ClaimTokens] Error:', error);
+                const friendlyError = window.translateError ? window.translateError(error) : 'Unable to open HashPack wallet. Please try opening it manually.';
+                this.showNotification(friendlyError, 'error');
+            }
+
+        } catch (error) {
+            console.error('[ClaimTokens] Error claiming tokens:', error);
+            const friendlyError = window.translateError ? window.translateError(error) : error.message;
+            this.showNotification(friendlyError, 'error');
+        } finally {
+            // Reset button
+            const claimBtn = document.querySelector('.claim-tokens-btn');
+            if (claimBtn) {
+                claimBtn.disabled = false;
+                claimBtn.innerHTML = '🎁 Claim Your Tokens Now';
+            }
+        }
+    }
+
     // Add other methods as needed...
 }
 
 // Create global farmer dashboard instance
 window.farmerDashboard = new FarmerDashboard();
+
 
 
 

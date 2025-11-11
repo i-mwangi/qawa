@@ -1,5 +1,5 @@
 import { db } from '../../db/index.js';
-import { coffeeGroves, harvestRecords, tokenHoldings, revenueDistributions, farmerBalances } from '../../db/schema/index.js';
+import { coffeeGroves, harvestRecords, tokenHoldings, revenueDistributions, farmerBalances, farmerGroveBalances } from '../../db/schema/index.js';
 import { eq, and, lte } from 'drizzle-orm';
 import { transactionRecorder } from '../api/transaction-recording-service.js';
 import { getHederaPaymentService, PaymentResult } from '../api/hedera-payment-service.js';
@@ -324,7 +324,7 @@ export class RevenueDistributionService {
             // Step 6: Update farmer balance with farmer share
             const farmerAddress = grove.farmerAddress;
             
-            // Get or create farmer balance record
+            // Get or create farmer balance record (global)
             const existingBalance = await db.query.farmerBalances.findFirst({
                 where: eq(farmerBalances.farmerAddress, farmerAddress)
             });
@@ -344,6 +344,41 @@ export class RevenueDistributionService {
                     pendingBalance: 0,
                     totalEarned: revenueSplit.farmerShare,
                     totalWithdrawn: 0,
+                    updatedAt: Date.now()
+                });
+            }
+
+            // Also update per-grove balance
+            const existingGroveBalance = await db.query.farmerGroveBalances.findFirst({
+                where: and(
+                    eq(farmerGroveBalances.farmerAddress, farmerAddress),
+                    eq(farmerGroveBalances.groveId, harvest.groveId)
+                )
+            });
+
+            if (existingGroveBalance) {
+                await db.update(farmerGroveBalances)
+                    .set({
+                        availableBalance: existingGroveBalance.availableBalance + revenueSplit.farmerShare,
+                        totalEarned: existingGroveBalance.totalEarned + revenueSplit.farmerShare,
+                        thisMonthDistributed: existingGroveBalance.thisMonthDistributed + revenueSplit.farmerShare,
+                        lastCalculatedAt: Date.now(),
+                        updatedAt: Date.now()
+                    })
+                    .where(and(
+                        eq(farmerGroveBalances.farmerAddress, farmerAddress),
+                        eq(farmerGroveBalances.groveId, harvest.groveId)
+                    ));
+            } else {
+                await db.insert(farmerGroveBalances).values({
+                    farmerAddress,
+                    groveId: harvest.groveId,
+                    availableBalance: revenueSplit.farmerShare,
+                    totalEarned: revenueSplit.farmerShare,
+                    thisMonthDistributed: revenueSplit.farmerShare,
+                    pendingDistribution: 0,
+                    totalWithdrawn: 0,
+                    lastCalculatedAt: Date.now(),
                     updatedAt: Date.now()
                 });
             }
@@ -455,6 +490,41 @@ export class RevenueDistributionService {
                     pendingBalance: 0,
                     totalEarned: revenueSplit.farmerShare,
                     totalWithdrawn: 0,
+                    updatedAt: Date.now()
+                });
+            }
+
+            // Also update per-grove balance
+            const existingGroveBalance = await db.query.farmerGroveBalances.findFirst({
+                where: and(
+                    eq(farmerGroveBalances.farmerAddress, farmerAddress),
+                    eq(farmerGroveBalances.groveId, harvest.groveId)
+                )
+            });
+
+            if (existingGroveBalance) {
+                await db.update(farmerGroveBalances)
+                    .set({
+                        availableBalance: existingGroveBalance.availableBalance + revenueSplit.farmerShare,
+                        totalEarned: existingGroveBalance.totalEarned + revenueSplit.farmerShare,
+                        thisMonthDistributed: existingGroveBalance.thisMonthDistributed + revenueSplit.farmerShare,
+                        lastCalculatedAt: Date.now(),
+                        updatedAt: Date.now()
+                    })
+                    .where(and(
+                        eq(farmerGroveBalances.farmerAddress, farmerAddress),
+                        eq(farmerGroveBalances.groveId, harvest.groveId)
+                    ));
+            } else {
+                await db.insert(farmerGroveBalances).values({
+                    farmerAddress,
+                    groveId: harvest.groveId,
+                    availableBalance: revenueSplit.farmerShare,
+                    totalEarned: revenueSplit.farmerShare,
+                    thisMonthDistributed: revenueSplit.farmerShare,
+                    pendingDistribution: 0,
+                    totalWithdrawn: 0,
+                    lastCalculatedAt: Date.now(),
                     updatedAt: Date.now()
                 });
             }

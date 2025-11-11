@@ -915,7 +915,8 @@ class InvestorPortal {
                 await this.loadAvailableGroves(true);
             } else {
                 console.error(`[InvestorPortal] ❌ Purchase failed:`, response.error);
-                throw new Error(response.error || 'Failed to purchase tokens');
+                const friendlyError = window.translateError ? window.translateError(response.error || 'Failed to purchase tokens') : (response.error || 'Failed to purchase tokens');
+                throw new Error(friendlyError);
             }
         } catch (error) {
             console.error('[InvestorPortal] ❌ Token purchase error:', error);
@@ -1546,7 +1547,8 @@ class InvestorPortal {
                 // Refresh earnings data
                 await this.loadEarnings(holderAddress);
             } else {
-                throw new Error(response.error || 'Failed to claim earnings');
+                const friendlyError = window.translateError ? window.translateError(response.error || 'Failed to claim earnings') : (response.error || 'Failed to claim earnings');
+                throw new Error(friendlyError);
             }
         } catch (error) {
             console.error('Failed to claim earnings:', error);
@@ -1913,14 +1915,23 @@ class InvestorPortal {
         }
 
         container.innerHTML = positions.map(position => {
-            const currentValue = position.lpTokenBalance * position.lpTokenPrice;
-            const earnings = currentValue - position.initialInvestment;
+            // Safely extract values with defaults
+            const lpTokenBalance = position.lpTokenBalance || 0;
+            const lpTokenPrice = position.lpTokenPrice || 1.0;
+            const initialInvestment = position.initialInvestment || 0;
+            const currentAPY = position.currentAPY || 0;
+            const poolShare = position.poolShare || 0;
+            const poolName = position.poolName || 'USDC Pool';
+            const assetAddress = position.assetAddress || 'USDC';
+            
+            const currentValue = lpTokenBalance * lpTokenPrice;
+            const earnings = currentValue - initialInvestment;
             const earningsClass = earnings >= 0 ? 'text-success' : 'text-danger';
 
             return `
                 <div class="list-item">
                     <div class="list-item-header">
-                        <h4>${position.poolName || 'USDC Pool'}</h4>
+                        <h4>${poolName}</h4>
                         <div class="position-value">
                             <span class="current-value">$${currentValue.toFixed(2)}</span>
                             <span class="${earningsClass}">
@@ -1931,19 +1942,19 @@ class InvestorPortal {
                     <div class="list-item-content">
                         <div class="list-item-detail">
                             <label>LP Tokens</label>
-                            <span>${position.lpTokenBalance.toFixed(2)}</span>
+                            <span>${lpTokenBalance.toFixed(2)}</span>
                         </div>
                         <div class="list-item-detail">
                             <label>Pool Share</label>
-                            <span>${position.poolShare.toFixed(2)}%</span>
+                            <span>${poolShare.toFixed(2)}%</span>
                         </div>
                         <div class="list-item-detail">
                             <label>Initial Investment</label>
-                            <span>$${position.initialInvestment.toFixed(2)}</span>
+                            <span>$${initialInvestment.toFixed(2)}</span>
                         </div>
                         <div class="list-item-detail">
                             <label>Current APY</label>
-                            <span>${position.currentAPY.toFixed(2)}%</span>
+                            <span>${currentAPY.toFixed(2)}%</span>
                         </div>
                         <div class="list-item-detail">
                             <label>Provided Date</label>
@@ -1951,7 +1962,7 @@ class InvestorPortal {
                         </div>
                     </div>
                     <div class="position-actions">
-                        <button class="btn btn-warning" onclick="investorPortal.showWithdrawLiquidityModal('${position.assetAddress}', ${position.lpTokenBalance})">
+                        <button class="btn btn-warning" onclick="investorPortal.showWithdrawLiquidityModal('${assetAddress}', ${lpTokenBalance})">
                             Withdraw Liquidity
                         </button>
                     </div>
@@ -2138,7 +2149,8 @@ class InvestorPortal {
                 // Reset form
                 amountInput.value = '';
             } else {
-                throw new Error(result?.error || 'Failed to provide liquidity');
+                const friendlyError = window.translateError ? window.translateError(result?.error || 'Failed to provide liquidity') : (result?.error || 'Failed to provide liquidity');
+                throw new Error(friendlyError);
             }
         } catch (error) {
             console.error('Failed to provide liquidity:', error);
@@ -2344,7 +2356,7 @@ class InvestorPortal {
             const treasuryId = config.treasuryId;
             
             if (!lpTokenId || !treasuryId) {
-                throw new Error('LP token or treasury not configured. Please contact support.');
+                throw new Error('Liquidity pool is not configured yet. Please contact support.');
             }
 
             // Create a dark-themed modal for the transfer
@@ -2443,7 +2455,8 @@ class InvestorPortal {
                         // Reset form
                         lpTokenInput.value = '';
                     } else {
-                        throw new Error(result?.error || 'Failed to withdraw liquidity');
+                        const friendlyError = window.translateError ? window.translateError(result?.error || 'Failed to withdraw liquidity') : (result?.error || 'Failed to withdraw liquidity');
+                        throw new Error(friendlyError);
                     }
                 } catch (error) {
                     console.error('Failed to withdraw liquidity:', error);
@@ -2764,7 +2777,8 @@ class InvestorPortal {
                 // Reset form
                 loanAmountInput.value = '';
             } else {
-                throw new Error(result?.error || 'Failed to process loan');
+                const friendlyError = window.translateError ? window.translateError(result?.error || 'Failed to process loan') : (result?.error || 'Failed to process loan');
+                throw new Error(friendlyError);
             }
         } catch (error) {
             console.error('Failed to take loan:', error);
@@ -3014,7 +3028,8 @@ class InvestorPortal {
                 const investorAddress = window.walletManager.getAccountId();
                 await this.loadLoanData(investorAddress);
             } else {
-                throw new Error(result?.error || 'Failed to repay loan');
+                const friendlyError = window.translateError ? window.translateError(result?.error || 'Failed to repay loan') : (result?.error || 'Failed to repay loan');
+                throw new Error(friendlyError);
             }
         } catch (error) {
             console.error('Failed to repay loan:', error);
@@ -3185,6 +3200,21 @@ class InvestorPortal {
             });
         }
 
+        if (exportBtn) {
+            // Remove old listener if exists
+            const newBtn = exportBtn.cloneNode(true);
+            exportBtn.parentNode.replaceChild(newBtn, exportBtn);
+            
+            // Add new listener
+            newBtn.addEventListener('click', () => {
+                if (window.transactionHistoryManager) {
+                    window.transactionHistoryManager.downloadCSV(`investor-transactions-${Date.now()}.csv`);
+                } else {
+                    alert('No transactions to export');
+                }
+            });
+        }
+
     }
 
     async loadGroveHistory(groveId) {
@@ -3197,7 +3227,7 @@ class InvestorPortal {
             if (!contentType || !contentType.includes('application/json')) {
                 const text = await response.text();
                 console.error('Non-JSON response received:', text.substring(0, 200));
-                throw new Error('Server returned invalid response format');
+                throw new Error('Unable to load data. The server returned an unexpected response. Please try again.');
             }
             
             const result = await response.json();
@@ -3208,13 +3238,14 @@ class InvestorPortal {
             console.log(`[${new Date().toISOString()}] result.data:`, result.data);
             
             if (!result.success) {
-                throw new Error(result.error || 'Failed to load harvest history');
+                const friendlyError = window.translateError ? window.translateError(result.error || 'Failed to load harvest history') : (result.error || 'Failed to load harvest history');
+                throw new Error(friendlyError);
             }
             
             // Check if data exists
             if (!result.data) {
                 console.error('result.data is undefined. Full result:', result);
-                throw new Error('Invalid API response: missing data property');
+                throw new Error('Unable to load harvest history. The server returned incomplete data. Please try again.');
             }
             
             const { harvests, stats } = result.data;

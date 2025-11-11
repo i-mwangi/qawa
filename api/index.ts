@@ -5,6 +5,9 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+// Note: revenueDistributionService import causes Windows ESM issues
+// Distribution must be done manually via scripts for now
+
 // For now, return a simple response
 // TODO: Refactor server.ts to export a request handler instead of creating HTTP server
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -20,8 +23,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // Health check endpoint
   if (url.includes('/health')) {
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       message: 'API is running',
       timestamp: new Date().toISOString()
     });
@@ -32,11 +35,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { db } = await import('../db/index.js');
     const { coffeeGroves } = await import('../db/schema/index.js');
     const { eq } = await import('drizzle-orm');
-    
+
     try {
       const groveData = req.body;
       const tokensPerTree = groveData.tokensPerTree || 10; // Default 10 tokens per tree
-      
+
       // Step 1: Insert grove into database first
       const result = await db.insert(coffeeGroves).values({
         groveName: groveData.groveName,
@@ -54,26 +57,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         createdAt: Date.now(),
         updatedAt: Date.now()
       }).returning();
-      
+
       const grove = result[0];
       let tokenizationResult: any = null;
-      
+
       // Step 2: Attempt tokenization if Hedera credentials are configured
       if (process.env.HEDERA_OPERATOR_ID && process.env.HEDERA_OPERATOR_KEY) {
         try {
           console.log(`🪙 Attempting to tokenize grove: ${grove.groveName}`);
-          
+
           const { hederaTokenService } = await import('../lib/api/hedera-token-service.js');
           const symbol = `TREE-${grove.groveName.substring(0, 6).toUpperCase()}`;
           const totalTokens = grove.treeCount * tokensPerTree;
-          
+
           // Create HTS token
           const tokenResult = await hederaTokenService.createGroveToken(
             grove.groveName,
             symbol,
             totalTokens
           );
-          
+
           if (tokenResult.success && tokenResult.tokenId) {
             // Update grove with token information
             await db.update(coffeeGroves)
@@ -86,7 +89,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 updatedAt: Date.now()
               })
               .where(eq(coffeeGroves.id, grove.id));
-            
+
             tokenizationResult = {
               success: true,
               tokenId: tokenResult.tokenId,
@@ -94,7 +97,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               totalTokens: totalTokens,
               transactionId: tokenResult.transactionId
             };
-            
+
             console.log(`✅ Grove tokenized successfully: ${tokenResult.tokenId}`);
           } else {
             console.warn(`⚠️ Tokenization failed: ${tokenResult.error}`);
@@ -117,13 +120,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           error: 'Hedera credentials not configured'
         };
       }
-      
+
       return res.status(200).json({
         success: true,
         grove: result[0],
         tokenization: tokenizationResult,
-        message: tokenizationResult?.success 
-          ? 'Grove registered and tokenized successfully' 
+        message: tokenizationResult?.success
+          ? 'Grove registered and tokenized successfully'
           : 'Grove registered (tokenization skipped)'
       });
     } catch (error: any) {
@@ -134,15 +137,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
   }
-  
+
   // Grove history endpoint (GET /groves/:id/history) - MUST come before /groves
   if (url.match(/\/groves\/\d+\/history/) && req.method === 'GET') {
     const { db } = await import('../db/index.js');
     const { sql } = await import('drizzle-orm');
-    
+
     try {
       const groveId = parseInt(url.split('/groves/')[1].split('/')[0]);
-      
+
       // Get harvests for this grove
       const harvests = await db.all(sql`
         SELECT 
@@ -154,14 +157,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         WHERE h.grove_id = ${groveId}
         ORDER BY h.harvest_date DESC
       `);
-      
+
       // Calculate stats
       const totalHarvests = harvests.length;
       const totalRevenue = harvests.reduce((sum: number, h: any) => sum + (h.total_revenue || 0), 0) / 100;
-      const avgYield = totalHarvests > 0 
-        ? harvests.reduce((sum: number, h: any) => sum + (h.yield_kg || 0), 0) / totalHarvests 
+      const avgYield = totalHarvests > 0
+        ? harvests.reduce((sum: number, h: any) => sum + (h.yield_kg || 0), 0) / totalHarvests
         : 0;
-      
+
       // Map to frontend format
       const mappedHarvests = harvests.map((h: any) => ({
         id: h.id,
@@ -179,7 +182,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         transactionHash: h.transaction_hash,
         createdAt: h.created_at
       }));
-      
+
       return res.status(200).json({
         success: true,
         data: {
@@ -199,17 +202,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
   }
-  
+
   if (url.includes('/groves') && req.method === 'GET') {
     const { db } = await import('../db/index.js');
     const { coffeeGroves } = await import('../db/schema/index.js');
     const { eq } = await import('drizzle-orm');
-    
+
     try {
       // Extract farmerAddress from query params
       const urlObj = new URL(url, `http://localhost`);
       const farmerAddress = urlObj.searchParams.get('farmerAddress');
-      
+
       let groves;
       if (farmerAddress) {
         groves = await db.query.coffeeGroves.findMany({
@@ -218,7 +221,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } else {
         groves = await db.query.coffeeGroves.findMany();
       }
-      
+
       // Map database fields to frontend expected fields
       const mappedGroves = groves.map(grove => ({
         ...grove,
@@ -226,7 +229,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         longitude: grove.coordinatesLng,
         healthScore: grove.currentHealthScore || 0
       }));
-      
+
       return res.status(200).json({
         success: true,
         groves: mappedGroves
@@ -246,33 +249,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { db } = await import('../db/index.js');
     const { harvestRecords, coffeeGroves } = await import('../db/schema/index.js');
     const { eq } = await import('drizzle-orm');
-    
+
     try {
       const harvestData = req.body;
-      
-      // Parse autoDistribute query parameter (default false)
+
+      // Parse autoDistribute query parameter (default false due to Windows ESM issues)
       const urlObj = new URL(url, `http://localhost`);
       const autoDistribute = urlObj.searchParams.get('autoDistribute') === 'true';
-      
+
       // Get grove to calculate revenue split (70% farmer, 30% investors)
       const grove = await db.query.coffeeGroves.findFirst({
         where: eq(coffeeGroves.id, harvestData.groveId)
       });
-      
+
       if (!grove) {
         return res.status(404).json({
           success: false,
           error: 'Grove not found'
         });
       }
-      
+
       const totalRevenue = harvestData.totalRevenue;
       const farmerShare = Math.floor(totalRevenue * 0.3); // 30% to farmer
       const investorShare = totalRevenue - farmerShare; // 70% to investors
-      
+
       // Convert harvestDate string to timestamp
       const harvestTimestamp = new Date(harvestData.harvestDate).getTime();
-      
+
       // Insert harvest into database
       const result = await db.insert(harvestRecords).values({
         groveId: harvestData.groveId,
@@ -286,38 +289,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         revenueDistributed: false,
         createdAt: Date.now()
       }).returning();
-      
+
       const harvest = result[0];
-      
-      // Optionally trigger automatic distribution
+
+      // Auto-distribution disabled due to Windows ESM import issues
+      // Use manual distribution script: npx tsx scripts/manually-distribute-harvest-11.ts [HARVEST_ID]
       let distributionResult = null;
       if (autoDistribute) {
-        console.log(`[HarvestReport] Auto-distributing revenue for harvest ${harvest.id}`);
-        
-        try {
-          const { revenueDistributionService } = await import('../lib/services/revenue-distribution-service.js');
-          const distribution = await revenueDistributionService.distributeRevenue(harvest.id);
-          
-          if (distribution.success) {
-            distributionResult = distribution.distribution;
-            console.log(`[HarvestReport] Auto-distribution completed successfully`);
-          } else {
-            console.warn(`[HarvestReport] Auto-distribution failed: ${distribution.error}`);
-            // Don't fail the harvest report if distribution fails
-            // Just log the error and return the harvest without distribution
-          }
-        } catch (distError: any) {
-          console.error('[HarvestReport] Error during auto-distribution:', distError);
-          // Continue without failing the harvest report
-        }
+        console.log(`[HarvestReport] Auto-distribution requested but disabled. Use manual script.`);
+        console.log(`[HarvestReport] Run: npx tsx scripts/manually-distribute-harvest-11.ts ${harvest.id}`);
       }
-      
+
       return res.status(200).json({
         success: true,
         harvest: harvest,
         distribution: distributionResult,
         revenueDistributed: distributionResult !== null,
-        message: distributionResult 
+        message: distributionResult
           ? 'Harvest reported and revenue distributed successfully'
           : 'Harvest reported successfully'
       });
@@ -333,13 +321,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (url.includes('/harvest/history') && req.method === 'GET') {
     const { db } = await import('../db/index.js');
     const { sql } = await import('drizzle-orm');
-    
+
     try {
       const urlObj = new URL(url, `http://localhost`);
       const farmerAddress = urlObj.searchParams.get('farmerAddress');
-      
+
       let harvests: any[] = [];
-      
+
       if (farmerAddress) {
         // Use raw SQL to join harvests with groves
         const result = await db.all(sql`
@@ -353,7 +341,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           WHERE g.farmer_address = ${farmerAddress}
           ORDER BY h.harvest_date DESC
         `);
-        
+
         harvests = result;
       } else {
         // Get all harvests with grove info
@@ -367,10 +355,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           INNER JOIN coffee_groves g ON h.grove_id = g.id
           ORDER BY h.harvest_date DESC
         `);
-        
+
         harvests = result;
       }
-      
+
       // Map snake_case to camelCase for frontend
       const mappedHarvests = harvests.map(h => ({
         id: h.id,
@@ -389,7 +377,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         transactionHash: h.transaction_hash,
         createdAt: h.created_at
       }));
-      
+
       return res.status(200).json({
         success: true,
         harvests: mappedHarvests
@@ -408,18 +396,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (url.includes('/harvest/stats') && req.method === 'GET') {
     const { db } = await import('../db/index.js');
     const { sql } = await import('drizzle-orm');
-    
+
     try {
       const urlObj = new URL(url, `http://localhost`);
       const farmerAddress = urlObj.searchParams.get('farmerAddress');
-      
+
       if (!farmerAddress) {
         return res.status(400).json({
           success: false,
           error: 'Farmer address required'
         });
       }
-      
+
       // Use raw SQL to get stats
       const result = await db.get(sql`
         SELECT 
@@ -431,14 +419,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         INNER JOIN coffee_groves g ON h.grove_id = g.id
         WHERE g.farmer_address = ${farmerAddress}
       `);
-      
+
       const stats = {
         totalHarvests: result?.totalHarvests || 0,
         totalYield: result?.totalYield || 0,
         totalRevenue: (result?.totalRevenue || 0) / 100, // Convert from cents
         averageQuality: result?.averageQuality || 0
       };
-      
+
       return res.status(200).json({
         success: true,
         stats: stats
@@ -456,43 +444,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (url.includes('/farmer/balance/') && req.method === 'GET') {
     const { db } = await import('../db/index.js');
     const { sql } = await import('drizzle-orm');
-    
+
     try {
       const farmerAddress = url.split('/farmer/balance/')[1]?.split('?')[0];
-      
+
       if (!farmerAddress) {
         return res.status(400).json({
           success: false,
           error: 'Farmer address required'
         });
       }
-      
-      // Get all groves for this farmer with their balances
+
+      // Get all groves for this farmer with their balances from farmer_grove_balances table
       const groves = await db.all(sql`
         SELECT 
           g.id,
           g.grove_name as groveName,
-          COALESCE(SUM(h.farmer_share), 0) as totalEarned,
-          COALESCE(SUM(w.amount), 0) as totalWithdrawn,
-          COALESCE(SUM(h.farmer_share), 0) - COALESCE(SUM(w.amount), 0) as availableBalance,
-          0 as thisMonthDistributed
+          COALESCE(b.total_earned, 0) as totalEarned,
+          COALESCE(b.total_withdrawn, 0) as totalWithdrawn,
+          COALESCE(b.available_balance, 0) as availableBalance,
+          COALESCE(b.this_month_distributed, 0) as thisMonthDistributed
         FROM coffee_groves g
-        LEFT JOIN harvest_records h ON g.id = h.grove_id
-        LEFT JOIN farmer_withdrawals w ON g.id = w.grove_id AND w.status = 'completed'
+        LEFT JOIN farmer_grove_balances b ON g.id = b.grove_id AND b.farmer_address = g.farmer_address
         WHERE g.farmer_address = ${farmerAddress}
-        GROUP BY g.id, g.grove_name
       `);
-      
-      // Convert from cents to dollars
+
+      // Data is already in cents, return as-is (frontend will convert to dollars for display)
       const mappedGroves = groves.map((g: any) => ({
         groveId: g.id,
         groveName: g.groveName,
-        totalEarned: g.totalEarned / 100,
-        availableBalance: g.availableBalance / 100,
-        withdrawn: g.totalWithdrawn / 100,
-        thisMonthDistributed: 0
+        totalEarned: g.totalEarned,
+        availableBalance: g.availableBalance,
+        totalWithdrawn: g.totalWithdrawn,
+        thisMonthDistributed: g.thisMonthDistributed
       }));
-      
+
       return res.status(200).json({
         success: true,
         data: {
@@ -512,33 +498,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (url.includes('/revenue/farmer-balance') && req.method === 'GET') {
     const { db } = await import('../db/index.js');
     const { sql } = await import('drizzle-orm');
-    
+
     try {
       const urlObj = new URL(url, `http://localhost`);
       const farmerAddress = urlObj.searchParams.get('farmerAddress');
-      
+
       if (!farmerAddress) {
         return res.status(400).json({
           success: false,
           error: 'Farmer address required'
         });
       }
-      
+
+      // Get aggregated balance from farmer_grove_balances table
       const result = await db.get(sql`
         SELECT 
-          COALESCE(SUM(h.farmer_share), 0) as totalEarned
-        FROM harvest_records h
-        INNER JOIN coffee_groves g ON h.grove_id = g.id
-        WHERE g.farmer_address = ${farmerAddress}
+          COALESCE(SUM(total_earned), 0) as totalEarned,
+          COALESCE(SUM(total_withdrawn), 0) as totalWithdrawn,
+          COALESCE(SUM(available_balance), 0) as availableBalance
+        FROM farmer_grove_balances
+        WHERE farmer_address = ${farmerAddress}
       `);
-      
+
       const totalEarned = (result?.totalEarned || 0) / 100;
-      
+      const totalWithdrawn = (result?.totalWithdrawn || 0) / 100;
+      const availableBalance = (result?.availableBalance || 0) / 100;
+
       return res.status(200).json({
         success: true,
-        balance: totalEarned,
-        availableBalance: totalEarned,
-        withdrawn: 0
+        data: {
+          totalEarned,
+          totalWithdrawn,
+          availableBalance
+        }
       });
     } catch (error: any) {
       console.error('Error fetching farmer balance:', error);
@@ -550,24 +542,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Farmer withdraw endpoint (POST)
-  if (url.includes('/farmer/withdraw') && req.method === 'POST') {
+  if (url.includes('/api/farmer/withdraw') && req.method === 'POST') {
     const { db } = await import('../db/index.js');
     const { farmerWithdrawals } = await import('../db/schema/index.js');
     const { sql } = await import('drizzle-orm');
-    
+
     try {
       const withdrawalData = req.body;
       const { groveId, amount, farmerAddress } = withdrawalData;
-      
+
       if (!groveId || !amount || !farmerAddress) {
         return res.status(400).json({
           success: false,
           error: 'Missing required fields: groveId, amount, farmerAddress'
         });
       }
-      
+
       console.log(`💰 Withdrawal request: ${farmerAddress} wants to withdraw $${amount} from grove ${groveId}`);
-      
+
       // Check if Hedera is configured
       if (!process.env.HEDERA_OPERATOR_ID || !process.env.HEDERA_USDC_TOKEN_ID) {
         console.log('⚠️ Hedera not configured, returning demo response');
@@ -583,37 +575,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
         });
       }
-      
-      // Verify farmer has sufficient balance (earned - already withdrawn)
+
+      // Verify farmer has sufficient balance using farmer_grove_balances table
       const balanceCheck = await db.get(sql`
         SELECT 
-          COALESCE(SUM(h.farmer_share), 0) as totalEarned,
-          COALESCE(SUM(w.amount), 0) as totalWithdrawn
-        FROM harvest_records h
-        INNER JOIN coffee_groves g ON h.grove_id = g.id
-        LEFT JOIN farmer_withdrawals w ON g.id = w.grove_id AND w.status = 'completed'
-        WHERE g.id = ${groveId} AND g.farmer_address = ${farmerAddress}
+          available_balance as availableBalance,
+          total_earned as totalEarned,
+          total_withdrawn as totalWithdrawn
+        FROM farmer_grove_balances
+        WHERE grove_id = ${groveId} AND farmer_address = ${farmerAddress}
       `);
-      
-      const totalEarned = (balanceCheck?.totalEarned || 0) / 100;
-      const totalWithdrawn = (balanceCheck?.totalWithdrawn || 0) / 100;
-      const availableBalance = totalEarned - totalWithdrawn;
-      
+
+      if (!balanceCheck) {
+        return res.status(404).json({
+          success: false,
+          error: 'No balance record found for this grove. Please report a harvest first.'
+        });
+      }
+
+      const availableBalance = (balanceCheck.availableBalance || 0) / 100;
+
       if (availableBalance < amount) {
         return res.status(400).json({
           success: false,
           error: `Insufficient balance. Available: $${availableBalance}, Requested: $${amount}`
         });
       }
-      
+
       // Transfer USDC via Hedera
       console.log('🔄 Initiating Hedera USDC transfer...');
       const { HederaWithdrawalService } = await import('../lib/api/hedera-withdrawal-service.js');
       const withdrawalService = new HederaWithdrawalService();
-      
+
       const amountInCents = Math.floor(amount * 100);
       const transferResult = await withdrawalService.transferUSDC(farmerAddress, amountInCents);
-      
+
       if (!transferResult.success) {
         console.error('❌ Hedera transfer failed:', transferResult.error);
         return res.status(500).json({
@@ -621,12 +617,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           error: `Transfer failed: ${transferResult.error}`
         });
       }
-      
+
       console.log('✅ Hedera transfer successful:', transferResult.transactionId);
-      
+
       // Record withdrawal in database
       const withdrawalId = `withdrawal_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
+
       await db.insert(farmerWithdrawals).values({
         id: withdrawalId,
         farmerAddress: farmerAddress,
@@ -637,24 +633,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         requestedAt: Date.now(),
         completedAt: Date.now()
       });
-      
+
       console.log('💾 Withdrawal recorded in database');
-      
+
       // Update farmer_grove_balances table to reflect withdrawal
       try {
         const balanceUpdate = await db.run(sql`
           UPDATE farmer_grove_balances
-          SET totalWithdrawn = totalWithdrawn + ${amountInCents},
-              availableBalance = availableBalance - ${amountInCents},
-              updatedAt = ${Date.now()}
-          WHERE farmerAddress = ${farmerAddress} AND groveId = ${groveId}
+          SET total_withdrawn = total_withdrawn + ${amountInCents},
+              available_balance = available_balance - ${amountInCents},
+              updated_at = ${Date.now()}
+          WHERE farmer_address = ${farmerAddress} AND grove_id = ${groveId}
         `);
         console.log('✅ Balance updated in farmer_grove_balances');
       } catch (balanceError: any) {
         console.error('⚠️ Failed to update farmer_grove_balances:', balanceError.message);
         // Don't fail the withdrawal if balance update fails - withdrawal already completed
       }
-      
+
       return res.status(200).json({
         success: true,
         message: `Successfully withdrew $${amount} USDC`,
@@ -680,20 +676,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Farmer withdrawals endpoint (GET)
-  if (url.includes('/farmer/withdrawals/') && req.method === 'GET') {
+  if (url.includes('/api/farmer/withdrawals/') && req.method === 'GET') {
     const { db } = await import('../db/index.js');
     const { sql } = await import('drizzle-orm');
-    
+
     try {
       const farmerAddress = url.split('/farmer/withdrawals/')[1]?.split('?')[0];
-      
+
       if (!farmerAddress) {
         return res.status(400).json({
           success: false,
           error: 'Farmer address required'
         });
       }
-      
+
       // Fetch withdrawals from database
       const withdrawals = await db.all(sql`
         SELECT 
@@ -704,8 +700,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         WHERE w.farmer_address = ${farmerAddress}
         ORDER BY w.requested_at DESC
       `);
-      
+
       // Map to frontend format
+      const network = process.env.HEDERA_NETWORK || 'testnet';
       const mappedWithdrawals = withdrawals.map((w: any) => ({
         id: w.id,
         groveId: w.grove_id,
@@ -713,10 +710,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         amount: w.amount / 100, // Convert from cents
         status: w.status,
         transactionHash: w.transaction_hash,
+        blockExplorerUrl: w.transaction_hash ? `https://hashscan.io/${network}/transaction/${w.transaction_hash}` : null,
         requestedAt: w.requested_at,
         completedAt: w.completed_at
       }));
-      
+
       return res.status(200).json({
         success: true,
         withdrawals: mappedWithdrawals
@@ -735,17 +733,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (url.includes('/farmer/transactions/') && req.method === 'GET') {
     const { db } = await import('../db/index.js');
     const { sql } = await import('drizzle-orm');
-    
+
     try {
       const farmerAddress = url.split('/farmer/transactions/')[1]?.split('?')[0];
-      
+
       if (!farmerAddress) {
         return res.status(400).json({
           success: false,
           error: 'Farmer address required'
         });
       }
-      
+
       // Fetch withdrawals as transactions
       const withdrawals = await db.all(sql`
         SELECT 
@@ -761,7 +759,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         WHERE w.farmer_address = ${farmerAddress}
         ORDER BY w.requested_at DESC
       `);
-      
+
       // Map to transaction format
       const transactions = withdrawals.map((w: any) => ({
         id: w.id,
@@ -773,7 +771,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         timestamp: w.timestamp,
         date: new Date(w.timestamp).toISOString()
       }));
-      
+
       return res.status(200).json({
         success: true,
         transactions: transactions
@@ -788,11 +786,116 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   }
 
+  // Farmer claim tokens endpoint
+  if (url.includes('/api/farmer/claim-tokens/') && req.method === 'POST') {
+    try {
+      const groveId = parseInt(url.split('/claim-tokens/')[1]?.split('?')[0] || '0');
+      const { farmerAddress } = req.body;
+
+      if (!groveId || !farmerAddress) {
+        return res.status(400).json({
+          success: false,
+          error: 'Grove ID and farmer address required'
+        });
+      }
+
+      const { db } = await import('../db/index.js');
+      const { coffeeGroves } = await import('../db/schema/index.js');
+      const { eq } = await import('drizzle-orm');
+      const { hederaTokenService } = await import('../lib/api/hedera-token-service.js');
+
+      // Get grove details
+      const grove = await db.query.coffeeGroves.findFirst({
+        where: eq(coffeeGroves.id, groveId)
+      });
+
+      if (!grove) {
+        return res.status(404).json({
+          success: false,
+          error: 'Grove not found'
+        });
+      }
+
+      if (!grove.isTokenized || !grove.tokenAddress) {
+        return res.status(400).json({
+          success: false,
+          error: 'Grove is not tokenized'
+        });
+      }
+
+      if (grove.farmerAddress !== farmerAddress) {
+        return res.status(403).json({
+          success: false,
+          error: 'Not authorized for this grove'
+        });
+      }
+
+      const availableTokens = (grove.totalTokensIssued || 0) - (grove.tokensSold || 0);
+
+      if (availableTokens <= 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'No tokens available to claim'
+        });
+      }
+
+      // Try to transfer tokens (will fail if not associated)
+      console.log(`[ClaimTokens] Transferring ${availableTokens} tokens to ${farmerAddress}`);
+
+      const transferResult = await hederaTokenService.transferTokens(
+        grove.tokenAddress,
+        farmerAddress,
+        availableTokens
+      );
+
+      if (!transferResult.success) {
+        return res.status(400).json({
+          success: false,
+          error: transferResult.error || 'Failed to transfer tokens'
+        });
+      }
+
+      console.log(`[ClaimTokens] ✅ Tokens transferred successfully`);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Tokens claimed successfully',
+        transactionId: transferResult.transactionId,
+        amount: availableTokens
+      });
+
+    } catch (error: any) {
+      console.error('[ClaimTokens] Error:', error);
+
+      // Translate technical errors to user-friendly messages
+      let friendlyError = error.message || 'Failed to claim tokens';
+
+      if (error.message?.includes('INSUFFICIENT_TOKEN_BALANCE')) {
+        friendlyError = 'All tokens have already been claimed or sold. No tokens available in the treasury.';
+      } else if (error.message?.includes('TOKEN_NOT_ASSOCIATED')) {
+        friendlyError = 'Please associate the token in your HashPack wallet first, then try again.';
+      } else if (error.message?.includes('INVALID_SIGNATURE')) {
+        friendlyError = 'Transaction signature failed. Please make sure you\'re using the correct wallet.';
+      } else if (error.message?.includes('INSUFFICIENT_ACCOUNT_BALANCE')) {
+        friendlyError = 'Not enough HBAR in your wallet to pay for the transaction fee (~$0.05 needed).';
+      } else if (error.message?.includes('ACCOUNT_FROZEN')) {
+        friendlyError = 'Your account is frozen. Please contact support.';
+      } else if (error.message?.includes('TOKEN_FROZEN')) {
+        friendlyError = 'This token is frozen. Please contact support.';
+      }
+
+      return res.status(500).json({
+        success: false,
+        error: friendlyError
+      });
+    }
+  }
+
   // Token purchase endpoint (POST /tokens/purchase)
   if (url.includes('/tokens/purchase') && req.method === 'POST') {
     try {
       const { investorAddress, groveId, tokenAmount, paymentAmount } = req.body;
-      
+
       // Validate request body
       if (!investorAddress || !groveId || !tokenAmount || !paymentAmount) {
         return res.status(400).json({
@@ -800,7 +903,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           error: 'Missing required fields: investorAddress, groveId, tokenAmount, paymentAmount'
         });
       }
-      
+
       // Validate types
       if (typeof groveId !== 'number' || typeof tokenAmount !== 'number' || typeof paymentAmount !== 'number') {
         return res.status(400).json({
@@ -808,17 +911,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           error: 'groveId, tokenAmount, and paymentAmount must be numbers'
         });
       }
-      
+
       // Import and call TokenPurchaseService
       const { tokenPurchaseService } = await import('../lib/services/token-purchase-service.js');
-      
+
       const result = await tokenPurchaseService.purchaseTokensPrimary({
         investorAddress,
         groveId,
         tokenAmount,
         paymentAmount
       });
-      
+
       if (!result.success) {
         // Determine appropriate status code based on error
         let statusCode = 400;
@@ -827,21 +930,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         } else if (result.error?.includes('Insufficient tokens')) {
           statusCode = 409; // Conflict
         }
-        
+
         return res.status(statusCode).json({
           success: false,
           error: result.error,
           availableTokens: result.availableTokens
         });
       }
-      
+
       return res.status(200).json({
         success: true,
         holding: result.holding,
         availableTokens: result.availableTokens,
         message: 'Token purchase completed successfully'
       });
-      
+
     } catch (error: any) {
       console.error('Error processing token purchase:', error);
       return res.status(500).json({
@@ -855,7 +958,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (url.includes('/tokens/transfer') && req.method === 'POST') {
     try {
       const { sellerAddress, buyerAddress, groveId, tokenAmount, transferPrice } = req.body;
-      
+
       // Validate request body
       if (!sellerAddress || !buyerAddress || !groveId || !tokenAmount || !transferPrice) {
         return res.status(400).json({
@@ -863,7 +966,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           error: 'Missing required fields: sellerAddress, buyerAddress, groveId, tokenAmount, transferPrice'
         });
       }
-      
+
       // Validate types
       if (typeof groveId !== 'number' || typeof tokenAmount !== 'number' || typeof transferPrice !== 'number') {
         return res.status(400).json({
@@ -871,10 +974,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           error: 'groveId, tokenAmount, and transferPrice must be numbers'
         });
       }
-      
+
       // Import and call TokenPurchaseService
       const { tokenPurchaseService } = await import('../lib/services/token-purchase-service.js');
-      
+
       const result = await tokenPurchaseService.transferTokensSecondary({
         sellerAddress,
         buyerAddress,
@@ -882,7 +985,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         tokenAmount,
         transferPrice
       });
-      
+
       if (!result.success) {
         // Determine appropriate status code based on error
         let statusCode = 400;
@@ -891,19 +994,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         } else if (result.error?.includes('insufficient tokens')) {
           statusCode = 409; // Conflict
         }
-        
+
         return res.status(statusCode).json({
           success: false,
           error: result.error
         });
       }
-      
+
       return res.status(200).json({
         success: true,
         transfer: result.transfer,
         message: 'Token transfer completed successfully'
       });
-      
+
     } catch (error: any) {
       console.error('Error processing token transfer:', error);
       return res.status(500).json({
@@ -917,17 +1020,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (url.includes('/tokens/holdings/') && req.method === 'GET') {
     const { db } = await import('../db/index.js');
     const { sql } = await import('drizzle-orm');
-    
+
     try {
       const address = url.split('/tokens/holdings/')[1]?.split('?')[0];
-      
+
       if (!address) {
         return res.status(400).json({
           success: false,
           error: 'Holder address required'
         });
       }
-      
+
       // Query token holdings with grove information
       // Note: token_holdings uses camelCase, coffee_groves uses snake_case
       const holdings = await db.all(sql`
@@ -947,11 +1050,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         WHERE th.holderAddress = ${address} AND th.isActive = 1
         ORDER BY th.purchaseDate DESC
       `);
-      
+
       // Calculate current value for each holding using prices table
       const holdingsWithValue = await Promise.all(holdings.map(async (holding: any) => {
         let currentValue = 0;
-        
+
         // Try to get current price from prices table
         if (holding.tokenAddress) {
           try {
@@ -962,7 +1065,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               ORDER BY timestamp DESC
               LIMIT 1
             `);
-            
+
             if (priceResult && priceResult.price) {
               // Calculate current value: tokenAmount * current price
               currentValue = holding.tokenAmount * priceResult.price;
@@ -978,7 +1081,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           // No token address, use purchase price
           currentValue = holding.purchasePrice;
         }
-        
+
         return {
           id: holding.id,
           groveId: holding.groveId,
@@ -990,16 +1093,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           currentValue: currentValue / 100 // Convert from cents to dollars
         };
       }));
-      
+
       // Calculate total portfolio value
       const totalValue = holdingsWithValue.reduce((sum, holding) => sum + holding.currentValue, 0);
-      
+
       return res.status(200).json({
         success: true,
         holdings: holdingsWithValue,
         totalValue: totalValue
       });
-      
+
     } catch (error: any) {
       console.error('Error fetching token holdings:', error);
       return res.status(500).json({
@@ -1015,67 +1118,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (url.includes('/harvest/distribute/') && req.method === 'POST') {
     try {
       const harvestId = parseInt(url.split('/harvest/distribute/')[1]?.split('?')[0] || '0');
-      
+
       if (!harvestId || isNaN(harvestId)) {
         return res.status(400).json({
           success: false,
           error: 'Valid harvest ID required'
         });
       }
-      
-      // Parse query parameter for withPayments
-      const urlObj = new URL(url, `http://localhost`);
-      const withPayments = urlObj.searchParams.get('withPayments') === 'true';
-      
-      // Import and call RevenueDistributionService
-      const { revenueDistributionService } = await import('../lib/services/revenue-distribution-service.js');
-      
-      // Call appropriate method based on withPayments flag
-      const result = withPayments 
-        ? await revenueDistributionService.distributeRevenueWithPayments(harvestId)
-        : await revenueDistributionService.distributeRevenue(harvestId);
-      
-      if (!result.success) {
-        // Determine appropriate status code based on error
-        let statusCode = 400;
-        if (result.error?.includes('not found')) {
-          statusCode = 404;
-        } else if (result.error?.includes('already distributed')) {
-          statusCode = 409; // Conflict
-        }
-        
-        return res.status(statusCode).json({
-          success: false,
-          error: result.error
-        });
-      }
-      
-      // Build response based on whether payments were included
-      const response: any = {
-        success: true,
-        distribution: result.distribution,
-        message: withPayments 
-          ? 'Revenue distributed with USDC payments successfully'
-          : 'Revenue distributed successfully'
-      };
-      
-      // Add payment details if withPayments was enabled
-      if (withPayments) {
-        // Type assertion since we know distributeRevenueWithPayments returns DistributionWithPayments
-        const paymentResult = result as any;
-        if (paymentResult.farmerPayment) {
-          response.farmerPayment = paymentResult.farmerPayment;
-        }
-        if (paymentResult.investorPayments) {
-          response.investorPayments = paymentResult.investorPayments;
-        }
-        if (paymentResult.failedPayments !== undefined) {
-          response.failedPayments = paymentResult.failedPayments;
-        }
-      }
-      
-      return res.status(200).json(response);
-      
+
+      // Distribution endpoint disabled due to Windows ESM import issues
+      // Use manual distribution script instead
+      return res.status(501).json({
+        success: false,
+        error: 'Distribution endpoint temporarily disabled. Use manual script: npx tsx scripts/manually-distribute-harvest-11.ts ' + harvestId
+      });
+
     } catch (error: any) {
       console.error('Error distributing revenue:', error);
       return res.status(500).json({
@@ -1091,7 +1148,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const urlObj = new URL(url, `http://localhost`);
       const groveIdParam = urlObj.searchParams.get('groveId');
       const totalRevenueParam = urlObj.searchParams.get('totalRevenue');
-      
+
       // Validate required query parameters
       if (!groveIdParam || !totalRevenueParam) {
         return res.status(400).json({
@@ -1099,10 +1156,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           error: 'Missing required query parameters: groveId, totalRevenue'
         });
       }
-      
+
       const groveId = parseInt(groveIdParam);
       const totalRevenue = parseFloat(totalRevenueParam);
-      
+
       // Validate parameter types
       if (isNaN(groveId) || isNaN(totalRevenue)) {
         return res.status(400).json({
@@ -1110,25 +1167,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           error: 'groveId and totalRevenue must be valid numbers'
         });
       }
-      
+
       if (totalRevenue <= 0) {
         return res.status(400).json({
           success: false,
           error: 'totalRevenue must be greater than zero'
         });
       }
-      
+
       // Import and call RevenueDistributionService
       const { revenueDistributionService } = await import('../lib/services/revenue-distribution-service.js');
-      
+
       // Convert totalRevenue to cents for internal calculation
       const totalRevenueInCents = Math.floor(totalRevenue * 100);
-      
+
       const preview = await revenueDistributionService.previewRevenueSplit({
         groveId,
         totalRevenue: totalRevenueInCents
       });
-      
+
       // Convert amounts back to dollars for response
       return res.status(200).json({
         success: true,
@@ -1148,10 +1205,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
         }
       });
-      
+
     } catch (error: any) {
       console.error('Error generating revenue preview:', error);
-      
+
       // Handle specific errors
       if (error.message?.includes('Grove not found')) {
         return res.status(404).json({
@@ -1159,7 +1216,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           error: 'Grove not found'
         });
       }
-      
+
       return res.status(500).json({
         success: false,
         error: error.message || 'Failed to generate revenue preview'
@@ -1200,25 +1257,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const queryAddress = urlObj.searchParams.get('userAddress');
       const pathAddress = url.includes('/transactions/history/') ? url.split('/transactions/history/')[1]?.split('?')[0] : null;
       const address = queryAddress || pathAddress;
-      
+
       if (!address) {
         return res.status(400).json({
           success: false,
           error: 'User address required (provide userAddress query parameter or use /transactions/history/:address)'
         });
       }
-      
+
       // Parse query parameters (urlObj already created above)
       const type = urlObj.searchParams.get('type') || undefined;
       const startDateParam = urlObj.searchParams.get('startDate');
       const endDateParam = urlObj.searchParams.get('endDate');
       const limitParam = urlObj.searchParams.get('limit');
-      
+
       // Validate and parse numeric parameters
       const startDate = startDateParam ? parseInt(startDateParam) : undefined;
       const endDate = endDateParam ? parseInt(endDateParam) : undefined;
       const limit = limitParam ? parseInt(limitParam) : 50;
-      
+
       // Validate date parameters if provided
       if (startDateParam && (isNaN(startDate!) || startDate! < 0)) {
         return res.status(400).json({
@@ -1226,24 +1283,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           error: 'startDate must be a valid timestamp'
         });
       }
-      
+
       if (endDateParam && (isNaN(endDate!) || endDate! < 0)) {
         return res.status(400).json({
           success: false,
           error: 'endDate must be a valid timestamp'
         });
       }
-      
+
       if (limitParam && (isNaN(limit) || limit < 1 || limit > 100)) {
         return res.status(400).json({
           success: false,
           error: 'limit must be a number between 1 and 100'
         });
       }
-      
+
       // Import and call TransactionRecorder service
       const { getTransactionHistory } = await import('../lib/services/transaction-recorder.js');
-      
+
       const transactions = await getTransactionHistory({
         userAddress: address,
         type,
@@ -1251,7 +1308,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         endDate,
         limit
       });
-      
+
       // Convert amounts from cents to dollars for response
       const formattedTransactions = transactions.map(txn => ({
         id: txn.id,
@@ -1266,13 +1323,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         blockExplorerUrl: txn.blockExplorerUrl,
         metadata: txn.metadata ? JSON.parse(txn.metadata) : null
       }));
-      
+
       return res.status(200).json({
         success: true,
         transactions: formattedTransactions,
         total: formattedTransactions.length
       });
-      
+
     } catch (error: any) {
       console.error('Error fetching transaction history:', error);
       return res.status(500).json({
@@ -1289,27 +1346,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { creditScores } = await import('../db/schema/index.js');
     const { getCreditTier } = await import('../lib/credit-scoring/calculator.js');
     const { eq } = await import('drizzle-orm');
-    
+
     const account = url.split('/credit-score/')[1]?.split('?')[0];
-    
+
     if (!account) {
       return res.status(400).json({ error: 'Account address required' });
     }
-    
+
     try {
       const score = await db.query.creditScores.findFirst({
         where: eq(creditScores.account, account)
       });
-      
+
       if (!score) {
-        return res.status(404).json({ 
+        return res.status(404).json({
           error: 'Credit score not found',
           message: 'No credit history for this account'
         });
       }
-      
+
       const tierInfo = getCreditTier(score.currentScore);
-      
+
       return res.status(200).json({
         account: score.account,
         currentScore: score.currentScore,
@@ -1331,14 +1388,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (url.includes('/investor/balance/') && req.method === 'GET') {
     try {
       const address = url.split('/investor/balance/')[1]?.split('?')[0];
-      
+
       if (!address) {
         return res.status(400).json({
           success: false,
           error: 'Investor address required'
         });
       }
-      
+
       // Validate address format (basic Hedera account ID format: 0.0.xxxxx)
       if (!address.match(/^0\.0\.\d+$/)) {
         return res.status(400).json({
@@ -1346,12 +1403,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           error: 'Invalid Hedera account ID format. Expected format: 0.0.xxxxx'
         });
       }
-      
+
       // Import and call InvestorWithdrawalService
       const { investorWithdrawalService } = await import('../lib/services/investor-withdrawal-service.js');
-      
+
       const balance = await investorWithdrawalService.getBalance(address);
-      
+
       // Convert amounts from cents to dollars for response
       return res.status(200).json({
         success: true,
@@ -1362,7 +1419,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           pendingDistributions: balance.pendingDistributions
         }
       });
-      
+
     } catch (error: any) {
       console.error('Error fetching investor balance:', error);
       return res.status(500).json({
@@ -1373,10 +1430,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Investor withdrawal endpoint (POST /investor/withdraw)
-  if (url.includes('/investor/withdraw') && req.method === 'POST') {
+  if (url.includes('/api/investor/withdraw') && req.method === 'POST') {
     try {
       const { investorAddress, amount } = req.body;
-      
+
       // Validate request body
       if (!investorAddress) {
         return res.status(400).json({
@@ -1384,14 +1441,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           error: 'Missing required field: investorAddress'
         });
       }
-      
+
       if (amount === undefined || amount === null) {
         return res.status(400).json({
           success: false,
           error: 'Missing required field: amount'
         });
       }
-      
+
       // Validate address format (basic Hedera account ID format: 0.0.xxxxx)
       if (!investorAddress.match(/^0\.0\.\d+$/)) {
         return res.status(400).json({
@@ -1399,7 +1456,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           error: 'Invalid Hedera account ID format. Expected format: 0.0.xxxxx'
         });
       }
-      
+
       // Validate amount is a positive number
       if (typeof amount !== 'number' || amount <= 0) {
         return res.status(400).json({
@@ -1407,35 +1464,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           error: 'Amount must be a positive number'
         });
       }
-      
+
       console.log(`💰 Investor withdrawal request: ${investorAddress} wants to withdraw $${amount.toFixed(2)}`);
-      
+
       // Import and call InvestorWithdrawalService
       const { investorWithdrawalService } = await import('../lib/services/investor-withdrawal-service.js');
-      
+
       // Convert amount from dollars to cents for internal processing
       const amountInCents = Math.floor(amount * 100);
-      
+
       const result = await investorWithdrawalService.processWithdrawal({
         investorAddress,
         amount: amountInCents
       });
-      
+
       if (!result.success) {
         // Determine appropriate status code and error message based on error type
         let statusCode = 400;
         let errorMessage = result.error || 'Failed to process withdrawal';
-        
+
         // Check for specific error types
         if (errorMessage.includes('Insufficient balance')) {
           statusCode = 400; // Bad request - insufficient funds
-        } else if (errorMessage.includes('TOKEN_NOT_ASSOCIATED_TO_ACCOUNT') || 
-                   errorMessage.includes('not associated') ||
-                   errorMessage.includes('associate the USDC token')) {
+        } else if (errorMessage.includes('TOKEN_NOT_ASSOCIATED_TO_ACCOUNT') ||
+          errorMessage.includes('not associated') ||
+          errorMessage.includes('associate the USDC token')) {
           statusCode = 400; // Bad request - token not associated
           errorMessage = 'USDC token not associated with your account. Please associate the USDC token (0.0.7144320) with your wallet before withdrawing.';
         } else if (errorMessage.includes('INSUFFICIENT_ACCOUNT_BALANCE') ||
-                   errorMessage.includes('insufficient treasury balance')) {
+          errorMessage.includes('insufficient treasury balance')) {
           statusCode = 503; // Service unavailable - treasury issue
           errorMessage = 'Platform treasury has insufficient balance. Please contact support.';
         } else if (errorMessage.includes('INVALID_ACCOUNT_ID')) {
@@ -1444,20 +1501,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         } else {
           statusCode = 500; // Internal server error for other failures
         }
-        
+
         console.error(`❌ Withdrawal failed: ${errorMessage}`);
-        
+
         return res.status(statusCode).json({
           success: false,
           error: errorMessage,
           status: result.status
         });
       }
-      
+
       console.log(`✅ Withdrawal completed successfully`);
       console.log(`   Transaction ID: ${result.transactionId}`);
       console.log(`   Explorer: ${result.blockExplorerUrl}`);
-      
+
       // Return withdrawal details with transaction info
       return res.status(200).json({
         success: true,
@@ -1472,7 +1529,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         },
         message: `Successfully withdrew $${amount.toFixed(2)} USDC`
       });
-      
+
     } catch (error: any) {
       console.error('❌ Error processing investor withdrawal:', error);
       return res.status(500).json({
@@ -1483,17 +1540,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Investor withdrawal history endpoint (GET /investor/withdrawals/:address)
-  if (url.includes('/investor/withdrawals/') && req.method === 'GET') {
+  if (url.includes('/api/investor/withdrawals/') && req.method === 'GET') {
     try {
       const address = url.split('/investor/withdrawals/')[1]?.split('?')[0];
-      
+
       if (!address) {
         return res.status(400).json({
           success: false,
           error: 'Investor address required'
         });
       }
-      
+
       // Validate address format (basic Hedera account ID format: 0.0.xxxxx)
       if (!address.match(/^0\.0\.\d+$/)) {
         return res.status(400).json({
@@ -1501,21 +1558,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           error: 'Invalid Hedera account ID format. Expected format: 0.0.xxxxx'
         });
       }
-      
+
       console.log(`📜 Fetching withdrawal history for investor: ${address}`);
-      
+
       // Import and call InvestorWithdrawalService
       const { investorWithdrawalService } = await import('../lib/services/investor-withdrawal-service.js');
-      
+
       const withdrawals = await investorWithdrawalService.getWithdrawalHistory(address);
-      
+
       // Convert amounts from cents to dollars and add HashScan links
       const formattedWithdrawals = withdrawals.map(withdrawal => {
         const network = process.env.HEDERA_NETWORK || 'testnet';
-        const hashScanUrl = withdrawal.transactionId 
+        const hashScanUrl = withdrawal.transactionId
           ? `https://hashscan.io/${network}/transaction/${withdrawal.transactionId}`
           : withdrawal.blockExplorerUrl;
-        
+
         return {
           id: withdrawal.id,
           amount: withdrawal.amount / 100, // Convert from cents to dollars
@@ -1529,15 +1586,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           date: new Date(withdrawal.requestedAt).toISOString()
         };
       });
-      
+
       console.log(`✅ Found ${formattedWithdrawals.length} withdrawal records`);
-      
+
       return res.status(200).json({
         success: true,
         withdrawals: formattedWithdrawals,
         total: formattedWithdrawals.length
       });
-      
+
     } catch (error: any) {
       console.error('❌ Error fetching investor withdrawal history:', error);
       return res.status(500).json({
@@ -1552,17 +1609,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (url.includes('/investor/transactions/') && req.method === 'GET') {
     const { db } = await import('../db/index.js');
     const { sql } = await import('drizzle-orm');
-    
+
     try {
       const address = url.split('/investor/transactions/')[1]?.split('?')[0];
-      
+
       if (!address) {
         return res.status(400).json({
           success: false,
           error: 'Investor address required'
         });
       }
-      
+
       // Validate address format (basic Hedera account ID format: 0.0.xxxxx)
       if (!address.match(/^0\.0\.\d+$/)) {
         return res.status(400).json({
@@ -1570,9 +1627,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           error: 'Invalid Hedera account ID format. Expected format: 0.0.xxxxx'
         });
       }
-      
+
       console.log(`📜 Fetching transaction history for investor: ${address}`);
-      
+
       // Query token purchases (Requirements: 5.1)
       const purchases = await db.all(sql`
         SELECT 
@@ -1589,7 +1646,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         WHERE th.holderAddress = ${address}
         ORDER BY th.purchaseDate DESC
       `);
-      
+
       // Query revenue distributions (Requirements: 5.2)
       const distributions = await db.all(sql`
         SELECT 
@@ -1608,7 +1665,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         WHERE rd.holderAddress = ${address}
         ORDER BY rd.distributionDate DESC
       `);
-      
+
       // Query withdrawals (Requirements: 5.3)
       const withdrawals = await db.all(sql`
         SELECT 
@@ -1624,7 +1681,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         WHERE iw.investor_address = ${address}
         ORDER BY iw.requested_at DESC
       `);
-      
+
       // Combine all transactions (Requirements: 5.4)
       const allTransactions = [
         ...purchases.map((p: any) => ({
@@ -1651,7 +1708,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           date: new Date(d.timestamp).toISOString(),
           transactionId: d.transactionId,
           transactionHash: d.transactionHash,
-          blockExplorerUrl: d.transactionId 
+          blockExplorerUrl: d.transactionId
             ? `https://hashscan.io/${process.env.HEDERA_NETWORK || 'testnet'}/transaction/${d.transactionId}`
             : undefined,
           metadata: {
@@ -1669,17 +1726,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           date: new Date(w.timestamp).toISOString(),
           transactionId: w.transactionId,
           transactionHash: w.transactionHash,
-          blockExplorerUrl: w.blockExplorerUrl || (w.transactionId 
+          blockExplorerUrl: w.blockExplorerUrl || (w.transactionId
             ? `https://hashscan.io/${process.env.HEDERA_NETWORK || 'testnet'}/transaction/${w.transactionId}`
             : undefined)
         }))
       ];
-      
+
       // Sort by timestamp in descending order (Requirements: 5.4)
       allTransactions.sort((a, b) => b.timestamp - a.timestamp);
-      
+
       console.log(`✅ Found ${allTransactions.length} total transactions (${purchases.length} purchases, ${distributions.length} distributions, ${withdrawals.length} withdrawals)`);
-      
+
       // Format response (Requirements: 5.5)
       return res.status(200).json({
         success: true,
@@ -1691,7 +1748,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           totalWithdrawals: withdrawals.length
         }
       });
-      
+
     } catch (error: any) {
       console.error('❌ Error fetching investor transaction history:', error);
       return res.status(500).json({
@@ -1737,11 +1794,59 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  // Lending pools - return empty data
+  // Lending pools - return mock data for demo
   if (url.includes('/lending/pools')) {
     return res.status(200).json({
       success: true,
-      pools: []
+      pools: [
+        {
+          assetAddress: '0.0.7144320', // USDC token
+          assetName: 'USDC Liquidity Pool',
+          assetSymbol: 'USDC',
+          currentAPY: 12.5,
+          totalLiquidity: 500000,
+          availableLiquidity: 350000,
+          totalBorrowed: 150000,
+          utilizationRate: 30,
+          totalLPTokens: 500000,
+          lpTokenAddress: '0.0.7144321' // Mock LP token
+        },
+        {
+          assetAddress: '0.0.7144320',
+          assetName: 'High Yield USDC Pool',
+          assetSymbol: 'USDC',
+          currentAPY: 18.75,
+          totalLiquidity: 250000,
+          availableLiquidity: 100000,
+          totalBorrowed: 150000,
+          utilizationRate: 60,
+          totalLPTokens: 250000,
+          lpTokenAddress: '0.0.7144322' // Mock LP token
+        }
+      ]
+    });
+  }
+
+  // Liquidity positions - return mock data for demo
+  if (url.includes('/lending/liquidity-positions/')) {
+    const address = url.split('/liquidity-positions/')[1]?.split('?')[0];
+
+    return res.status(200).json({
+      success: true,
+      demoMode: true,
+      positions: [
+        {
+          id: 1,
+          poolAddress: '0.0.7144320',
+          poolName: 'USDC Liquidity Pool',
+          lpTokenBalance: 10000,
+          lpTokenPrice: 1.05,
+          initialInvestment: 10000,
+          currentAPY: 12.5,
+          earnedInterest: 500,
+          depositDate: Date.now() - (30 * 24 * 60 * 60 * 1000) // 30 days ago
+        }
+      ]
     });
   }
 
@@ -1749,11 +1854,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (url.includes('/investment/portfolio')) {
     const { db } = await import('../db/index.js');
     const { sql } = await import('drizzle-orm');
-    
+
     try {
       const urlObj = new URL(url, `http://localhost`);
       const investorAddress = urlObj.searchParams.get('investorAddress');
-      
+
       if (!investorAddress) {
         return res.status(400).json({
           success: false,
@@ -1791,7 +1896,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           holdings: holdings.map((h: any) => {
             // Calculate per-token price from total purchase
             const pricePerToken = h.tokenAmount > 0 ? h.purchasePrice / h.tokenAmount : 0;
-            
+
             return {
               id: h.id,
               groveId: h.groveId,
@@ -1804,7 +1909,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               currentValue: h.purchasePrice, // For now, same as purchase price
               totalTokensIssued: h.totalTokensIssued,
               tokensSold: h.tokensSold,
-              ownershipPercentage: h.totalTokensIssued > 0 
+              ownershipPercentage: h.totalTokensIssued > 0
                 ? parseFloat(((h.tokenAmount / h.totalTokensIssued) * 100).toFixed(2))
                 : 0
             };
@@ -1829,7 +1934,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { db } = await import('../db/index.js');
     const { coffeeGroves } = await import('../db/schema/index.js');
     const { eq } = await import('drizzle-orm');
-    
+
     try {
       // Get all tokenized groves
       const groves = await db.query.coffeeGroves.findMany({
@@ -1840,23 +1945,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const availableGroves = groves.map(grove => {
         const tokensAvailable = (grove.totalTokensIssued || 0) - (grove.tokensSold || 0);
         const totalTokens = grove.totalTokensIssued || 1;
-        
+
         // Calculate price per token (default $1.00, or based on tree value)
         // Assuming each tree is worth ~$100 and produces tokens
-        const pricePerToken = grove.tokensPerTree > 0 
+        const pricePerToken = grove.tokensPerTree > 0
           ? (100 / grove.tokensPerTree) // $100 per tree / tokens per tree
           : 1.00; // Default $1 per token
-        
+
         // Calculate projected annual return based on expected yield
         // Assuming coffee sells for ~$3/kg and 70% goes to investors
         const expectedAnnualYield = (grove.treeCount || 0) * (grove.expectedYieldPerTree || 0);
         const expectedRevenue = expectedAnnualYield * 3; // $3 per kg
         const investorShare = expectedRevenue * 0.7; // 70% to investors
         const totalInvestment = totalTokens * pricePerToken;
-        const projectedAnnualReturn = totalInvestment > 0 
+        const projectedAnnualReturn = totalInvestment > 0
           ? ((investorShare / totalInvestment) * 100).toFixed(1)
           : '15.0'; // Default 15% if can't calculate
-        
+
         return {
           id: grove.id,
           groveName: grove.groveName,
@@ -1904,7 +2009,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (url.includes('/investment/purchase-tokens') && req.method === 'POST') {
     try {
       const { investorAddress, groveId, tokenAmount } = req.body;
-      
+
       // Validate request body
       if (!investorAddress || !groveId || !tokenAmount) {
         return res.status(400).json({
@@ -1912,21 +2017,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           error: 'Missing required fields: investorAddress, groveId, tokenAmount'
         });
       }
-      
+
       // Calculate payment amount (for now, use a simple calculation or default)
       // In a real system, this would come from pricing logic
       const paymentAmount = tokenAmount * 100; // Example: 100 cents per token
-      
+
       // Import and call TokenPurchaseService
       const { tokenPurchaseService } = await import('../lib/services/token-purchase-service.js');
-      
+
       const result = await tokenPurchaseService.purchaseTokensPrimary({
         investorAddress,
         groveId,
         tokenAmount,
         paymentAmount
       });
-      
+
       if (!result.success) {
         let statusCode = 400;
         if (result.error?.includes('not found')) {
@@ -1934,21 +2039,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         } else if (result.error?.includes('Insufficient tokens')) {
           statusCode = 409;
         }
-        
+
         return res.status(statusCode).json({
           success: false,
           error: result.error,
           availableTokens: result.availableTokens
         });
       }
-      
+
       return res.status(200).json({
         success: true,
         holding: result.holding,
         availableTokens: result.availableTokens,
         message: 'Token purchase completed successfully'
       });
-      
+
     } catch (error: any) {
       console.error('Error processing token purchase:', error);
       return res.status(500).json({
@@ -1958,11 +2063,66 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   }
 
-  // Marketplace listings - return empty data
+  // Marketplace listings - return mock data for demo
   if (url.includes('/marketplace/listings')) {
     return res.status(200).json({
       success: true,
-      listings: []
+      listings: [
+        {
+          id: 1,
+          groveId: 1,
+          groveName: 'moonrise',
+          tokenSymbol: 'TREE-MOONRI',
+          tokenAddress: '0.0.7201461',
+          sellerAddress: '0.0.7147851',
+          tokenAmount: 5000,
+          pricePerToken: 105, // $1.05 per token (5% premium)
+          totalPrice: 5250, // 5000 * $1.05
+          listingDate: Date.now() - (5 * 24 * 60 * 60 * 1000), // 5 days ago
+          expiryDate: Date.now() + (25 * 24 * 60 * 60 * 1000), // 25 days from now
+          status: 'active',
+          location: 'Ethiopia',
+          healthScore: 85,
+          totalTrees: 100000,
+          description: 'Premium coffee grove tokens with excellent health score'
+        },
+        {
+          id: 2,
+          groveId: 1,
+          groveName: 'moonrise',
+          tokenSymbol: 'TREE-MOONRI',
+          tokenAddress: '0.0.7201461',
+          sellerAddress: '0.0.7149114',
+          tokenAmount: 10000,
+          pricePerToken: 98, // $0.98 per token (2% discount)
+          totalPrice: 9800, // 10000 * $0.98
+          listingDate: Date.now() - (2 * 24 * 60 * 60 * 1000), // 2 days ago
+          expiryDate: Date.now() + (28 * 24 * 60 * 60 * 1000), // 28 days from now
+          status: 'active',
+          location: 'Ethiopia',
+          healthScore: 85,
+          totalTrees: 100000,
+          description: 'Quick sale - discounted moonrise grove tokens'
+        },
+        {
+          id: 3,
+          groveId: 1,
+          groveName: 'moonrise',
+          tokenSymbol: 'TREE-MOONRI',
+          tokenAddress: '0.0.7201461',
+          sellerAddress: '0.0.5792828',
+          tokenAmount: 25000,
+          pricePerToken: 100, // $1.00 per token (market price)
+          totalPrice: 25000, // 25000 * $1.00
+          listingDate: Date.now() - (1 * 24 * 60 * 60 * 1000), // 1 day ago
+          expiryDate: Date.now() + (29 * 24 * 60 * 60 * 1000), // 29 days from now
+          status: 'active',
+          location: 'Ethiopia',
+          healthScore: 85,
+          totalTrees: 100000,
+          description: 'Large batch of moonrise tokens at market price'
+        }
+      ]
     });
   }
 
@@ -1975,7 +2135,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Return 501 for other routes until full migration
-  return res.status(501).json({ 
+  return res.status(501).json({
     error: 'API migration in progress',
     message: 'This endpoint is being migrated to serverless architecture'
   });

@@ -223,12 +223,12 @@ export const tokenHoldings = sqliteTable("token_holdings", {
 
 export const revenueDistributions = sqliteTable("revenue_distributions", {
     id: integer("id").primaryKey({ autoIncrement: true }),
-    harvestId: integer("harvest_id").notNull().references(() => harvestRecords.id),
-    holderAddress: text("holder_address").notNull(),
-    tokenAmount: integer("token_amount").notNull(),
-    revenueShare: integer("revenue_share").notNull(),
-    distributionDate: integer("distribution_date").notNull(),
-    transactionHash: text("transaction_hash"),
+    harvestId: integer("harvestId").notNull().references(() => harvestRecords.id),
+    holderAddress: text("holderAddress").notNull(),
+    tokenAmount: integer("tokenAmount").notNull(),
+    revenueShare: integer("revenueShare").notNull(),
+    distributionDate: integer("distributionDate").notNull(),
+    transactionHash: text("transactionHash"),
     // Payment tracking fields
     paymentStatus: text("payment_status"), // 'pending' | 'completed' | 'failed'
     transactionId: text("transaction_id"),
@@ -480,6 +480,20 @@ export const farmerBalances = sqliteTable("farmer_balances", {
     totalEarned: integer("total_earned").notNull().default(0),
     totalWithdrawn: integer("total_withdrawn").notNull().default(0),
     lastWithdrawalAt: integer("last_withdrawal_at"),
+    updatedAt: integer("updated_at").default(Date.now())
+});
+
+export const farmerGroveBalances = sqliteTable("farmer_grove_balances", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    farmerAddress: text("farmer_address").notNull(),
+    groveId: integer("grove_id").notNull(),
+    thisMonthDistributed: integer("this_month_distributed").notNull().default(0),
+    availableBalance: integer("available_balance").notNull().default(0),
+    pendingDistribution: integer("pending_distribution").notNull().default(0),
+    totalWithdrawn: integer("total_withdrawn").notNull().default(0),
+    totalEarned: integer("total_earned").notNull().default(0),
+    lastWithdrawalAt: integer("last_withdrawal_at"),
+    lastCalculatedAt: integer("last_calculated_at"),
     updatedAt: integer("updated_at").default(Date.now())
 });
 

@@ -7,9 +7,9 @@
  * 3. Updates database with token addresses
  */
 
-import { hederaTokenService } from './hedera-token-service'
-import { db } from '../db'
-import { coffeeGroves } from '../db/schema'
+import { hederaTokenService } from './hedera-token-service.js'
+import { db } from '../../db/index.js'
+import { coffeeGroves } from '../../db/schema/index.js'
 import { eq } from 'drizzle-orm'
 
 interface TokenizationParams {
@@ -99,20 +99,40 @@ export class GroveTokenizationService {
                 const farmerSharePercentage = parseInt(process.env.FARMER_TOKEN_SHARE || '30')
                 const farmerTokens = Math.floor(totalTokens * farmerSharePercentage / 100)
                 
-                console.log(`\n📤 Step 3: Transferring ${farmerSharePercentage}% of tokens to farmer...`)
+                console.log(`\n📤 Step 3: Associating and transferring ${farmerSharePercentage}% of tokens to farmer...`)
+                console.log(`   Farmer address: ${farmerAddress}`)
                 console.log(`   Farmer tokens: ${farmerTokens}`)
                 console.log(`   Platform tokens: ${totalTokens - farmerTokens}`)
                 
-                const transferResult = await hederaTokenService.transferTokens(
+                // Step 3a: Associate token with farmer's account (required before transfer)
+                console.log(`\n🔗 Step 3a: Associating token with farmer's account...`)
+                const associateResult = await hederaTokenService.associateToken(
                     createResult.tokenId,
-                    farmerAddress,
-                    farmerTokens
+                    farmerAddress
                 )
                 
-                if (transferResult.success) {
-                    console.log(`✅ Transferred ${farmerTokens} tokens to farmer`)
+                if (!associateResult.success) {
+                    console.log(`⚠️  Token association failed: ${associateResult.error}`)
+                    console.log(`   Farmer must manually associate token ${createResult.tokenId} in their wallet`)
+                    console.log(`   Tokens will remain in treasury until association is complete`)
                 } else {
-                    console.log(`⚠️  Token transfer failed: ${transferResult.error}`)
+                    console.log(`✅ Token associated with farmer's account`)
+                    
+                    // Step 3b: Transfer tokens to farmer
+                    console.log(`\n📤 Step 3b: Transferring tokens to farmer...`)
+                    const transferResult = await hederaTokenService.transferTokens(
+                        createResult.tokenId,
+                        farmerAddress,
+                        farmerTokens
+                    )
+                    
+                    if (transferResult.success) {
+                        console.log(`✅ Transferred ${farmerTokens} tokens to farmer`)
+                        console.log(`   Transaction: ${transferResult.transactionId}`)
+                    } else {
+                        console.log(`⚠️  Token transfer failed: ${transferResult.error}`)
+                        console.log(`   Tokens remain in treasury`)
+                    }
                 }
             } else {
                 console.log(`\n📤 Step 3: Tokens remain in platform treasury`)

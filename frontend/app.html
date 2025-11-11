@@ -234,6 +234,109 @@
             color: var(--color-text-dark);
         }
 
+        /* Pricing Section Styles */
+        .pricing-filters {
+            margin-bottom: 1.5rem;
+        }
+
+        .pricing-filters .form-group {
+            max-width: 300px;
+        }
+
+        .pricing-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-card {
+            background: var(--color-background-light);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .pricing-card h4 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.25rem;
+            color: var(--color-text-light);
+        }
+
+        .pricing-card small {
+            color: var(--color-text-dark);
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .seasonal-pricing-card {
+            grid-column: 1 / -1;
+        }
+
+        .grade-pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .grade-price-item {
+            background: var(--color-background-dark);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius-md);
+            padding: 0.75rem;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .grade-price-item:hover {
+            background: var(--color-primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .grade-number {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--color-text-dark);
+        }
+
+        .grade-price-item:hover .grade-number {
+            color: white;
+        }
+
+        .grade-price {
+            display: block;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .grade-price-item:hover .grade-price {
+            color: white;
+        }
+
+        .grade-info {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .price-card-change.positive {
+            color: var(--color-success);
+        }
+
+        .price-card-change.negative {
+            color: var(--color-danger);
+        }
+
+        .mini-chart {
+            width: 100%;
+            height: 100%;
+        }
+
         /* === End Fix === */
     </style>
 </head>
@@ -1013,6 +1116,12 @@
                             <div class="section-header">
                                 <h3>Market Prices</h3>
                                 <small>Current coffee prices by variety and quality grade</small>
+                                <div style="margin-top: 10px;">
+                                    <button id="refreshPricesBtn" class="btn btn-secondary" style="font-size: 14px; padding: 6px 12px;">
+                                        🔄 Refresh
+                                    </button>
+                                    <small id="pricesLastUpdate" style="margin-left: 10px; color: #666;"></small>
+                                </div>
                             </div>
 
                             <!-- Variety Filter -->
@@ -1020,7 +1129,7 @@
                                 <div class="form-group">
                                     <label for="priceVarietyFilter">Coffee Variety</label>
                                     <select id="priceVarietyFilter" class="variety-filter">
-                                        <option value="">All Varieties</option>
+                                        <option value="ALL">All Varieties</option>
                                         <option value="ARABICA">Arabica</option>
                                         <option value="ROBUSTA">Robusta</option>
                                         <option value="SPECIALTY">Specialty</option>
@@ -1052,14 +1161,8 @@
                             <div class="pricing-card seasonal-pricing-card">
                                 <h4>Seasonal Price Multipliers</h4>
                                 <small>Monthly price adjustments throughout the year</small>
-                                <div class="current-month-indicator" id="currentMonthIndicator">
-                                    <!-- Current month multiplier will be displayed here -->
-                                </div>
-                                <div class="seasonal-chart-container">
-                                    <canvas id="seasonalPricingChart"></canvas>
-                                </div>
-                                <div class="price-calculation-info" id="priceCalculationInfo">
-                                    <!-- Price calculation breakdown tooltip will be shown here -->
+                                <div id="seasonalMultipliersDisplay">
+                                    <!-- Seasonal multipliers chart will be populated here -->
                                 </div>
                             </div>
                         </div>
@@ -2164,6 +2267,7 @@
     </div>
 
     <!-- Utility Scripts -->
+    <script src="/js/error-translator.js"></script>
     <script type="module" src="/js/errors.js"></script>
     <script type="module" src="/js/error-handler.js"></script>
     <script type="module" src="/js/notification-manager.js"></script>

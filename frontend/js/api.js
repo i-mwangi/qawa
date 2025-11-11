@@ -95,7 +95,8 @@ export class CoffeeTreeAPI {
         // Create the promise for this request
         const requestPromise = (async () => {
             try {
-                const response = await fetchWithTimeout(url, config, 60000); // Increased from 30000 to 60000 ms (1 minute)
+                const timeout = options.timeout || 60000; // Use custom timeout or default to 60 seconds
+                const response = await fetchWithTimeout(url, config, timeout);
                 
                 // Handle non-JSON responses
                 const contentType = response.headers.get('content-type');
@@ -123,8 +124,9 @@ export class CoffeeTreeAPI {
                 }
             } catch (error) {
                 console.error(`API request failed: ${endpoint}`, error);
-                // Re-throw with a clearer message for UI to display
-                throw new Error(`API Error: ${error?.message || String(error)}`);
+                // Re-throw with a friendly message for UI to display
+                const friendlyError = window.translateError ? window.translateError(error) : (error?.message || String(error));
+                throw new Error(friendlyError);
             } finally {
                 // Clean up the active request tracking
                 this.activeRequests.delete(requestId);
@@ -487,7 +489,7 @@ export class CoffeeTreeAPI {
     }
 
     async getFarmerWithdrawalHistory(farmerAddress) {
-        return this.request(`/api/revenue/withdrawal-history?farmerAddress=${farmerAddress}`);
+        return this.request(`/api/farmer/withdrawals/${farmerAddress}`);
     }
 
     // USDC API methods
@@ -670,7 +672,7 @@ export class CoffeeTreeAPI {
     async provideLiquidity(assetAddress, amount) {
         const providerAddress = window.walletManager?.getAccountId();
         if (!providerAddress) {
-            throw new Error('Wallet not connected');
+            throw new Error('Please connect your wallet to continue');
         }
         return this.request('/api/lending/provide-liquidity', {
             method: 'POST',
@@ -681,7 +683,7 @@ export class CoffeeTreeAPI {
     async withdrawLiquidity(assetAddress, lpTokenAmount) {
         const providerAddress = window.walletManager?.getAccountId();
         if (!providerAddress) {
-            throw new Error('Wallet not connected');
+            throw new Error('Please connect your wallet to continue');
         }
         return this.request('/api/lending/withdraw-liquidity', {
             method: 'POST',
@@ -704,7 +706,7 @@ export class CoffeeTreeAPI {
     async takeOutLoan(assetAddress, loanAmount) {
         const borrowerAddress = window.walletManager?.getAccountId();
         if (!borrowerAddress) {
-            throw new Error('Wallet not connected');
+            throw new Error('Please connect your wallet to continue');
         }
         return this.request('/api/lending/take-loan', {
             method: 'POST',
@@ -715,7 +717,7 @@ export class CoffeeTreeAPI {
     async repayLoan(assetAddress) {
         const borrowerAddress = window.walletManager?.getAccountId();
         if (!borrowerAddress) {
-            throw new Error('Wallet not connected');
+            throw new Error('Please connect your wallet to continue');
         }
         return this.request('/api/lending/repay-loan', {
             method: 'POST',
@@ -907,7 +909,8 @@ export class CoffeeTreeAPI {
     async processFarmerWithdrawal(farmerAddress, groveId, amount) {
         return this.request('/api/farmer/withdraw', {
             method: 'POST',
-            body: { farmerAddress, groveId, amount }
+            body: { farmerAddress, groveId, amount },
+            timeout: 120000 // 2 minutes for Hedera transactions
         });
     }
 

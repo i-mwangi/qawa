@@ -27,7 +27,7 @@ class LendingPoolManager {
      */
     constructor(apiClient, walletManager = null) {
         if (!apiClient) {
-            throw new Error('API client is required for LendingPoolManager');
+            throw new Error('Unable to initialize lending pool. API client is missing.');
         }
 
         this.apiClient = apiClient;
@@ -56,7 +56,7 @@ class LendingPoolManager {
      */
     _validateInitialization() {
         if (!this.initialized) {
-            throw new Error('LendingPoolManager not properly initialized');
+            throw new Error('Lending pool is not ready yet. Please refresh the page and try again.');
         }
     }
 
@@ -124,7 +124,7 @@ class LendingPoolManager {
      */
     _validateWalletConnection() {
         if (!this.walletManager) {
-            throw new Error('Wallet manager not available');
+            throw new Error('Please connect your wallet to continue');
         }
     }
 
@@ -210,7 +210,7 @@ class LendingPoolManager {
     _calculateUSDCFromLPTokens(lpTokenAmount, totalLiquidity, totalLPTokens) {
         // Validate pool has tokens
         if (totalLPTokens === 0) {
-            throw new Error('Pool has no LP tokens in circulation');
+            throw new Error('The liquidity pool is empty. No LP tokens are in circulation yet.');
         }
 
         // Calculate USDC based on proportional share of pool
@@ -260,7 +260,7 @@ class LendingPoolManager {
             const poolStats = await this.apiClient.getPoolStatistics(assetAddress);
 
             if (!poolStats) {
-                throw new Error('Unable to fetch pool statistics');
+                throw new Error('Unable to load pool information. Please try again.');
             }
 
             // Calculate LP token amount based on pool share
@@ -274,7 +274,8 @@ class LendingPoolManager {
             const result = await this.apiClient.provideLiquidity(assetAddress, amount);
 
             if (!result || !result.success) {
-                throw new Error(result?.error || 'Failed to provide liquidity');
+                const friendlyError = window.translateError ? window.translateError(result?.error || 'Failed to provide liquidity') : (result?.error || 'Failed to provide liquidity');
+                throw new Error(friendlyError);
             }
 
             // Clear cache to force refresh on next fetch
@@ -294,7 +295,8 @@ class LendingPoolManager {
 
         } catch (error) {
             console.error('Error providing liquidity:', error);
-            throw new Error(`Failed to provide liquidity: ${error.message}`);
+            const friendlyError = window.translateError ? window.translateError(error) : error.message;
+            throw new Error(friendlyError);
         } finally {
             // Hide loading spinner
             if (loadingId && loadingManager) {
@@ -324,13 +326,13 @@ class LendingPoolManager {
             const poolStats = await this.apiClient.getPoolStatistics(assetAddress);
 
             if (!poolStats) {
-                throw new Error('Unable to fetch pool statistics');
+                throw new Error('Unable to load pool information. Please try again.');
             }
 
             // Validate user has sufficient LP tokens
             if (poolStats.userLPBalance && lpTokenAmount > poolStats.userLPBalance) {
                 throw new Error(
-                    `Insufficient LP tokens. Available: ${poolStats.userLPBalance}, Requested: ${lpTokenAmount}`
+                    `You don't have enough LP tokens. You have ${poolStats.userLPBalance} LP tokens but tried to withdraw ${lpTokenAmount}.`
                 );
             }
 
@@ -344,7 +346,7 @@ class LendingPoolManager {
             // Validate pool has sufficient available liquidity
             if (poolStats.availableLiquidity && usdcAmount > poolStats.availableLiquidity) {
                 throw new Error(
-                    `Insufficient pool liquidity. Available: ${poolStats.availableLiquidity}, Requested: ${usdcAmount}`
+                    `The pool doesn't have enough liquidity available. Pool has $${poolStats.availableLiquidity} but you're trying to withdraw $${usdcAmount}.`
                 );
             }
 
@@ -352,7 +354,8 @@ class LendingPoolManager {
             const result = await this.apiClient.withdrawLiquidity(assetAddress, lpTokenAmount);
 
             if (!result || !result.success) {
-                throw new Error(result?.error || 'Failed to withdraw liquidity');
+                const friendlyError = window.translateError ? window.translateError(result?.error || 'Failed to withdraw liquidity') : (result?.error || 'Failed to withdraw liquidity');
+                throw new Error(friendlyError);
             }
 
             // Clear cache to force refresh on next fetch
@@ -370,7 +373,8 @@ class LendingPoolManager {
 
         } catch (error) {
             console.error('Error withdrawing liquidity:', error);
-            throw new Error(`Failed to withdraw liquidity: ${error.message}`);
+            const friendlyError = window.translateError ? window.translateError(error) : error.message;
+            throw new Error(friendlyError);
         } finally {
             // Hide loading spinner
             if (loadingId && loadingManager) {
@@ -464,13 +468,13 @@ class LendingPoolManager {
      */
     checkLoanHealth(loanDetails, currentPrice) {
         if (!loanDetails) {
-            throw new Error('Loan details are required');
+            throw new Error('Unable to check loan health. Loan information is missing.');
         }
         this._validateAmount(currentPrice, 'Current price');
 
         // Validate loan details structure
         if (!loanDetails.collateralAmount || !loanDetails.loanAmountUSDC) {
-            throw new Error('Loan details must include collateralAmount and loanAmountUSDC');
+            throw new Error('Unable to check loan health. Loan information is incomplete.');
         }
 
         const collateralAmount = loanDetails.collateralAmount;
@@ -593,7 +597,7 @@ async function fetchCreditScore(accountId) {
             if (response.status === 404) {
                 return null; // No credit history
             }
-            throw new Error('Failed to fetch credit score');
+            throw new Error('Unable to load your credit score. Please try again.');
         }
         return await response.json();
     } catch (error) {
