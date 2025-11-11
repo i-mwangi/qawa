@@ -5,6 +5,11 @@ services:
     env: static
     buildCommand: pnpm install && pnpm run frontend:build
     staticPublishPath: ./frontend/dist
+    buildFilter:
+      paths:
+        - frontend/**
+        - vite.config.js
+        - package.json
     routes:
       - type: rewrite
         source: /*

@@ -196,7 +196,7 @@ docs/PRODUCTION-EXCLUDE-FILES.md
 docs/DEVELOPMENT-AND-TEST-FILES.md
 
 # Build-only configuration files (not needed at runtime)
-vite.config.js
+# vite.config.js - NEEDED for Render build
 tsup.config.ts
 drizzle-orm.d.ts
 
