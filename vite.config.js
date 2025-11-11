@@ -27,6 +27,11 @@ export default defineConfig(({ mode }) => {
         transformMixedEsModules: true,
       },
       rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, 'frontend', 'index.html'),
+          app: path.resolve(__dirname, 'frontend', 'app.html'),
+          groveTracker: path.resolve(__dirname, 'frontend', 'grove-tracker.html'),
+        },
         output: {
           format: 'es',
           manualChunks: undefined, // Disable manual chunking to avoid circular dependency issues
