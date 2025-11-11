@@ -27,7 +27,6 @@ export default defineConfig(({ mode }) => {
         transformMixedEsModules: true,
       },
       rollupOptions: {
-        input: 'index.html',
         output: {
           format: 'es',
           manualChunks: undefined, // Disable manual chunking to avoid circular dependency issues
