@@ -1252,7 +1252,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (grove.farmerAddress && farmerShare > 0) {
         console.log(`[Distribution] Sending $${farmerShare} to farmer ${grove.farmerAddress}`);
         
-        const farmerResult = await hederaPaymentService.sendUSDC(
+        const farmerResult = await hederaPaymentService.transferFromTreasury(
           grove.farmerAddress,
           farmerShare,
           `Harvest revenue - ${grove.groveName}`
@@ -1280,7 +1280,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           if (investorShare > 0) {
             console.log(`[Distribution] Sending $${investorShare} to investor ${holder.holderAddress}`);
             
-            const investorResult = await hederaPaymentService.sendUSDC(
+            const investorResult = await hederaPaymentService.transferFromTreasury(
               holder.holderAddress,
               investorShare,
               `Investment return - ${grove.groveName}`
