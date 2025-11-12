@@ -1224,15 +1224,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.log(`[Distribution] Farmer share: $${farmerShare}, Investor pool: $${investorPool}`);
 
       // Get all token holders for this grove
-      const holders = await db.select()
-        .from(tokenHoldings)
-        .where(eq(tokenHoldings.groveId, grove.id));
+      let holders = [];
+      try {
+        holders = await db.select()
+          .from(tokenHoldings)
+          .where(eq(tokenHoldings.groveId, grove.id));
+        
+        // Filter out corrupted data (where groveId is a string instead of number)
+        holders = holders.filter(h => typeof h.groveId === 'number' && h.groveId === grove.id);
+      } catch (error: any) {
+        console.log(`[Distribution] No token holdings table or no data: ${error.message}`);
+        holders = [];
+      }
 
       console.log(`[Distribution] Found ${holders.length} token holders`);
 
       // Calculate total investor tokens (exclude farmer's tokens)
       const investorHolders = holders.filter(h => h.holderAddress !== grove.farmerAddress);
-      const totalInvestorTokens = investorHolders.reduce((sum, h) => sum + h.tokenAmount, 0);
+      const totalInvestorTokens = investorHolders.reduce((sum, h) => sum + (typeof h.tokenAmount === 'number' ? h.tokenAmount : 0), 0);
 
       console.log(`[Distribution] Total investor tokens: ${totalInvestorTokens}`);
 
