@@ -1231,8 +1231,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.log(`[Distribution] Found ${holders.length} token holders`);
 
       // Calculate total investor tokens (exclude farmer's tokens)
-      const investorHolders = holders.filter(h => h.account !== grove.farmerAddress);
-      const totalInvestorTokens = investorHolders.reduce((sum, h) => sum + h.tokenBalance, 0);
+      const investorHolders = holders.filter(h => h.holderAddress !== grove.farmerAddress);
+      const totalInvestorTokens = investorHolders.reduce((sum, h) => sum + h.tokenAmount, 0);
 
       console.log(`[Distribution] Total investor tokens: ${totalInvestorTokens}`);
 
@@ -1265,13 +1265,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Distribute to investors proportionally
       if (totalInvestorTokens > 0 && investorPool > 0) {
         for (const holder of investorHolders) {
-          const investorShare = Math.floor((holder.tokenBalance / totalInvestorTokens) * investorPool);
+          const investorShare = Math.floor((holder.tokenAmount / totalInvestorTokens) * investorPool);
           
           if (investorShare > 0) {
-            console.log(`[Distribution] Sending $${investorShare} to investor ${holder.account}`);
+            console.log(`[Distribution] Sending $${investorShare} to investor ${holder.holderAddress}`);
             
             const investorResult = await hederaPaymentService.sendUSDC(
-              holder.account,
+              holder.holderAddress,
               investorShare,
               `Investment return - ${grove.groveName}`
             );
@@ -1279,14 +1279,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             if (investorResult.success) {
               console.log(`✅ Investor payment successful: ${investorResult.transactionId}`);
               distributions.push({
-                recipient: holder.account,
+                recipient: holder.holderAddress,
                 amount: investorShare,
                 type: 'investor',
-                tokens: holder.tokenBalance,
+                tokens: holder.tokenAmount,
                 transactionId: investorResult.transactionId
               });
             } else {
-              console.error(`⚠️ Investor payment failed for ${holder.account}: ${investorResult.error}`);
+              console.error(`⚠️ Investor payment failed for ${holder.holderAddress}: ${investorResult.error}`);
               // Continue with other investors even if one fails
             }
           }
