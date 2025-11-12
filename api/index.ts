@@ -1173,7 +1173,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Import required modules
       const { db } = await import('../db/index.js');
       const { harvestRecords, coffeeGroves, tokenHoldings } = await import('../db/schema/index.js');
-      const { eq, and } = await import('drizzle-orm');
+      const { eq } = await import('drizzle-orm');
       const { hederaPaymentService } = await import('../lib/api/hedera-payment-service.js');
 
       // Get harvest details
@@ -1224,12 +1224,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.log(`[Distribution] Farmer share: $${farmerShare}, Investor pool: $${investorPool}`);
 
       // Get all token holders for this grove
-      const holders = await db.query.tokenHoldings.findMany({
-        where: and(
-          eq(tokenHoldings.groveId, grove.id),
-          eq(tokenHoldings.tokenAddress, grove.tokenAddress)
-        )
-      });
+      const holders = await db.select()
+        .from(tokenHoldings)
+        .where(eq(tokenHoldings.groveId, grove.id));
 
       console.log(`[Distribution] Found ${holders.length} token holders`);
 
