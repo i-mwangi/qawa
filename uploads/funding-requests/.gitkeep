@@ -1,0 +1,2 @@
+# This directory stores uploaded documents for funding requests
+# Structure: /uploads/funding-requests/{groveId}/{requestId}/document-{hash}.ext
