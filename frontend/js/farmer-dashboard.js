@@ -2547,10 +2547,30 @@ class FarmerDashboard {
                                         <span class="metric-value">$$${this.calculateInvestorShare(harvest).toLocaleString()}</span>
                                     </div>
                                 </div>
+                                ${!harvest.revenueDistributed ? `
+                                <div class="harvest-actions">
+                                    <button class="btn btn-primary distribute-revenue-btn" 
+                                            data-harvest-id="${harvest.id}"
+                                            data-grove-name="${harvest.groveName}">
+                                        <i class="fas fa-money-bill-wave"></i> Distribute Revenue
+                                    </button>
+                                </div>
+                                ` : `
+                                <div class="harvest-distributed-info">
+                                    <i class="fas fa-check-circle"></i> Revenue distributed successfully
+                                </div>
+                                `}
                             </div>
                         `).join('')}
                     </div>
                 `;
+                
+                // Add event listeners to distribute buttons
+                setTimeout(() => {
+                    document.querySelectorAll('.distribute-revenue-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => this.handleDistributeRevenue(e));
+                    });
+                }, 100);
             } else {
                 // No harvests in database
                 container.innerHTML = '<div class="empty-state"><p>No harvest reports yet. Click "Report Harvest" in the Manage Grove menu to add one.</p></div>';
