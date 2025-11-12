@@ -90,6 +90,50 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               })
               .where(eq(coffeeGroves.id, grove.id));
 
+            console.log(`✅ Grove tokenized successfully: ${tokenResult.tokenId}`);
+
+            // Step 3: Transfer tokens to farmer if enabled
+            if (grove.farmerAddress && process.env.TRANSFER_TOKENS_TO_FARMER === 'true') {
+              const farmerSharePercentage = parseInt(process.env.FARMER_TOKEN_SHARE || '100');
+              const farmerTokens = Math.floor(totalTokens * farmerSharePercentage / 100);
+              
+              console.log(`\n📤 Transferring ${farmerSharePercentage}% of tokens to farmer...`);
+              console.log(`   Farmer address: ${grove.farmerAddress}`);
+              console.log(`   Farmer tokens: ${farmerTokens}`);
+              
+              try {
+                // Associate token with farmer's account first
+                console.log(`🔗 Associating token with farmer's account...`);
+                const associateResult = await hederaTokenService.associateToken(
+                  tokenResult.tokenId,
+                  grove.farmerAddress
+                );
+                
+                if (!associateResult.success) {
+                  console.log(`⚠️  Token association failed: ${associateResult.error}`);
+                  console.log(`   Farmer must manually associate token in wallet`);
+                } else {
+                  console.log(`✅ Token associated with farmer's account`);
+                  
+                  // Transfer tokens to farmer
+                  console.log(`📤 Transferring tokens to farmer...`);
+                  const transferResult = await hederaTokenService.transferTokens(
+                    tokenResult.tokenId,
+                    grove.farmerAddress,
+                    farmerTokens
+                  );
+                  
+                  if (transferResult.success) {
+                    console.log(`✅ Transferred ${farmerTokens} tokens to farmer ${grove.farmerAddress}`);
+                  } else {
+                    console.log(`⚠️  Token transfer failed: ${transferResult.error}`);
+                  }
+                }
+              } catch (transferError: any) {
+                console.error(`❌ Token transfer error:`, transferError.message);
+              }
+            }
+
             tokenizationResult = {
               success: true,
               tokenId: tokenResult.tokenId,
@@ -97,8 +141,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               totalTokens: totalTokens,
               transactionId: tokenResult.transactionId
             };
-
-            console.log(`✅ Grove tokenized successfully: ${tokenResult.tokenId}`);
           } else {
             console.warn(`⚠️ Tokenization failed: ${tokenResult.error}`);
             tokenizationResult = {
@@ -1126,11 +1168,155 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
       }
 
-      // Distribution endpoint disabled due to Windows ESM import issues
-      // Use manual distribution script instead
-      return res.status(501).json({
-        success: false,
-        error: 'Distribution endpoint temporarily disabled. Use manual script: npx tsx scripts/manually-distribute-harvest-11.ts ' + harvestId
+      console.log(`[Distribution] Starting manual distribution for harvest ${harvestId}`);
+
+      // Import required modules
+      const { db } = await import('../db/index.js');
+      const { harvestRecords, coffeeGroves, tokenHoldings } = await import('../db/schema/index.js');
+      const { eq, and } = await import('drizzle-orm');
+      const { hederaPaymentService } = await import('../lib/api/hedera-payment-service.js');
+
+      // Get harvest details
+      const harvest = await db.query.harvestRecords.findFirst({
+        where: eq(harvestRecords.id, harvestId)
+      });
+
+      if (!harvest) {
+        return res.status(404).json({
+          success: false,
+          error: 'Harvest not found'
+        });
+      }
+
+      // Check if already distributed
+      if (harvest.revenueDistributed) {
+        return res.status(400).json({
+          success: false,
+          error: 'Revenue already distributed for this harvest'
+        });
+      }
+
+      // Get grove details
+      const grove = await db.query.coffeeGroves.findFirst({
+        where: eq(coffeeGroves.id, harvest.groveId)
+      });
+
+      if (!grove) {
+        return res.status(404).json({
+          success: false,
+          error: 'Grove not found'
+        });
+      }
+
+      if (!grove.isTokenized || !grove.tokenAddress) {
+        return res.status(400).json({
+          success: false,
+          error: 'Grove must be tokenized before revenue distribution'
+        });
+      }
+
+      console.log(`[Distribution] Grove: ${grove.groveName}, Revenue: $${harvest.totalRevenue}`);
+
+      // Calculate splits (60% farmer, 40% investors)
+      const farmerShare = Math.floor(harvest.totalRevenue * 0.6);
+      const investorPool = harvest.totalRevenue - farmerShare;
+
+      console.log(`[Distribution] Farmer share: $${farmerShare}, Investor pool: $${investorPool}`);
+
+      // Get all token holders for this grove
+      const holders = await db.query.tokenHoldings.findMany({
+        where: and(
+          eq(tokenHoldings.groveId, grove.id),
+          eq(tokenHoldings.tokenAddress, grove.tokenAddress)
+        )
+      });
+
+      console.log(`[Distribution] Found ${holders.length} token holders`);
+
+      // Calculate total investor tokens (exclude farmer's tokens)
+      const investorHolders = holders.filter(h => h.account !== grove.farmerAddress);
+      const totalInvestorTokens = investorHolders.reduce((sum, h) => sum + h.tokenBalance, 0);
+
+      console.log(`[Distribution] Total investor tokens: ${totalInvestorTokens}`);
+
+      const distributions: any[] = [];
+
+      // Distribute to farmer
+      if (grove.farmerAddress && farmerShare > 0) {
+        console.log(`[Distribution] Sending $${farmerShare} to farmer ${grove.farmerAddress}`);
+        
+        const farmerResult = await hederaPaymentService.sendUSDC(
+          grove.farmerAddress,
+          farmerShare,
+          `Harvest revenue - ${grove.groveName}`
+        );
+
+        if (farmerResult.success) {
+          console.log(`✅ Farmer payment successful: ${farmerResult.transactionId}`);
+          distributions.push({
+            recipient: grove.farmerAddress,
+            amount: farmerShare,
+            type: 'farmer',
+            transactionId: farmerResult.transactionId
+          });
+        } else {
+          console.error(`❌ Farmer payment failed: ${farmerResult.error}`);
+          throw new Error(`Farmer payment failed: ${farmerResult.error}`);
+        }
+      }
+
+      // Distribute to investors proportionally
+      if (totalInvestorTokens > 0 && investorPool > 0) {
+        for (const holder of investorHolders) {
+          const investorShare = Math.floor((holder.tokenBalance / totalInvestorTokens) * investorPool);
+          
+          if (investorShare > 0) {
+            console.log(`[Distribution] Sending $${investorShare} to investor ${holder.account}`);
+            
+            const investorResult = await hederaPaymentService.sendUSDC(
+              holder.account,
+              investorShare,
+              `Investment return - ${grove.groveName}`
+            );
+
+            if (investorResult.success) {
+              console.log(`✅ Investor payment successful: ${investorResult.transactionId}`);
+              distributions.push({
+                recipient: holder.account,
+                amount: investorShare,
+                type: 'investor',
+                tokens: holder.tokenBalance,
+                transactionId: investorResult.transactionId
+              });
+            } else {
+              console.error(`⚠️ Investor payment failed for ${holder.account}: ${investorResult.error}`);
+              // Continue with other investors even if one fails
+            }
+          }
+        }
+      }
+
+      // Mark harvest as distributed
+      await db.update(harvestRecords)
+        .set({
+          revenueDistributed: true,
+          transactionHash: distributions[0]?.transactionId || 'multiple'
+        })
+        .where(eq(harvestRecords.id, harvestId));
+
+      console.log(`✅ Distribution complete for harvest ${harvestId}`);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Revenue distributed successfully',
+        distribution: {
+          harvestId,
+          totalRevenue: harvest.totalRevenue,
+          farmerShare,
+          investorPool,
+          distributions,
+          totalDistributed: distributions.reduce((sum, d) => sum + d.amount, 0)
+        }
       });
 
     } catch (error: any) {

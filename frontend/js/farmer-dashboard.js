@@ -2617,10 +2617,30 @@ class FarmerDashboard {
                             <small><i class="fas fa-sticky-note"></i> ${harvest.notes}</small>
                         </div>
                         ` : ''}
+                        ${!harvest.revenueDistributed ? `
+                        <div class="harvest-actions">
+                            <button class="btn btn-primary distribute-revenue-btn" 
+                                    data-harvest-id="${harvest.id}"
+                                    data-grove-name="${harvest.groveName}">
+                                <i class="fas fa-money-bill-wave"></i> Distribute Revenue
+                            </button>
+                        </div>
+                        ` : `
+                        <div class="harvest-distributed-info">
+                            <i class="fas fa-check-circle"></i> Revenue distributed successfully
+                        </div>
+                        `}
                     </div>
                 `).join('')}
             </div>
         `;
+        
+        // Add event listeners to distribute buttons
+        setTimeout(() => {
+            document.querySelectorAll('.distribute-revenue-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => this.handleDistributeRevenue(e));
+            });
+        }, 100);
     }
 
     // Helper function to get quality grade text from number
@@ -3130,6 +3150,67 @@ class FarmerDashboard {
         // Reset form
         e.target.reset();
         document.getElementById('withdrawalHelp').textContent = 'Available: $0.00';
+    }
+
+    async handleDistributeRevenue(e) {
+        const button = e.target.closest('.distribute-revenue-btn');
+        const harvestId = button.dataset.harvestId;
+        const groveName = button.dataset.groveName;
+
+        if (!harvestId) {
+            this.showNotification('Invalid harvest ID', 'error');
+            return;
+        }
+
+        // Confirm action
+        if (!confirm(`Distribute revenue for ${groveName} harvest?\n\nThis will send:\n• 60% to farmer\n• 40% to investors (proportionally)`)) {
+            return;
+        }
+
+        // Disable button and show loading
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Distributing...';
+
+        try {
+            console.log(`[Distribution] Distributing revenue for harvest ${harvestId}`);
+
+            const response = await fetch(`/api/harvest/distribute/${harvestId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                this.showNotification('Revenue distributed successfully!', 'success');
+                
+                // Update the harvest in local data
+                const harvest = this.harvests.find(h => h.id == harvestId);
+                if (harvest) {
+                    harvest.revenueDistributed = true;
+                }
+
+                // Reload harvests to update UI
+                const farmerAddress = window.walletManager?.getAccountId();
+                if (farmerAddress) {
+                    await this.loadHarvests(farmerAddress);
+                }
+
+                console.log('[Distribution] Success:', result.distribution);
+            } else {
+                throw new Error(result.error || 'Distribution failed');
+            }
+        } catch (error) {
+            console.error('[Distribution] Error:', error);
+            const friendlyError = window.translateError ? window.translateError(error) : error.message;
+            this.showNotification(friendlyError, 'error');
+            
+            // Re-enable button
+            button.disabled = false;
+            button.innerHTML = '<i class="fas fa-money-bill-wave"></i> Distribute Revenue';
+        }
     }
 
     async loadWithdrawalHistory(farmerAddress) {
