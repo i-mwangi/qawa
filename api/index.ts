@@ -1174,7 +1174,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const { db } = await import('../db/index.js');
       const { harvestRecords, coffeeGroves, tokenHoldings } = await import('../db/schema/index.js');
       const { eq } = await import('drizzle-orm');
-      const { hederaPaymentService } = await import('../lib/api/hedera-payment-service.js');
+      const { getHederaPaymentService } = await import('../lib/api/hedera-payment-service.ts');
+      const hederaPaymentService = getHederaPaymentService();
 
       // Get harvest details
       const harvest = await db.query.harvestRecords.findFirst({
