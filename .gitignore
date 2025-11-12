@@ -163,9 +163,28 @@ scripts/mint-usdc-*.ts
 scripts/create-platform-usdc.mjs
 scripts/create-lp-usdc-token.mjs
 scripts/create-test-*.ts
+scripts/create-all-tables-turso.ts
+scripts/create-missing-tables.ts
+scripts/create-lending-tables.ts
+scripts/create-farmer-grove-balance.ts
+scripts/add-*.ts
+scripts/apply-*.ts
+scripts/sync-*.ts
+scripts/push-*.ts
+scripts/initialize-*.ts
+scripts/list-*.ts
+scripts/enable-*.ts
+scripts/manually-*.ts
+scripts/simple-*.ts
+scripts/test-*.md
 scripts/nuke-and-reload/
 scripts/*.cjs
 scripts/compile.sh
+
+# Keep these essential production scripts (NOT ignored):
+# !scripts/trigger-distribution.ts
+# !scripts/distribute-harvest-revenue.ts
+# !scripts/run-migration.ts
 
 # Development servers
 api/dev-server.ts
