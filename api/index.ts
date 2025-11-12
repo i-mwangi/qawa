@@ -1303,26 +1303,53 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       }
 
-      // Mark harvest as distributed
-      await db.update(harvestRecords)
-        .set({
-          revenueDistributed: true,
-          transactionHash: distributions[0]?.transactionId || 'multiple'
-        })
-        .where(eq(harvestRecords.id, harvestId));
-
-      console.log(`✅ Distribution complete for harvest ${harvestId}`);
+      // Mark harvest as distributed with retry logic
+      let dbUpdateSuccess = false;
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      while (!dbUpdateSuccess && retryCount < maxRetries) {
+        try {
+          await db.update(harvestRecords)
+            .set({
+              revenueDistributed: true,
+              transactionHash: distributions[0]?.transactionId || 'multiple'
+            })
+            .where(eq(harvestRecords.id, harvestId));
+          
+          dbUpdateSuccess = true;
+          console.log(`✅ Distribution complete for harvest ${harvestId}`);
+        } catch (dbError: any) {
+          retryCount++;
+          console.log(`⚠️ Database update attempt ${retryCount} failed: ${dbError.message}`);
+          
+          if (retryCount < maxRetries) {
+            // Exponential backoff: 1s, 2s, 4s
+            const waitTime = Math.pow(2, retryCount - 1) * 1000;
+            console.log(`   Retrying in ${waitTime}ms...`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+          } else {
+            console.log(`❌ Failed to update database after ${maxRetries} attempts`);
+            console.log(`   Payment was successful but harvest status not updated`);
+            console.log(`   Transaction IDs: ${distributions.map(d => d.transactionId).join(', ')}`);
+          }
+        }
+      }
 
       return res.status(200).json({
         success: true,
-        message: 'Revenue distributed successfully',
+        message: dbUpdateSuccess 
+          ? 'Revenue distributed successfully' 
+          : 'Revenue distributed successfully (database status update pending)',
+        warning: !dbUpdateSuccess ? 'Harvest status not updated in database due to timeout' : undefined,
         distribution: {
           harvestId,
           totalRevenue: harvest.totalRevenue,
           farmerShare,
           investorPool,
           distributions,
-          totalDistributed: distributions.reduce((sum, d) => sum + d.amount, 0)
+          totalDistributed: distributions.reduce((sum, d) => sum + d.amount, 0),
+          databaseUpdated: dbUpdateSuccess
         }
       });
 
