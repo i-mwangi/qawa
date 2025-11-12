@@ -520,3 +520,118 @@ export const investorWithdrawals = sqliteTable("investor_withdrawals", {
 
 // Export earnings and distribution tables
 export * from "./earnings-distribution";
+
+
+// Milestone-Based Funding Request System Tables
+
+export const groveFundingPools = sqliteTable("grove_funding_pools", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    groveId: integer("grove_id").notNull().references(() => coffeeGroves.id),
+    
+    // Total investment tracking
+    totalInvestment: integer("total_investment").notNull().default(0),
+    
+    // Upfront Operations milestone (40%)
+    upfrontAllocated: integer("upfront_allocated").notNull().default(0),
+    upfrontDisbursed: integer("upfront_disbursed").notNull().default(0),
+    upfrontAvailable: integer("upfront_available").notNull().default(0),
+    
+    // Maintenance milestone (30%)
+    maintenanceAllocated: integer("maintenance_allocated").notNull().default(0),
+    maintenanceDisbursed: integer("maintenance_disbursed").notNull().default(0),
+    maintenanceAvailable: integer("maintenance_available").notNull().default(0),
+    
+    // Harvest Preparation milestone (30%)
+    harvestAllocated: integer("harvest_allocated").notNull().default(0),
+    harvestDisbursed: integer("harvest_disbursed").notNull().default(0),
+    harvestAvailable: integer("harvest_available").notNull().default(0),
+    
+    // Platform fees
+    platformFeesCollected: integer("platform_fees_collected").notNull().default(0),
+    
+    // Timestamps
+    createdAt: integer("created_at").notNull(),
+    updatedAt: integer("updated_at").notNull()
+}, (table) => {
+    return {
+        groveIdx: index("funding_pools_grove_idx").on(table.groveId)
+    }
+});
+
+export const fundingRequests = sqliteTable("funding_requests", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    groveId: integer("grove_id").notNull().references(() => coffeeGroves.id),
+    farmerAddress: text("farmer_address").notNull(),
+    
+    // Request details
+    milestoneType: text("milestone_type").notNull(), // 'upfront', 'maintenance', 'harvest'
+    amountRequested: integer("amount_requested").notNull(),
+    amountApproved: integer("amount_approved"),
+    purpose: text("purpose").notNull(),
+    
+    // Status tracking
+    status: text("status").notNull().default('pending'), // 'pending', 'approved', 'rejected', 'disbursed'
+    
+    // Admin review
+    reviewedBy: text("reviewed_by"),
+    reviewedAt: integer("reviewed_at"),
+    rejectionReason: text("rejection_reason"),
+    adminNotes: text("admin_notes"),
+    
+    // Disbursement tracking
+    transactionId: text("transaction_id"),
+    disbursedAt: integer("disbursed_at"),
+    platformFee: integer("platform_fee"),
+    
+    // Timestamps
+    createdAt: integer("created_at").notNull(),
+    updatedAt: integer("updated_at").notNull()
+}, (table) => {
+    return {
+        statusIdx: index("funding_requests_status_idx").on(table.status),
+        groveIdx: index("funding_requests_grove_idx").on(table.groveId),
+        farmerIdx: index("funding_requests_farmer_idx").on(table.farmerAddress),
+        milestoneIdx: index("funding_requests_milestone_idx").on(table.milestoneType)
+    }
+});
+
+export const fundingRequestDocuments = sqliteTable("funding_request_documents", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    requestId: integer("request_id").notNull().references(() => fundingRequests.id),
+    
+    // File metadata
+    fileName: text("file_name").notNull(),
+    fileType: text("file_type").notNull(), // 'invoice', 'receipt', 'contract', 'photo', 'report', 'other'
+    fileSize: integer("file_size").notNull(),
+    mimeType: text("mime_type").notNull(),
+    
+    // Storage information
+    storagePath: text("storage_path").notNull(),
+    fileHash: text("file_hash").notNull(),
+    
+    // Timestamp
+    uploadedAt: integer("uploaded_at").notNull()
+}, (table) => {
+    return {
+        requestIdx: index("documents_request_idx").on(table.requestId)
+    }
+});
+
+export const platformFees = sqliteTable("platform_fees", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    requestId: integer("request_id").notNull().references(() => fundingRequests.id),
+    groveId: integer("grove_id").notNull().references(() => coffeeGroves.id),
+    
+    // Fee details
+    feeAmount: integer("fee_amount").notNull(),
+    feePercentage: real("fee_percentage").notNull().default(3.0),
+    
+    // Timestamp
+    collectedAt: integer("collected_at").notNull()
+}, (table) => {
+    return {
+        requestIdx: index("platform_fees_request_idx").on(table.requestId),
+        groveIdx: index("platform_fees_grove_idx").on(table.groveId),
+        dateIdx: index("platform_fees_date_idx").on(table.collectedAt)
+    }
+});
