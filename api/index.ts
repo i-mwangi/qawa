@@ -30,6 +30,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
+  // Admin access check endpoint
+  if (url.includes('/admin/check-access') && req.method === 'GET') {
+    const { isAdmin } = await import('../lib/middleware/admin-auth.js');
+    const accountId = req.headers['x-account-id'] as string;
+
+    if (isAdmin(accountId)) {
+      return res.status(200).json({
+        success: true,
+        isAdmin: true,
+        accountId
+      });
+    } else {
+      return res.status(403).json({
+        success: false,
+        isAdmin: false,
+        error: 'Access denied. Admin privileges required.'
+      });
+    }
+  }
+
   // Groves endpoints
   if (url.includes('/groves/register') && req.method === 'POST') {
     const { db } = await import('../db/index.js');
