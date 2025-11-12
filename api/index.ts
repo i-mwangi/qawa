@@ -1156,6 +1156,83 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   }
 
+  // Preview distribution endpoint (GET /harvest/preview-distribution/:harvestId)
+  if (url.includes('/harvest/preview-distribution/') && req.method === 'GET') {
+    try {
+      const harvestId = parseInt(url.split('/harvest/preview-distribution/')[1]?.split('?')[0] || '0');
+
+      if (!harvestId || isNaN(harvestId)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Valid harvest ID required'
+        });
+      }
+
+      const { db } = await import('../db/index.js');
+      const { harvestRecords, coffeeGroves, tokenHoldings } = await import('../db/schema/index.js');
+      const { eq } = await import('drizzle-orm');
+
+      const harvest = await db.query.harvestRecords.findFirst({
+        where: eq(harvestRecords.id, harvestId)
+      });
+
+      if (!harvest) {
+        return res.status(404).json({
+          success: false,
+          error: 'Harvest not found'
+        });
+      }
+
+      const grove = await db.query.coffeeGroves.findFirst({
+        where: eq(coffeeGroves.id, harvest.groveId)
+      });
+
+      if (!grove) {
+        return res.status(404).json({
+          success: false,
+          error: 'Grove not found'
+        });
+      }
+
+      const farmerShare = Math.floor(harvest.totalRevenue * 0.6);
+      const investorPool = harvest.totalRevenue - farmerShare;
+
+      let holders = [];
+      try {
+        holders = await db.select()
+          .from(tokenHoldings)
+          .where(eq(tokenHoldings.groveId, grove.id));
+        holders = holders.filter(h => typeof h.groveId === 'number' && h.groveId === grove.id);
+      } catch (error: any) {
+        holders = [];
+      }
+
+      const investorHolders = holders.filter(h => h.holderAddress !== grove.farmerAddress);
+      const totalInvestorTokens = investorHolders.reduce((sum, h) => sum + (typeof h.tokenAmount === 'number' ? h.tokenAmount : 0), 0);
+
+      return res.status(200).json({
+        success: true,
+        preview: {
+          harvestId,
+          groveName: grove.groveName,
+          totalRevenue: harvest.totalRevenue,
+          farmerShare,
+          investorPool,
+          investorCount: investorHolders.length,
+          totalInvestorTokens,
+          alreadyDistributed: harvest.revenueDistributed || false
+        }
+      });
+
+    } catch (error: any) {
+      console.error('Error previewing distribution:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to preview distribution'
+      });
+    }
+  }
+
   // Revenue distribution endpoint (POST /harvest/distribute/:harvestId)
   if (url.includes('/harvest/distribute/') && req.method === 'POST') {
     try {

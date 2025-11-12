@@ -299,6 +299,14 @@ class FarmerDashboard {
                 return;
             }
 
+            // Distribution confirmation button
+            if (isButton('confirmDistribution')) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.confirmDistribution();
+                return;
+            }
+
             // General modal close buttons
             if (target.classList.contains('modal-close') || target.closest('.modal-close')) {
                 e.preventDefault();
@@ -3182,14 +3190,73 @@ class FarmerDashboard {
             return;
         }
 
-        // Confirm action
-        if (!confirm(`Distribute revenue for ${groveName} harvest?\n\nThis will send:\n• 60% to farmer\n• 40% to investors (proportionally)`)) {
+        // Show loading on button
+        const originalButtonHTML = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+
+        try {
+            // Fetch distribution preview
+            const previewResponse = await fetch(`/api/harvest/preview-distribution/${harvestId}`);
+            const previewData = await previewResponse.json();
+
+            // Re-enable button
+            button.disabled = false;
+            button.innerHTML = originalButtonHTML;
+
+            if (!previewData.success) {
+                throw new Error(previewData.error || 'Failed to load distribution preview');
+            }
+
+            const preview = previewData.preview;
+
+            // Show modal with preview data
+            const modal = document.getElementById('distributionConfirmModal');
+            document.getElementById('distGroveName').textContent = preview.groveName;
+            document.getElementById('distTotalRevenue').textContent = `$${(preview.totalRevenue / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('distFarmerShare').textContent = `$${(preview.farmerShare / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('distInvestorPool').textContent = `$${(preview.investorPool / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('distInvestorCount').textContent = preview.investorCount;
+
+            // Show warning if already distributed
+            const warningDiv = document.getElementById('distWarning');
+            if (preview.alreadyDistributed) {
+                warningDiv.style.display = 'flex';
+                document.getElementById('distWarningText').textContent = 'This harvest has already been distributed. Distributing again will send duplicate payments.';
+            } else {
+                warningDiv.style.display = 'none';
+            }
+
+            // Store harvest ID for confirmation
+            modal.dataset.harvestId = harvestId;
+
+            // Show modal
+            modal.classList.add('active');
+
+        } catch (error) {
+            console.error('[Distribution] Error loading preview:', error);
+            const friendlyError = window.translateError ? window.translateError(error) : error.message;
+            this.showNotification(friendlyError, 'error');
+            
+            // Re-enable button
+            button.disabled = false;
+            button.innerHTML = originalButtonHTML;
+        }
+    }
+
+    async confirmDistribution() {
+        const modal = document.getElementById('distributionConfirmModal');
+        const harvestId = modal.dataset.harvestId;
+        const confirmButton = document.getElementById('confirmDistribution');
+
+        if (!harvestId) {
+            this.showNotification('Invalid harvest ID', 'error');
             return;
         }
 
-        // Disable button and show loading
-        button.disabled = true;
-        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Distributing...';
+        // Disable confirm button and show loading
+        confirmButton.disabled = true;
+        confirmButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
         try {
             console.log(`[Distribution] Distributing revenue for harvest ${harvestId}`);
@@ -3204,6 +3271,9 @@ class FarmerDashboard {
             const result = await response.json();
 
             if (result.success) {
+                // Close modal
+                modal.classList.remove('active');
+                
                 this.showNotification('Revenue distributed successfully!', 'success');
                 
                 // Update the harvest in local data
@@ -3226,10 +3296,10 @@ class FarmerDashboard {
             console.error('[Distribution] Error:', error);
             const friendlyError = window.translateError ? window.translateError(error) : error.message;
             this.showNotification(friendlyError, 'error');
-            
+        } finally {
             // Re-enable button
-            button.disabled = false;
-            button.innerHTML = '<i class="fas fa-money-bill-wave"></i> Distribute Revenue';
+            confirmButton.disabled = false;
+            confirmButton.innerHTML = 'Confirm Distribution';
         }
     }
 

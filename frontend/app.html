@@ -931,6 +931,58 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Distribution Confirmation Modal -->
+                            <div id="distributionConfirmModal" class="modal">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4>Confirm Revenue Distribution</h4>
+                                        <button class="modal-close">&times;</button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="distribution-preview">
+                                            <div class="preview-section">
+                                                <h5>Harvest Details</h5>
+                                                <div class="detail-row">
+                                                    <label>Grove:</label>
+                                                    <span id="distGroveName">-</span>
+                                                </div>
+                                                <div class="detail-row">
+                                                    <label>Total Revenue:</label>
+                                                    <span id="distTotalRevenue" class="amount-highlight">$0.00</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="preview-section">
+                                                <h5>Distribution Breakdown</h5>
+                                                <div class="detail-row">
+                                                    <label>Farmer Share (60%):</label>
+                                                    <span id="distFarmerShare" class="amount-positive">$0.00</span>
+                                                </div>
+                                                <div class="detail-row">
+                                                    <label>Investor Pool (40%):</label>
+                                                    <span id="distInvestorPool" class="amount-info">$0.00</span>
+                                                </div>
+                                                <div class="detail-row">
+                                                    <label>Number of Investors:</label>
+                                                    <span id="distInvestorCount">0</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="preview-warning" id="distWarning" style="display: none;">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                                <span id="distWarningText"></span>
+                                            </div>
+                                        </div>
+                                        <div class="modal-actions">
+                                            <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                                            <button type="button" class="btn btn-primary" id="confirmDistribution">
+                                                Confirm Distribution
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Revenue Tracking Section -->

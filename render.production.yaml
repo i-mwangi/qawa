@@ -1,0 +1,76 @@
+services:
+  # Static Site - Frontend (Production)
+  - type: web
+    name: chai-platform-frontend
+    env: static
+    buildCommand: pnpm install && pnpm run frontend:build
+    staticPublishPath: ./frontend/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: VITE_API_URL
+        value: https://chai-platform-api.onrender.com
+      - key: VITE_WALLETCONNECT_PROJECT_ID
+        value: 39948bbdaaebec2790629f3e9589793a
+      - key: VITE_HEDERA_NETWORK
+        value: mainnet  # Production uses mainnet
+      - key: VITE_DEBUG
+        value: false
+    branch: main  # Deploy from main branch
+
+  # Web Service - API Server (Production)
+  - type: web
+    name: chai-platform-api
+    env: node
+    buildCommand: pnpm install
+    startCommand: node frontend/api-server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: API_PORT
+        value: 3001
+      - key: NODE_ENV
+        value: production
+      
+      # Hedera Network Configuration
+      - key: HEDERA_NETWORK
+        value: mainnet  # Production uses mainnet
+      
+      # Feature Flags - Production settings
+      - key: USE_HEDERA_BLOCKCHAIN
+        value: true
+      - key: TRANSFER_TOKENS_TO_FARMER
+        value: true
+      - key: FARMER_TOKEN_SHARE
+        value: 100
+      - key: DISABLE_INVESTOR_KYC
+        value: false  # KYC required in production
+      - key: ENABLE_DEMO_BYPASS
+        value: false  # No bypasses in production
+    
+    branch: main  # Deploy from main branch
+    plan: starter  # Paid plan for production (no sleep)
+    healthCheckPath: /health
+    
+    # Auto-deploy on push to main
+    autoDeploy: true
+
+  # Background Worker - Revenue Distribution (Optional)
+  - type: worker
+    name: chai-platform-worker
+    env: node
+    buildCommand: pnpm install
+    startCommand: node scripts/trigger-distribution.ts
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: NODE_ENV
+        value: production
+      - key: HEDERA_NETWORK
+        value: mainnet
+    branch: main
+    plan: starter
