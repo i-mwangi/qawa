@@ -2,6 +2,7 @@ import { db } from '../../db/index.js';
 import { coffeeGroves, tokenHoldings } from '../../db/schema/index.js';
 import { eq, and } from 'drizzle-orm';
 import { recordTokenPurchase } from './transaction-recorder.js';
+import { fundingPoolService } from './funding-pool-service.js';
 
 /**
  * Helper function to convert BigInt values to numbers in an object
@@ -162,7 +163,10 @@ export class TokenPurchaseService {
                 })
                 .where(eq(coffeeGroves.id, groveId));
 
-            // Step 5: Record transaction
+            // Step 5: Add investment to funding pool (40/30/30 split)
+            await fundingPoolService.addInvestment(groveId, paymentAmount);
+
+            // Step 6: Record transaction
             await recordTokenPurchase({
                 buyerAddress: investorAddress,
                 groveId: groveId,

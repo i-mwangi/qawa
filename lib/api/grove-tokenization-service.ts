@@ -11,6 +11,7 @@ import { hederaTokenService } from './hedera-token-service.js'
 import { db } from '../../db/index.js'
 import { coffeeGroves } from '../../db/schema/index.js'
 import { eq } from 'drizzle-orm'
+import { fundingPoolService } from '../services/funding-pool-service.js'
 
 interface TokenizationParams {
     groveId: number
@@ -92,6 +93,11 @@ export class GroveTokenizationService {
                 .where(eq(coffeeGroves.id, groveId))
             
             console.log(`✅ Database updated`)
+            
+            // Step 2b: Create funding pool for milestone-based funding
+            console.log(`\n💰 Step 2b: Creating funding pool...`)
+            await fundingPoolService.createFundingPool(groveId)
+            console.log(`✅ Funding pool created (ready for 40/30/30 milestone allocations)`)
             
             // Step 3: Optionally transfer some tokens to farmer immediately
             // This gives farmer ownership of a portion of tokens

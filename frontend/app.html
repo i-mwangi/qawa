@@ -2109,15 +2109,46 @@
         <div class="admin-dashboard">
             <div class="dashboard-sidebar">
                 <div class="sidebar-menu">
-                    <button class="menu-item active" data-section="token-operations">Token Operations</button>
+                    <button class="menu-item" data-section="funding-requests">
+                        <i class="fas fa-hand-holding-usd"></i> Funding Requests
+                    </button>
+                    <button class="menu-item" data-section="token-operations">Token Operations</button>
                     <button class="menu-item" data-section="kyc-management">KYC Management</button>
                     <button class="menu-item" data-section="token-holders">Token Holders</button>
                 </div>
             </div>
 
             <div class="dashboard-content">
+                <!-- Funding Requests Section -->
+                <div id="funding-requestsSection" class="section active">
+                    <div class="section-header">
+                        <h3>Pending Funding Requests</h3>
+                        <button class="btn btn-primary" onclick="window.adminFunding?.loadPendingRequests()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                    
+                    <div class="stats-grid" style="margin-bottom: 24px;">
+                        <div class="stat-card">
+                            <h5>Pending Requests</h5>
+                            <div class="stat-value" id="adminPendingCount">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h5>Platform Fees Collected</h5>
+                            <div class="stat-value" id="adminPlatformFees">$0</div>
+                        </div>
+                    </div>
+                    
+                    <div id="adminPendingRequestsContainer">
+                        <div class="loading-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading pending requests...</p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Token Operations Section -->
-                <div id="tokenOperationsSection" class="section active">
+                <div id="tokenOperationsSection" class="section">
                     <div class="section-header">
                         <h3>Token Operations</h3>
                         <small>Manage token supply for coffee groves</small>
@@ -2627,6 +2658,84 @@
                 setupWalletButtons();
             });
         })();
+    </script>
+
+    <!-- Admin Funding Modals -->
+    <div id="adminApproveModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="margin: 0; color: #2c5f2d;">Approve Funding Request</h2>
+                <button onclick="window.adminFunding.closeApproveModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+            </div>
+            <div id="adminApproveModalBody"></div>
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button class="btn btn-secondary" onclick="window.adminFunding.closeApproveModal()" style="flex: 1;">Cancel</button>
+                <button class="btn btn-success" onclick="window.adminFunding.confirmApprove()" style="flex: 1;">
+                    <i class="fas fa-check"></i> Approve & Disburse
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminRejectModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="margin: 0; color: #2c5f2d;">Reject Funding Request</h2>
+                <button onclick="window.adminFunding.closeRejectModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+            </div>
+            <div id="adminRejectModalBody"></div>
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button class="btn btn-secondary" onclick="window.adminFunding.closeRejectModal()" style="flex: 1;">Cancel</button>
+                <button class="btn btn-danger" onclick="window.adminFunding.confirmReject()" style="flex: 1;">
+                    <i class="fas fa-times"></i> Reject Request
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Funding Management -->
+    <script src="/js/admin-funding.js"></script>
+
+    <!-- Admin Section Switching -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle admin sidebar menu clicks
+            const adminSidebar = document.querySelector('#adminView .dashboard-sidebar');
+            if (adminSidebar) {
+                adminSidebar.addEventListener('click', function(e) {
+                    const menuItem = e.target.closest('.menu-item');
+                    if (!menuItem) return;
+
+                    const section = menuItem.dataset.section;
+                    if (!section) return;
+
+                    // Update active menu item
+                    adminSidebar.querySelectorAll('.menu-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    menuItem.classList.add('active');
+
+                    // Show corresponding section
+                    const adminContent = document.querySelector('#adminView .dashboard-content');
+                    if (adminContent) {
+                        adminContent.querySelectorAll('.section').forEach(sec => {
+                            sec.classList.remove('active');
+                        });
+
+                        const targetSection = document.getElementById(`${section}Section`);
+                        if (targetSection) {
+                            targetSection.classList.add('active');
+                        }
+                    }
+                });
+
+                // Set funding requests as default active section
+                const fundingRequestsBtn = adminSidebar.querySelector('[data-section="funding-requests"]');
+                if (fundingRequestsBtn) {
+                    fundingRequestsBtn.classList.add('active');
+                }
+            }
+        });
     </script>
 
     <!-- Ensure farmer dashboard buttons are properly attached -->

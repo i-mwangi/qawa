@@ -168,10 +168,236 @@
             margin-bottom: 16px;
             opacity: 0.5;
         }
+
+        /* Funding Request Styles */
+        .request-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+        }
+
+        .request-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 16px;
+        }
+
+        .request-info h3 {
+            margin: 0 0 8px 0;
+            color: #2c5f2d;
+            font-size: 20px;
+        }
+
+        .request-meta {
+            color: #666;
+            font-size: 14px;
+            margin: 4px 0;
+        }
+
+        .milestone-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .milestone-upfront {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .milestone-maintenance {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .milestone-harvest {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .request-amount {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c5f2d;
+            margin: 16px 0;
+        }
+
+        .request-purpose {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .btn-approve {
+            background: #28a745;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-approve:hover {
+            background: #218838;
+        }
+
+        .btn-reject {
+            background: #dc3545;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-reject:hover {
+            background: #c82333;
+        }
+
+        .btn-details {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+        }
+
+        .btn-details:hover {
+            background: #5a6268;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: #28a745;
+            margin-bottom: 16px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #2c5f2d;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+
+        .btn-confirm {
+            flex: 1;
+        }
     </style>
 </head>
 <body>
-    <div id="loadingScreen" class="admin-container">
+    <div id="connectWalletScreen" class="admin-container">
+        <div class="access-denied">
+            <i class="fas fa-wallet"></i>
+            <h2>Connect Your Wallet</h2>
+            <p>Please connect your wallet to access the admin dashboard.</p>
+            <p style="font-size: 14px; color: #999; margin-top: 8px;">
+                Admin account required: <strong>0.0.5792828</strong>
+            </p>
+            <button class="btn btn-primary" id="adminConnectWalletBtn">
+                <i class="fas fa-wallet"></i> Connect Wallet
+            </button>
+        </div>
+    </div>
+
+    <div id="loadingScreen" class="admin-container" style="display: none;">
         <div class="loading">
             <i class="fas fa-spinner"></i>
             <p>Verifying admin access...</p>
@@ -183,6 +409,10 @@
             <i class="fas fa-shield-alt"></i>
             <h2>Access Denied</h2>
             <p>You do not have admin privileges to access this dashboard.</p>
+            <p style="font-size: 14px; color: #999; margin-top: 8px;">
+                Connected account: <span id="deniedAccountId">-</span><br>
+                Required account: <strong>0.0.5792828</strong>
+            </p>
             <button class="btn btn-primary" onclick="window.location.href='/'">
                 Return to Home
             </button>
@@ -223,14 +453,16 @@
 
         <div class="section">
             <div class="section-header">
-                <h2>Funding Requests</h2>
-                <button class="btn btn-primary" onclick="refreshData()">
+                <h2>Pending Funding Requests</h2>
+                <button class="btn btn-primary" onclick="loadPendingRequests()">
                     <i class="fas fa-sync-alt"></i> Refresh
                 </button>
             </div>
-            <div class="placeholder">
-                <i class="fas fa-inbox"></i>
-                <p>Funding request management will be available here once the milestone funding system is implemented.</p>
+            <div id="pendingRequestsContainer">
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Loading pending requests...</p>
+                </div>
             </div>
         </div>
 
@@ -245,24 +477,72 @@
         </div>
     </div>
 
-    <!-- Wallet Integration -->
-    <script type="module" src="/wallet/wallet-manager.js"></script>
-    <script type="module">
-        import { WalletManager } from '/wallet/wallet-manager.js';
+    <!-- Approve Modal -->
+    <div id="approveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Approve Funding Request</h2>
+                <button class="modal-close" onclick="closeApproveModal()">&times;</button>
+            </div>
+            <div id="approveModalBody">
+                <p>Are you sure you want to approve this funding request?</p>
+                <div class="form-group">
+                    <label>Admin Notes (Optional)</label>
+                    <textarea id="approveNotes" placeholder="Add any notes about this approval..."></textarea>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" onclick="closeApproveModal()">Cancel</button>
+                <button class="btn btn-approve btn-confirm" onclick="confirmApprove()">
+                    <i class="fas fa-check"></i> Approve & Disburse
+                </button>
+            </div>
+        </div>
+    </div>
 
-        let walletManager;
+    <!-- Reject Modal -->
+    <div id="rejectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Reject Funding Request</h2>
+                <button class="modal-close" onclick="closeRejectModal()">&times;</button>
+            </div>
+            <div id="rejectModalBody">
+                <p>Please provide a reason for rejecting this request:</p>
+                <div class="form-group">
+                    <label>Rejection Reason (Required) *</label>
+                    <textarea id="rejectReason" placeholder="Explain why this request is being rejected..." required></textarea>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" onclick="closeRejectModal()">Cancel</button>
+                <button class="btn btn-reject btn-confirm" onclick="confirmReject()">
+                    <i class="fas fa-times"></i> Reject Request
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wallet Integration -->
+    <script type="module" src="/wallet/index.js"></script>
+    <script type="module">
+        import { walletManager } from '/wallet/index.js';
 
         async function checkAdminAccess() {
             try {
-                // Initialize wallet
-                walletManager = new WalletManager();
-                await walletManager.init();
+                showLoading();
+
+                // Wait for wallet to be ready
+                if (!walletManager.isWalletConnected()) {
+                    showConnectWallet();
+                    return;
+                }
 
                 // Get account ID
                 const accountId = walletManager.getAccountId();
                 
                 if (!accountId) {
-                    showAccessDenied();
+                    showConnectWallet();
                     return;
                 }
 
@@ -277,7 +557,7 @@
                     showAdminDashboard();
                     loadDashboardData();
                 } else {
-                    showAccessDenied();
+                    showAccessDenied(accountId);
                 }
             } catch (error) {
                 console.error('Error checking admin access:', error);
@@ -285,33 +565,304 @@
             }
         }
 
+        function showConnectWallet() {
+            document.getElementById('connectWalletScreen').style.display = 'block';
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('accessDenied').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'none';
+        }
+
+        function showLoading() {
+            document.getElementById('connectWalletScreen').style.display = 'none';
+            document.getElementById('loadingScreen').style.display = 'block';
+            document.getElementById('accessDenied').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'none';
+        }
+
         function showAdminDashboard() {
+            document.getElementById('connectWalletScreen').style.display = 'none';
             document.getElementById('loadingScreen').style.display = 'none';
             document.getElementById('accessDenied').style.display = 'none';
             document.getElementById('adminDashboard').style.display = 'block';
         }
 
-        function showAccessDenied() {
+        function showAccessDenied(accountId) {
+            document.getElementById('connectWalletScreen').style.display = 'none';
             document.getElementById('loadingScreen').style.display = 'none';
-            document.getElementById('adminDashboard').style.display = 'none';
             document.getElementById('accessDenied').style.display = 'block';
+            document.getElementById('adminDashboard').style.display = 'none';
+            
+            if (accountId) {
+                document.getElementById('deniedAccountId').textContent = accountId;
+            }
         }
 
+        // Setup connect wallet button
+        document.getElementById('adminConnectWalletBtn')?.addEventListener('click', async () => {
+            try {
+                await walletManager.connect();
+                // After connection, check admin access
+                await checkAdminAccess();
+            } catch (error) {
+                console.error('Error connecting wallet:', error);
+                alert('Failed to connect wallet. Please try again.');
+            }
+        });
+
         async function loadDashboardData() {
-            // TODO: Load actual data from API
-            document.getElementById('pendingCount').textContent = '0';
-            document.getElementById('grovesCount').textContent = '0';
-            document.getElementById('platformFees').textContent = '$0';
-            document.getElementById('activeUsers').textContent = '0';
+            const accountId = walletManager.getAccountId();
+            
+            try {
+                // Load pending requests count
+                const pendingResponse = await fetch('/admin/funding/pending', {
+                    headers: { 'x-account-id': accountId }
+                });
+                
+                if (pendingResponse.ok) {
+                    const pendingData = await pendingResponse.json();
+                    document.getElementById('pendingCount').textContent = pendingData.requests?.length || 0;
+                }
+
+                // Load platform fees
+                const feesResponse = await fetch('/admin/funding/fees', {
+                    headers: { 'x-account-id': accountId }
+                });
+                
+                if (feesResponse.ok) {
+                    const feesData = await feesResponse.json();
+                    const totalFees = feesData.summary?.totalFees || 0;
+                    document.getElementById('platformFees').textContent = `$${totalFees.toFixed(2)}`;
+                }
+
+                // Load pending requests list
+                await loadPendingRequests();
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        let currentRequestId = null;
+
+        async function loadPendingRequests() {
+            const container = document.getElementById('pendingRequestsContainer');
+            const accountId = walletManager.getAccountId();
+            
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Loading...</p></div>';
+            
+            try {
+                const response = await fetch('/admin/funding/pending', {
+                    headers: { 'x-account-id': accountId }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load requests');
+                }
+                
+                const data = await response.json();
+                const requests = data.requests || [];
+                
+                if (requests.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <h3>All Caught Up!</h3>
+                            <p>No pending funding requests at the moment.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = requests.map(req => `
+                    <div class="request-card">
+                        <div class="request-header">
+                            <div class="request-info">
+                                <h3>${req.groveName || 'Unknown Grove'}</h3>
+                                <div class="request-meta">
+                                    <i class="fas fa-user"></i> ${req.farmerAddress}
+                                </div>
+                                <div class="request-meta">
+                                    <i class="fas fa-calendar"></i> ${new Date(req.createdAt).toLocaleDateString()}
+                                </div>
+                            </div>
+                            <span class="milestone-badge milestone-${req.milestoneType}">
+                                ${req.milestoneType}
+                            </span>
+                        </div>
+                        <div class="request-amount">
+                            $${req.amountRequested.toFixed(2)}
+                        </div>
+                        <div class="request-purpose">
+                            <strong>Purpose:</strong><br>
+                            ${req.purpose}
+                        </div>
+                        <div class="request-actions">
+                            <button class="btn btn-approve" onclick="openApproveModal(${req.id}, '${req.groveName}', ${req.amountRequested})">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                            <button class="btn btn-reject" onclick="openRejectModal(${req.id}, '${req.groveName}')">
+                                <i class="fas fa-times"></i> Reject
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading pending requests:', error);
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i>
+                        <h3>Error Loading Requests</h3>
+                        <p>${error.message}</p>
+                        <button class="btn btn-primary" onclick="loadPendingRequests()">Try Again</button>
+                    </div>
+                `;
+            }
+        }
+
+        function openApproveModal(requestId, groveName, amount) {
+            currentRequestId = requestId;
+            document.getElementById('approveModalBody').innerHTML = `
+                <p>Are you sure you want to approve this funding request?</p>
+                <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin: 16px 0;">
+                    <strong>Grove:</strong> ${groveName}<br>
+                    <strong>Amount:</strong> $${amount.toFixed(2)}<br>
+                    <strong>Platform Fee (3%):</strong> $${(amount * 0.03).toFixed(2)}<br>
+                    <strong>Farmer Receives:</strong> $${(amount * 0.97).toFixed(2)}
+                </div>
+                <div class="form-group">
+                    <label>Admin Notes (Optional)</label>
+                    <textarea id="approveNotes" placeholder="Add any notes about this approval..."></textarea>
+                </div>
+            `;
+            document.getElementById('approveModal').classList.add('active');
+        }
+
+        function closeApproveModal() {
+            document.getElementById('approveModal').classList.remove('active');
+            currentRequestId = null;
+        }
+
+        async function confirmApprove() {
+            if (!currentRequestId) return;
+            
+            const notes = document.getElementById('approveNotes').value;
+            const accountId = walletManager.getAccountId();
+            
+            try {
+                const response = await fetch(`/admin/funding/approve/${currentRequestId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-account-id': accountId
+                    },
+                    body: JSON.stringify({ notes })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`✅ Request approved and funds disbursed!\n\nTransaction ID: ${data.transactionId}`);
+                    closeApproveModal();
+                    loadDashboardData();
+                } else {
+                    alert(`❌ Error: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Error approving request:', error);
+                alert(`❌ Error approving request: ${error.message}`);
+            }
+        }
+
+        function openRejectModal(requestId, groveName) {
+            currentRequestId = requestId;
+            document.getElementById('rejectModalBody').innerHTML = `
+                <p>Please provide a reason for rejecting this request:</p>
+                <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin: 16px 0;">
+                    <strong>Grove:</strong> ${groveName}
+                </div>
+                <div class="form-group">
+                    <label>Rejection Reason (Required) *</label>
+                    <textarea id="rejectReason" placeholder="Explain why this request is being rejected..." required></textarea>
+                </div>
+            `;
+            document.getElementById('rejectModal').classList.add('active');
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').classList.remove('active');
+            currentRequestId = null;
+        }
+
+        async function confirmReject() {
+            if (!currentRequestId) return;
+            
+            const reason = document.getElementById('rejectReason').value.trim();
+            
+            if (reason.length < 10) {
+                alert('Please provide a rejection reason of at least 10 characters.');
+                return;
+            }
+            
+            const accountId = walletManager.getAccountId();
+            
+            try {
+                const response = await fetch(`/admin/funding/reject/${currentRequestId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-account-id': accountId
+                    },
+                    body: JSON.stringify({ reason })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('✅ Request rejected successfully.');
+                    closeRejectModal();
+                    loadDashboardData();
+                } else {
+                    alert(`❌ Error: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Error rejecting request:', error);
+                alert(`❌ Error rejecting request: ${error.message}`);
+            }
         }
 
         function refreshData() {
             loadDashboardData();
         }
 
+        // Listen for wallet connection events
+        window.addEventListener('walletConnected', () => {
+            console.log('[Admin] Wallet connected, checking admin access...');
+            checkAdminAccess();
+        });
+
+        window.addEventListener('walletDisconnected', () => {
+            console.log('[Admin] Wallet disconnected');
+            showConnectWallet();
+        });
+
         // Initialize on page load
-        window.addEventListener('DOMContentLoaded', checkAdminAccess);
+        window.addEventListener('DOMContentLoaded', () => {
+            // Check if wallet is already connected
+            if (walletManager.isWalletConnected()) {
+                checkAdminAccess();
+            } else {
+                showConnectWallet();
+            }
+        });
+
         window.refreshData = refreshData;
+        window.loadPendingRequests = loadPendingRequests;
+        window.openApproveModal = openApproveModal;
+        window.closeApproveModal = closeApproveModal;
+        window.confirmApprove = confirmApprove;
+        window.openRejectModal = openRejectModal;
+        window.closeRejectModal = closeRejectModal;
+        window.confirmReject = confirmReject;
     </script>
 </body>
 </html>

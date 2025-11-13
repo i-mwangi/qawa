@@ -11,6 +11,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 // For now, return a simple response
 // TODO: Refactor server.ts to export a request handler instead of creating HTTP server
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const url = req.url || '';
+  
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -19,7 +21,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  const url = req.url || '';
+  // Test endpoint to verify code changes
+  if (url.includes('/test-funding-api')) {
+    return res.status(200).json({
+      success: true,
+      message: 'Funding API test endpoint - code changes are working!',
+      timestamp: new Date().toISOString()
+    });
+  }
 
   // Health check endpoint
   if (url.includes('/health')) {
@@ -1271,7 +1280,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const { db } = await import('../db/index.js');
       const { harvestRecords, coffeeGroves, tokenHoldings } = await import('../db/schema/index.js');
       const { eq } = await import('drizzle-orm');
-      const { getHederaPaymentService } = await import('../lib/api/hedera-payment-service.ts');
+      const { getHederaPaymentService } = await import('../lib/api/hedera-payment-service.js');
       const hederaPaymentService = getHederaPaymentService();
 
       // Get harvest details
@@ -2449,6 +2458,530 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       success: true,
       harvests: []
     });
+  }
+
+  // ========================================
+  // FUNDING REQUEST ENDPOINTS
+  // ========================================
+
+  // POST /api/funding/request - Create funding request
+  if (url.includes('/funding/request') && req.method === 'POST' && !url.includes('/requests/')) {
+    try {
+      const { fundingRequestService } = await import('../lib/services/funding-request-service.js');
+      const { groveId, farmerAddress, milestoneType, amount, purpose } = req.body;
+
+      const result = await fundingRequestService.createRequest({
+        groveId,
+        farmerAddress,
+        milestoneType,
+        amount,
+        purpose
+      });
+
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          error: result.error
+        });
+      }
+
+      return res.status(201).json({
+        success: true,
+        requestId: result.requestId,
+        message: 'Funding request created successfully'
+      });
+    } catch (error: any) {
+      console.error('[API] Error creating funding request:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to create funding request'
+      });
+    }
+  }
+
+  // GET /api/funding/requests/:address - Get farmer's requests
+  if (url.includes('/funding/requests/') && req.method === 'GET') {
+    try {
+      const { fundingRequestService } = await import('../lib/services/funding-request-service.js');
+      const address = url.split('/funding/requests/')[1]?.split('?')[0];
+
+      if (!address) {
+        return res.status(400).json({
+          success: false,
+          error: 'Farmer address is required'
+        });
+      }
+
+      const requests = await fundingRequestService.getFarmerRequests(address);
+
+      return res.status(200).json({
+        success: true,
+        requests
+      });
+    } catch (error: any) {
+      console.error('[API] Error getting farmer requests:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to get requests'
+      });
+    }
+  }
+
+  // GET /api/funding/pool/:groveId - Get funding pool info
+  if (url.includes('/funding/pool/') && req.method === 'GET') {
+    try {
+      const { fundingPoolService } = await import('../lib/services/funding-pool-service.js');
+      const groveId = parseInt(url.split('/funding/pool/')[1]?.split('?')[0] || '0');
+
+      if (!groveId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Grove ID is required'
+        });
+      }
+
+      const funds = await fundingPoolService.getAvailableFunds(groveId);
+
+      if (!funds) {
+        return res.status(404).json({
+          success: false,
+          error: 'Funding pool not found for this grove'
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        funds
+      });
+    } catch (error: any) {
+      console.error('[API] Error getting funding pool:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to get funding pool'
+      });
+    }
+  }
+
+  // GET /api/funding/request/:id - Get request details
+  if (url.match(/\/funding\/request\/\d+$/) && req.method === 'GET') {
+    try {
+      const { fundingRequestService } = await import('../lib/services/funding-request-service.js');
+      const requestId = parseInt(url.split('/funding/request/')[1] || '0');
+
+      if (!requestId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Request ID is required'
+        });
+      }
+
+      const request = await fundingRequestService.getRequestById(requestId);
+
+      if (!request) {
+        return res.status(404).json({
+          success: false,
+          error: 'Request not found'
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        request
+      });
+    } catch (error: any) {
+      console.error('[API] Error getting request:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to get request'
+      });
+    }
+  }
+
+  // GET /api/funding/document/:id - Download document
+  if (url.match(/\/funding\/document\/\d+$/) && req.method === 'GET') {
+    try {
+      const { getDocumentStorageService } = await import('../lib/services/document-storage-service.js');
+      const documentStorageService = getDocumentStorageService();
+      const { fundingRequestDocuments } = await import('../db/schema/index.js');
+      const { db } = await import('../db/index.js');
+      const { eq } = await import('drizzle-orm');
+      
+      const documentId = parseInt(url.split('/funding/document/')[1] || '0');
+
+      if (!documentId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Document ID is required'
+        });
+      }
+
+      // Get document metadata
+      const document = await db.query.fundingRequestDocuments.findFirst({
+        where: eq(fundingRequestDocuments.id, documentId)
+      });
+
+      if (!document) {
+        return res.status(404).json({
+          success: false,
+          error: 'Document not found'
+        });
+      }
+
+      // Get file from storage
+      const fileBuffer = await documentStorageService.getDocument(document.storagePath);
+
+      // Set appropriate headers
+      res.setHeader('Content-Type', document.mimeType);
+      res.setHeader('Content-Disposition', `attachment; filename="${document.fileName}"`);
+      res.setHeader('Content-Length', document.fileSize.toString());
+
+      return res.status(200).send(fileBuffer);
+    } catch (error: any) {
+      console.error('[API] Error downloading document:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to download document'
+      });
+    }
+  }
+
+  // DELETE /api/funding/request/:id - Cancel pending request
+  if (url.match(/\/funding\/request\/\d+$/) && req.method === 'DELETE') {
+    try {
+      const { fundingRequestService } = await import('../lib/services/funding-request-service.js');
+      const requestId = parseInt(url.split('/funding/request/')[1] || '0');
+      const farmerAddress = req.headers['x-account-id'] as string;
+
+      if (!requestId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Request ID is required'
+        });
+      }
+
+      if (!farmerAddress) {
+        return res.status(401).json({
+          success: false,
+          error: 'Authentication required'
+        });
+      }
+
+      const result = await fundingRequestService.cancelRequest(requestId, farmerAddress);
+
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          error: result.error
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'Request cancelled successfully'
+      });
+    } catch (error: any) {
+      console.error('[API] Error cancelling request:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to cancel request'
+      });
+    }
+  }
+
+  // ========================================
+  // ADMIN FUNDING ENDPOINTS
+  // ========================================
+
+  // GET /api/admin/funding/pending - Get pending requests
+  if (url.includes('/admin/funding/pending') && req.method === 'GET') {
+    try {
+      const { isAdmin } = await import('../lib/middleware/admin-auth.js');
+      const { fundingRequestService } = await import('../lib/services/funding-request-service.js');
+      const adminAddress = req.headers['x-account-id'] as string;
+
+      if (!isAdmin(adminAddress)) {
+        return res.status(403).json({
+          success: false,
+          error: 'Admin access required'
+        });
+      }
+
+      const requests = await fundingRequestService.getPendingRequests();
+
+      return res.status(200).json({
+        success: true,
+        requests
+      });
+    } catch (error: any) {
+      console.error('[API] Error getting pending requests:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to get pending requests'
+      });
+    }
+  }
+
+  // GET /api/admin/funding/request/:id - Get full request details
+  if (url.match(/\/admin\/funding\/request\/\d+$/) && req.method === 'GET') {
+    try {
+      const { isAdmin } = await import('../lib/middleware/admin-auth.js');
+      const { fundingRequestService } = await import('../lib/services/funding-request-service.js');
+      const adminAddress = req.headers['x-account-id'] as string;
+
+      if (!isAdmin(adminAddress)) {
+        return res.status(403).json({
+          success: false,
+          error: 'Admin access required'
+        });
+      }
+
+      const requestId = parseInt(url.split('/admin/funding/request/')[1] || '0');
+
+      if (!requestId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Request ID is required'
+        });
+      }
+
+      const request = await fundingRequestService.getRequestById(requestId);
+
+      if (!request) {
+        return res.status(404).json({
+          success: false,
+          error: 'Request not found'
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        request
+      });
+    } catch (error: any) {
+      console.error('[API] Error getting request:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to get request'
+      });
+    }
+  }
+
+  // POST /api/admin/funding/approve/:id - Approve request
+  if (url.match(/\/admin\/funding\/approve\/\d+$/) && req.method === 'POST') {
+    try {
+      const { isAdmin } = await import('../lib/middleware/admin-auth.js');
+      const { fundingRequestService } = await import('../lib/services/funding-request-service.js');
+      const adminAddress = req.headers['x-account-id'] as string;
+
+      if (!isAdmin(adminAddress)) {
+        return res.status(403).json({
+          success: false,
+          error: 'Admin access required'
+        });
+      }
+
+      const requestId = parseInt(url.split('/admin/funding/approve/')[1] || '0');
+      const { notes } = req.body || {};
+
+      if (!requestId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Request ID is required'
+        });
+      }
+
+      // Approve request
+      const approveResult = await fundingRequestService.approveRequest(requestId, adminAddress, notes);
+
+      if (!approveResult.success) {
+        return res.status(400).json({
+          success: false,
+          error: approveResult.error
+        });
+      }
+
+      // Disburse funds
+      const disburseResult = await fundingRequestService.disburseFunds(requestId);
+
+      if (!disburseResult.success) {
+        return res.status(500).json({
+          success: false,
+          error: `Request approved but disbursement failed: ${disburseResult.error}`
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'Request approved and funds disbursed',
+        transactionId: disburseResult.transactionId
+      });
+    } catch (error: any) {
+      console.error('[API] Error approving request:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to approve request'
+      });
+    }
+  }
+
+  // POST /api/admin/funding/reject/:id - Reject request
+  if (url.match(/\/admin\/funding\/reject\/\d+$/) && req.method === 'POST') {
+    try {
+      const { isAdmin } = await import('../lib/middleware/admin-auth.js');
+      const { fundingRequestService } = await import('../lib/services/funding-request-service.js');
+      const adminAddress = req.headers['x-account-id'] as string;
+
+      if (!isAdmin(adminAddress)) {
+        return res.status(403).json({
+          success: false,
+          error: 'Admin access required'
+        });
+      }
+
+      const requestId = parseInt(url.split('/admin/funding/reject/')[1] || '0');
+      const { reason } = req.body || {};
+
+      if (!requestId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Request ID is required'
+        });
+      }
+
+      if (!reason) {
+        return res.status(400).json({
+          success: false,
+          error: 'Rejection reason is required'
+        });
+      }
+
+      const result = await fundingRequestService.rejectRequest(requestId, adminAddress, reason);
+
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          error: result.error
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'Request rejected successfully'
+      });
+    } catch (error: any) {
+      console.error('[API] Error rejecting request:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to reject request'
+      });
+    }
+  }
+
+  // GET /api/admin/funding/fees - Get platform fee summary
+  if (url.includes('/admin/funding/fees') && req.method === 'GET') {
+    try {
+      const { isAdmin } = await import('../lib/middleware/admin-auth.js');
+      const { db } = await import('../db/index.js');
+      const { platformFees } = await import('../db/schema/index.js');
+      const { sql } = await import('drizzle-orm');
+      const adminAddress = req.headers['x-account-id'] as string;
+
+      if (!isAdmin(adminAddress)) {
+        return res.status(403).json({
+          success: false,
+          error: 'Admin access required'
+        });
+      }
+
+      // Get total fees collected
+      const totalResult = await db.get(sql`
+        SELECT 
+          COALESCE(SUM(fee_amount), 0) as totalFees,
+          COUNT(*) as totalRequests
+        FROM platform_fees
+      `);
+
+      // Get fees by grove
+      const byGrove = await db.all(sql`
+        SELECT 
+          pf.grove_id as groveId,
+          g.grove_name as groveName,
+          COALESCE(SUM(pf.fee_amount), 0) as totalFees,
+          COUNT(*) as requestCount
+        FROM platform_fees pf
+        LEFT JOIN coffee_groves g ON pf.grove_id = g.id
+        GROUP BY pf.grove_id, g.grove_name
+        ORDER BY totalFees DESC
+      `);
+
+      return res.status(200).json({
+        success: true,
+        summary: {
+          totalFees: (totalResult?.totalFees || 0) / 100,
+          totalRequests: totalResult?.totalRequests || 0,
+          byGrove: byGrove.map((g: any) => ({
+            groveId: g.groveId,
+            groveName: g.groveName || 'Unknown Grove',
+            totalFees: g.totalFees / 100,
+            requestCount: g.requestCount
+          }))
+        }
+      });
+    } catch (error: any) {
+      console.error('[API] Error getting fees:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to get fees'
+      });
+    }
+  }
+
+  // ========================================
+  // INVESTOR TRANSPARENCY ENDPOINTS
+  // ========================================
+
+  // GET /api/funding/grove/:groveId/history - Get public funding history
+  if (url.match(/\/funding\/grove\/\d+\/history$/) && req.method === 'GET') {
+    try {
+      const { db } = await import('../db/index.js');
+      const { fundingRequests } = await import('../db/schema/index.js');
+      const { eq, and } = await import('drizzle-orm');
+      
+      const groveId = parseInt(url.split('/funding/grove/')[1]?.split('/history')[0] || '0');
+
+      if (!groveId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Grove ID is required'
+        });
+      }
+
+      // Get approved/disbursed requests only (public info)
+      const requests = await db.select({
+        id: fundingRequests.id,
+        milestoneType: fundingRequests.milestoneType,
+        amountApproved: fundingRequests.amountApproved,
+        purpose: fundingRequests.purpose,
+        status: fundingRequests.status,
+        disbursedAt: fundingRequests.disbursedAt,
+        transactionId: fundingRequests.transactionId
+      }).from(fundingRequests)
+        .where(and(
+          eq(fundingRequests.groveId, groveId),
+          eq(fundingRequests.status, 'disbursed')
+        ));
+
+      return res.status(200).json({
+        success: true,
+        requests
+      });
+    } catch (error: any) {
+      console.error('[API] Error getting funding history:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to get funding history'
+      });
+    }
   }
 
   // Return 501 for other routes until full migration

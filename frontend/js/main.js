@@ -159,6 +159,11 @@ class ViewManager {
                     if (window.tokenAdminManager && typeof window.tokenAdminManager.isAdminUser === 'function' && !window.tokenAdminManager.isAdminUser()) {
                         this.showError('Admin access required');
                         this.switchView('dashboard');
+                    } else {
+                        // Initialize admin funding module
+                        if (window.adminFunding && window.walletManager) {
+                            window.adminFunding.init(window.walletManager);
+                        }
                     }
                     break;
             }
