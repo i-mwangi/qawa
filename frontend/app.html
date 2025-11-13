@@ -647,6 +647,10 @@
                                 <i class="fas fa-chart-line"></i>
                                 <span>Revenue Tracking</span>
                             </button>
+                            <button class="menu-item" data-section="funding">
+                                <i class="fas fa-hand-holding-usd"></i>
+                                <span>Funding Requests</span>
+                            </button>
                             <button class="menu-item" data-section="health">
                                 <i class="fas fa-heartbeat"></i>
                                 <span>Tree Health</span>
@@ -1094,6 +1098,82 @@
                             </div>
                         </div>
 
+                        <!-- Funding Requests Section -->
+                        <div id="fundingSection" class="section">
+                            <div class="section-header">
+                                <h3>Funding Requests</h3>
+                                <button class="btn btn-primary" onclick="window.farmerFunding?.showNewRequestModal()">
+                                    <i class="fas fa-plus"></i> New Request
+                                </button>
+                            </div>
+
+                            <!-- Funding Overview Stats -->
+                            <div class="stats-grid" style="margin-bottom: 24px;">
+                                <div class="stat-card">
+                                    <h5>Total Investment Pool</h5>
+                                    <div class="stat-value" id="farmerTotalInvestment">$0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h5>Pending Requests</h5>
+                                    <div class="stat-value" id="farmerPendingRequests">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h5>Approved Requests</h5>
+                                    <div class="stat-value" id="farmerApprovedRequests">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <h5>Total Disbursed</h5>
+                                    <div class="stat-value" id="farmerTotalDisbursed">$0</div>
+                                </div>
+                            </div>
+
+                            <!-- Milestone Progress Bars -->
+                            <div class="milestone-progress-container" style="margin-bottom: 32px;">
+                                <h4 style="margin-bottom: 16px;">Milestone Fund Availability</h4>
+                                
+                                <div class="milestone-progress-item" style="margin-bottom: 20px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <span><strong>Upfront (40%)</strong></span>
+                                        <span id="upfrontAmount">$0 available</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="upfrontProgress" style="width: 0%; background: #1976d2;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="milestone-progress-item" style="margin-bottom: 20px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <span><strong>Maintenance (30%)</strong></span>
+                                        <span id="maintenanceAmount">$0 available</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="maintenanceProgress" style="width: 0%; background: #f57c00;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="milestone-progress-item" style="margin-bottom: 20px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <span><strong>Harvest (30%)</strong></span>
+                                        <span id="harvestAmount">$0 available</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="harvestProgress" style="width: 0%; background: #388e3c;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Request History -->
+                            <div class="section-header">
+                                <h4>Request History</h4>
+                            </div>
+                            <div id="farmerRequestsContainer">
+                                <div class="loading-state">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading your funding requests...</p>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Tree Health Section -->
                         <div id="healthSection" class="section">
                             <div class="section-header">
@@ -1323,6 +1403,75 @@
                                 <!-- Pagination controls will be populated here -->
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Funding Request Modal -->
+            <div id="newRequestModal" class="modal">
+                <div class="modal-overlay"></div>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>New Funding Request</h4>
+                        <button class="modal-close" onclick="window.farmerFunding?.closeNewRequestModal()">&times;</button>
+                    </div>
+                    <form id="newRequestForm" class="modal-body">
+                        <div class="form-group">
+                            <label class="form-label" for="requestGroveSelect">Select Grove</label>
+                            <select class="form-select" id="requestGroveSelect" name="groveId" required>
+                                <option value="">Loading groves...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="requestMilestone">Milestone Type</label>
+                            <select class="form-select" id="requestMilestone" name="milestone" required>
+                                <option value="">Select milestone...</option>
+                                <option value="upfront">🌱 Upfront Operations (40%)</option>
+                                <option value="maintenance">🔧 Maintenance (30%)</option>
+                                <option value="harvest">🌾 Harvest Preparation (30%)</option>
+                            </select>
+                            <small class="form-help-text">
+                                Available: $<span id="availableAmount">0.00</span>
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="requestAmount">Amount Requested (USDC)</label>
+                            <input class="form-input" type="number" id="requestAmount" name="amount" 
+                                   step="0.01" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="requestPurpose">Purpose</label>
+                            <textarea class="form-input" id="requestPurpose" name="purpose" 
+                                      rows="4" required 
+                                      placeholder="Describe how you will use these funds..."></textarea>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn btn-secondary" 
+                                    onclick="window.farmerFunding?.closeNewRequestModal()">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Submit Request</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Request Details Modal -->
+            <div id="requestDetailsModal" class="modal">
+                <div class="modal-overlay"></div>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>Request Details</h4>
+                        <button class="modal-close" onclick="window.farmerFunding?.closeRequestDetailsModal()">&times;</button>
+                    </div>
+                    <div class="modal-body" id="requestDetailsContent">
+                        <!-- Details will be populated here -->
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" 
+                                onclick="window.farmerFunding?.closeRequestDetailsModal()">Close</button>
                     </div>
                 </div>
             </div>
@@ -2371,6 +2520,7 @@
     <script type="module" src="/js/admin-panel.js"></script>
     <script type="module" src="/js/farmer-dashboard.js"></script>
     <script type="module" src="/js/farmer-revenue-tracking.js"></script>
+    <script src="/js/farmer-funding-requests.js"></script>
     <script type="module" src="/js/investor-portal.js"></script>
     <script type="module" src="/js/investor-earnings.js"></script>
     <script type="module" src="/js/dashboard-enhanced.js"></script>

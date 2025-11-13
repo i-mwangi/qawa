@@ -760,6 +760,14 @@ class FarmerDashboard {
                         await window.farmerRevenueTracking.loadTransactionHistory(farmerAddress);
                     }
                     break;
+                case 'funding':
+                    // Load funding requests
+                    if (window.farmerFunding && typeof window.farmerFunding.initialize === 'function') {
+                        await window.farmerFunding.initialize();
+                    } else if (typeof initializeFundingRequests === 'function') {
+                        await initializeFundingRequests();
+                    }
+                    break;
                 case 'credit':
                     // Load credit score
                     await this.loadCreditScore(farmerAddress);

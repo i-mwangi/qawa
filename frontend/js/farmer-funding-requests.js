@@ -29,7 +29,7 @@ async function initializeFundingRequests() {
  */
 async function loadFarmerRequests() {
     try {
-        const farmerAddress = window.accountId;
+        const farmerAddress = window.walletManager?.getAccountId() || window.accountId;
         if (!farmerAddress) {
             console.error('[Funding] No farmer address found');
             return;
@@ -266,7 +266,8 @@ function closeNewRequestModal() {
  */
 async function loadFarmerGroves() {
     try {
-        const response = await fetch(`/api/groves/farmer/${window.accountId}`);
+        const farmerAddress = window.walletManager?.getAccountId() || window.accountId;
+        const response = await fetch(`/api/groves/farmer/${farmerAddress}`);
         const data = await response.json();
         
         const select = document.getElementById('requestGroveSelect');
@@ -323,9 +324,11 @@ async function submitFundingRequest(event) {
     const form = event.target;
     const formData = new FormData(form);
     
+    const farmerAddress = window.walletManager?.getAccountId() || window.accountId;
+    
     const requestData = {
         groveId: parseInt(formData.get('groveId')),
-        farmerAddress: window.accountId,
+        farmerAddress: farmerAddress,
         milestoneType: formData.get('milestone'),
         amount: Math.floor(parseFloat(formData.get('amount')) * 100), // Convert to cents
         purpose: formData.get('purpose')
@@ -336,7 +339,7 @@ async function submitFundingRequest(event) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'x-account-id': window.accountId
+                'x-account-id': farmerAddress
             },
             body: JSON.stringify(requestData)
         });
@@ -362,9 +365,10 @@ async function submitFundingRequest(event) {
  */
 async function viewRequestDetails(requestId) {
     try {
+        const farmerAddress = window.walletManager?.getAccountId() || window.accountId;
         const response = await fetch(`/api/funding/request/${requestId}`, {
             headers: {
-                'x-account-id': window.accountId
+                'x-account-id': farmerAddress
             }
         });
         
@@ -482,7 +486,28 @@ function setupFundingEventListeners() {
     }
 }
 
+/**
+ * Show notification helper
+ */
+function showNotification(message, type = 'info') {
+    if (window.farmerDashboard && typeof window.farmerDashboard.showNotification === 'function') {
+        window.farmerDashboard.showNotification(message, type);
+    } else {
+        console.log(`[${type.toUpperCase()}] ${message}`);
+    }
+}
+
 // Export functions to global scope
+window.farmerFunding = {
+    initialize: initializeFundingRequests,
+    showNewRequestModal: openNewRequestModal,
+    closeNewRequestModal: closeNewRequestModal,
+    viewRequestDetails: viewRequestDetails,
+    closeRequestDetailsModal: closeRequestDetailsModal,
+    loadFarmerRequests: loadFarmerRequests
+};
+
+// Also export individual functions for backward compatibility
 window.initializeFundingRequests = initializeFundingRequests;
 window.openNewRequestModal = openNewRequestModal;
 window.closeNewRequestModal = closeNewRequestModal;
