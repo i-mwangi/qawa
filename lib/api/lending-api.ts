@@ -3,8 +3,8 @@ import { LenderContract } from './lender-contract'
 import { withdrawalService } from './withdrawal-service'
 import { transactionRecorder } from './transaction-recording-service'
 import { hederaLendingService } from './hedera-lending-service'
-import { db } from '../db/index'
-import { providedLiquidity } from '../db/schema/index'
+import { db } from '../../db/index.js'
+import { providedLiquidity } from '../../db/schema/index.js'
 import { eq } from 'drizzle-orm'
 
 // Mock data for lending pools since we don't have actual contracts in this environment

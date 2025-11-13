@@ -781,6 +781,19 @@
                                             </small>
                                         </div>
 
+                                        <!-- Terms and Conditions Acceptance -->
+                                        <div class="form-group" style="margin-top: 1rem;">
+                                            <label style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+                                                <input type="checkbox" id="termsCheckbox" required style="margin: 0 8px 0 0; cursor: pointer;">
+                                                <span style="font-size: 13px; color: #65676b; font-style: italic;">
+                                                    I have read and agree to the 
+                                                    <a href="terms.html" target="_blank" style="color: #1877f2;">Terms and Conditions</a> 
+                                                    and 
+                                                    <a href="investor-protection.html" target="_blank" style="color: #1877f2;">Investor Protection Mechanisms</a>
+                                                </span>
+                                            </label>
+                                        </div>
+
                                         <div class="modal-actions">
                                             <button type="button" class="btn btn-secondary"
                                                 id="cancelGrove">Cancel</button>
@@ -1110,67 +1123,55 @@
                             <!-- Funding Overview Stats -->
                             <div class="stats-grid" style="margin-bottom: 24px;">
                                 <div class="stat-card">
-                                    <h5>Total Investment Pool</h5>
-                                    <div class="stat-value" id="farmerTotalInvestment">$0</div>
+                                    <h5>Total Requests</h5>
+                                    <div class="stat-value" id="totalRequestsCount">0</div>
                                 </div>
                                 <div class="stat-card">
                                     <h5>Pending Requests</h5>
-                                    <div class="stat-value" id="farmerPendingRequests">0</div>
+                                    <div class="stat-value" id="pendingCount">0</div>
                                 </div>
                                 <div class="stat-card">
                                     <h5>Approved Requests</h5>
-                                    <div class="stat-value" id="farmerApprovedRequests">0</div>
+                                    <div class="stat-value" id="approvedCount">0</div>
                                 </div>
                                 <div class="stat-card">
                                     <h5>Total Disbursed</h5>
-                                    <div class="stat-value" id="farmerTotalDisbursed">$0</div>
+                                    <div class="stat-value" id="totalDisbursed">$0</div>
                                 </div>
                             </div>
 
-                            <!-- Milestone Progress Bars -->
-                            <div class="milestone-progress-container" style="margin-bottom: 32px;">
-                                <h4 style="margin-bottom: 16px;">Milestone Fund Availability</h4>
-                                
-                                <div class="milestone-progress-item" style="margin-bottom: 20px;">
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                        <span><strong>Upfront (40%)</strong></span>
-                                        <span id="upfrontAmount">$0 available</span>
-                                    </div>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" id="upfrontProgress" style="width: 0%; background: #1976d2;"></div>
-                                    </div>
-                                </div>
-
-                                <div class="milestone-progress-item" style="margin-bottom: 20px;">
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                        <span><strong>Maintenance (30%)</strong></span>
-                                        <span id="maintenanceAmount">$0 available</span>
-                                    </div>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" id="maintenanceProgress" style="width: 0%; background: #f57c00;"></div>
-                                    </div>
-                                </div>
-
-                                <div class="milestone-progress-item" style="margin-bottom: 20px;">
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                        <span><strong>Harvest (30%)</strong></span>
-                                        <span id="harvestAmount">$0 available</span>
-                                    </div>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" id="harvestProgress" style="width: 0%; background: #388e3c;"></div>
-                                    </div>
-                                </div>
+                            <!-- Funding Pool Overview (optional, shown when grove selected) -->
+                            <div id="fundingOverview" style="margin-bottom: 24px;">
+                                <!-- Funding pool details will be populated here when viewing a specific grove -->
                             </div>
 
                             <!-- Request History -->
                             <div class="section-header">
                                 <h4>Request History</h4>
                             </div>
-                            <div id="farmerRequestsContainer">
-                                <div class="loading-state">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                    <p>Loading your funding requests...</p>
-                                </div>
+                            <div class="card">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Grove</th>
+                                            <th>Milestone</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="requestsTableBody">
+                                        <tr>
+                                            <td colspan="6" style="text-align: center; padding: 2rem;">
+                                                <div class="loading-state">
+                                                    <i class="fas fa-spinner fa-spin"></i>
+                                                    <p>Loading your funding requests...</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 
@@ -1447,6 +1448,24 @@
                             <textarea class="form-input" id="requestPurpose" name="purpose" 
                                       rows="4" required 
                                       placeholder="Describe how you will use these funds..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="requestDocuments">Supporting Documents (Optional)</label>
+                            <div class="file-upload-area" id="fileUploadArea">
+                                <input type="file" id="requestDocuments" name="documents" 
+                                       multiple accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx"
+                                       style="display: none;">
+                                <div class="file-upload-prompt" onclick="document.getElementById('requestDocuments').click()">
+                                    <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #999; margin-bottom: 8px;"></i>
+                                    <p style="margin: 0; color: #666;">Click to upload documents</p>
+                                    <small style="color: #999;">PDF, JPG, PNG, DOCX, XLSX (Max 10MB each)</small>
+                                </div>
+                                <div id="fileList" class="file-list" style="display: none;"></div>
+                            </div>
+                            <small class="form-help-text">
+                                📄 Upload invoices, receipts, or other supporting documents for your request
+                            </small>
                         </div>
 
                         <div class="modal-actions">
@@ -2521,6 +2540,7 @@
     <script type="module" src="/js/farmer-dashboard.js"></script>
     <script type="module" src="/js/farmer-revenue-tracking.js"></script>
     <script src="/js/farmer-funding-requests.js"></script>
+    <script src="/js/notification-service.js"></script>
     <script type="module" src="/js/investor-portal.js"></script>
     <script type="module" src="/js/investor-earnings.js"></script>
     <script type="module" src="/js/dashboard-enhanced.js"></script>

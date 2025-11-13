@@ -577,7 +577,8 @@ class CoffeeTreeMarketplace {
         try {
             window.walletManager.showLoading('Processing marketplace purchase...');
             
-            const response = await window.coffeeAPI.purchaseFromMarketplace(listingId, tokenAmount, buyerAddress);
+            // Updated to match new API signature (no tokenAmount parameter)
+            const response = await window.coffeeAPI.purchaseFromMarketplace(listingId, buyerAddress);
             
             if (response.success) {
                 window.walletManager.showToast('Tokens purchased successfully from marketplace!', 'success');
@@ -589,6 +590,8 @@ class CoffeeTreeMarketplace {
                 if (window.investorPortal && window.investorPortal.currentSection === 'portfolio') {
                     await window.investorPortal.loadPortfolio(buyerAddress);
                 }
+            } else {
+                throw new Error(response.error || 'Purchase failed');
             }
         } catch (error) {
             console.error('Marketplace purchase failed:', error);
@@ -597,7 +600,7 @@ class CoffeeTreeMarketplace {
             if (error.message && error.message.includes('TOKEN_NOT_ASSOCIATED')) {
                 this.showTokenAssociationModal(error.message);
             } else {
-                window.walletManager.showToast('Failed to purchase tokens from marketplace', 'error');
+                window.walletManager.showToast(error.message || 'Failed to purchase tokens from marketplace', 'error');
             }
         } finally {
             window.walletManager.hideLoading();
@@ -694,12 +697,28 @@ class CoffeeTreeMarketplace {
         try {
             window.walletManager.showLoading('Creating token listing...');
             
+            // Get grove details to get token address and name
+            const groveResponse = await window.coffeeAPI.getGroveDetails(groveId);
+            if (!groveResponse.success || !groveResponse.grove) {
+                throw new Error('Failed to fetch grove details');
+            }
+
+            const grove = groveResponse.grove;
+            const tokenAddress = grove.tokenAddress;
+            const groveName = grove.groveName;
+
+            if (!tokenAddress) {
+                throw new Error('Grove is not tokenized yet');
+            }
+            
+            // Updated API call with correct parameters
             const response = await window.coffeeAPI.listTokensForSale(
-                groveId, 
+                sellerAddress,
+                tokenAddress,
+                groveName,
                 listingData.amount, 
                 listingData.price, 
-                listingData.duration, 
-                sellerAddress
+                listingData.duration
             );
             
             if (response.success) {
@@ -712,10 +731,12 @@ class CoffeeTreeMarketplace {
                 if (window.investorPortal && window.investorPortal.currentSection === 'portfolio') {
                     await window.investorPortal.loadPortfolio(sellerAddress);
                 }
+            } else {
+                throw new Error(response.error || 'Failed to list tokens');
             }
         } catch (error) {
             console.error('Token listing failed:', error);
-            window.walletManager.showToast('Failed to list tokens for sale', 'error');
+            window.walletManager.showToast(error.message || 'Failed to list tokens for sale', 'error');
         } finally {
             window.walletManager.hideLoading();
         }

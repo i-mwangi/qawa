@@ -62,12 +62,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Groves endpoints
   if (url.includes('/groves/register') && req.method === 'POST') {
     const { db } = await import('../db/index.js');
-    const { coffeeGroves } = await import('../db/schema/index.js');
+    const { coffeeGroves, farmers } = await import('../db/schema/index.js');
     const { eq } = await import('drizzle-orm');
 
     try {
       const groveData = req.body;
       const tokensPerTree = groveData.tokensPerTree || 10; // Default 10 tokens per tree
+
+      // Validate terms acceptance
+      if (!groveData.termsAccepted) {
+        return res.status(400).json({
+          success: false,
+          error: 'Terms and Conditions must be accepted to register a grove'
+        });
+      }
+
+      // Record terms acceptance for farmer
+      if (groveData.farmerAddress) {
+        try {
+          await db.update(farmers)
+            .set({
+              termsAcceptedAt: Date.now(),
+              termsVersion: groveData.termsVersion || '1.0',
+              termsIpAddress: req.headers['x-forwarded-for'] as string || req.socket?.remoteAddress || 'unknown'
+            })
+            .where(eq(farmers.address, groveData.farmerAddress));
+          console.log(`✅ Terms acceptance recorded for farmer ${groveData.farmerAddress}`);
+        } catch (termsError) {
+          console.warn('⚠️ Could not record terms acceptance:', termsError);
+          // Don't fail the registration if terms recording fails
+        }
+      }
 
       // Step 1: Insert grove into database first
       const result = await db.insert(coffeeGroves).values({
@@ -965,7 +990,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Token purchase endpoint (POST /tokens/purchase)
   if (url.includes('/tokens/purchase') && req.method === 'POST') {
     try {
-      const { investorAddress, groveId, tokenAmount, paymentAmount } = req.body;
+      const { investorAddress, groveId, tokenAmount, paymentAmount, termsAccepted, termsVersion } = req.body;
 
       // Validate request body
       if (!investorAddress || !groveId || !tokenAmount || !paymentAmount) {
@@ -973,6 +998,62 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           success: false,
           error: 'Missing required fields: investorAddress, groveId, tokenAmount, paymentAmount'
         });
+      }
+
+      // Check if this is investor's first purchase and validate terms acceptance
+      const { db } = await import('../db/index.js');
+      const { investorProfiles, tokenHoldings } = await import('../db/schema/index.js');
+      const { eq, and } = await import('drizzle-orm');
+
+      // Check if investor has any existing holdings
+      const existingHoldings = await db.select()
+        .from(tokenHoldings)
+        .where(eq(tokenHoldings.holderAddress, investorAddress))
+        .limit(1);
+
+      // If first purchase, require terms acceptance
+      if (existingHoldings.length === 0 && !termsAccepted) {
+        return res.status(400).json({
+          success: false,
+          error: 'Terms and Conditions must be accepted before making your first investment'
+        });
+      }
+
+      // Record terms acceptance for investor if this is their first purchase
+      if (existingHoldings.length === 0 && termsAccepted) {
+        try {
+          // Check if investor profile exists
+          const existingProfile = await db.select()
+            .from(investorProfiles)
+            .where(eq(investorProfiles.investorAddress, investorAddress))
+            .limit(1);
+
+          if (existingProfile.length > 0) {
+            // Update existing profile
+            await db.update(investorProfiles)
+              .set({
+                termsAcceptedAt: Date.now(),
+                termsVersion: termsVersion || '1.0',
+                termsIpAddress: req.headers['x-forwarded-for'] as string || req.socket?.remoteAddress || 'unknown',
+                updatedAt: Date.now()
+              })
+              .where(eq(investorProfiles.investorAddress, investorAddress));
+          } else {
+            // Create new profile with terms acceptance
+            await db.insert(investorProfiles).values({
+              investorAddress,
+              termsAcceptedAt: Date.now(),
+              termsVersion: termsVersion || '1.0',
+              termsIpAddress: req.headers['x-forwarded-for'] as string || req.socket?.remoteAddress || 'unknown',
+              createdAt: Date.now(),
+              updatedAt: Date.now()
+            });
+          }
+          console.log(`✅ Terms acceptance recorded for investor ${investorAddress}`);
+        } catch (termsError) {
+          console.warn('⚠️ Could not record terms acceptance:', termsError);
+          // Don't fail the purchase if terms recording fails
+        }
       }
 
       // Validate types
@@ -2334,7 +2415,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Investment purchase tokens - redirect to /tokens/purchase endpoint
   if (url.includes('/investment/purchase-tokens') && req.method === 'POST') {
     try {
-      const { investorAddress, groveId, tokenAmount } = req.body;
+      const { investorAddress, groveId, tokenAmount, termsAccepted, termsVersion } = req.body;
 
       // Validate request body
       if (!investorAddress || !groveId || !tokenAmount) {
@@ -2342,6 +2423,62 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           success: false,
           error: 'Missing required fields: investorAddress, groveId, tokenAmount'
         });
+      }
+
+      // Check if this is investor's first purchase and validate terms acceptance
+      const { db } = await import('../db/index.js');
+      const { investorProfiles, tokenHoldings } = await import('../db/schema/index.js');
+      const { eq } = await import('drizzle-orm');
+
+      // Check if investor has any existing holdings
+      const existingHoldings = await db.select()
+        .from(tokenHoldings)
+        .where(eq(tokenHoldings.holderAddress, investorAddress))
+        .limit(1);
+
+      // If first purchase, require terms acceptance
+      if (existingHoldings.length === 0 && !termsAccepted) {
+        return res.status(400).json({
+          success: false,
+          error: 'Terms and Conditions must be accepted before making your first investment'
+        });
+      }
+
+      // Record terms acceptance for investor if this is their first purchase
+      if (existingHoldings.length === 0 && termsAccepted) {
+        try {
+          // Check if investor profile exists
+          const existingProfile = await db.select()
+            .from(investorProfiles)
+            .where(eq(investorProfiles.investorAddress, investorAddress))
+            .limit(1);
+
+          if (existingProfile.length > 0) {
+            // Update existing profile
+            await db.update(investorProfiles)
+              .set({
+                termsAcceptedAt: Date.now(),
+                termsVersion: termsVersion || '1.0',
+                termsIpAddress: req.headers['x-forwarded-for'] as string || req.socket?.remoteAddress || 'unknown',
+                updatedAt: Date.now()
+              })
+              .where(eq(investorProfiles.investorAddress, investorAddress));
+          } else {
+            // Create new profile with terms acceptance
+            await db.insert(investorProfiles).values({
+              investorAddress,
+              termsAcceptedAt: Date.now(),
+              termsVersion: termsVersion || '1.0',
+              termsIpAddress: req.headers['x-forwarded-for'] as string || req.socket?.remoteAddress || 'unknown',
+              createdAt: Date.now(),
+              updatedAt: Date.now()
+            });
+          }
+          console.log(`✅ Terms acceptance recorded for investor ${investorAddress}`);
+        } catch (termsError) {
+          console.warn('⚠️ Could not record terms acceptance:', termsError);
+          // Don't fail the purchase if terms recording fails
+        }
       }
 
       // Calculate payment amount (for now, use a simple calculation or default)
@@ -2389,67 +2526,198 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   }
 
-  // Marketplace listings - return mock data for demo
-  if (url.includes('/marketplace/listings')) {
-    return res.status(200).json({
-      success: true,
-      listings: [
-        {
-          id: 1,
-          groveId: 1,
-          groveName: 'moonrise',
-          tokenSymbol: 'TREE-MOONRI',
-          tokenAddress: '0.0.7201461',
-          sellerAddress: '0.0.7147851',
-          tokenAmount: 5000,
-          pricePerToken: 105, // $1.05 per token (5% premium)
-          totalPrice: 5250, // 5000 * $1.05
-          listingDate: Date.now() - (5 * 24 * 60 * 60 * 1000), // 5 days ago
-          expiryDate: Date.now() + (25 * 24 * 60 * 60 * 1000), // 25 days from now
-          status: 'active',
-          location: 'Ethiopia',
-          healthScore: 85,
-          totalTrees: 100000,
-          description: 'Premium coffee grove tokens with excellent health score'
-        },
-        {
-          id: 2,
-          groveId: 1,
-          groveName: 'moonrise',
-          tokenSymbol: 'TREE-MOONRI',
-          tokenAddress: '0.0.7201461',
-          sellerAddress: '0.0.7149114',
-          tokenAmount: 10000,
-          pricePerToken: 98, // $0.98 per token (2% discount)
-          totalPrice: 9800, // 10000 * $0.98
-          listingDate: Date.now() - (2 * 24 * 60 * 60 * 1000), // 2 days ago
-          expiryDate: Date.now() + (28 * 24 * 60 * 60 * 1000), // 28 days from now
-          status: 'active',
-          location: 'Ethiopia',
-          healthScore: 85,
-          totalTrees: 100000,
-          description: 'Quick sale - discounted moonrise grove tokens'
-        },
-        {
-          id: 3,
-          groveId: 1,
-          groveName: 'moonrise',
-          tokenSymbol: 'TREE-MOONRI',
-          tokenAddress: '0.0.7201461',
-          sellerAddress: '0.0.5792828',
-          tokenAmount: 25000,
-          pricePerToken: 100, // $1.00 per token (market price)
-          totalPrice: 25000, // 25000 * $1.00
-          listingDate: Date.now() - (1 * 24 * 60 * 60 * 1000), // 1 day ago
-          expiryDate: Date.now() + (29 * 24 * 60 * 60 * 1000), // 29 days from now
-          status: 'active',
-          location: 'Ethiopia',
-          healthScore: 85,
-          totalTrees: 100000,
-          description: 'Large batch of moonrise tokens at market price'
-        }
-      ]
-    });
+  // ========================================
+  // MARKETPLACE ENDPOINTS (Peer-to-Peer Trading)
+  // ========================================
+
+  // GET /api/marketplace/listings - Get all active listings
+  if (url.includes('/api/marketplace/listings') && req.method === 'GET') {
+    try {
+      const { marketplaceService } = await import('../lib/api/marketplace-service.js');
+      const listings = await marketplaceService.getActiveListings();
+      
+      return res.status(200).json({
+        success: true,
+        listings
+      });
+    } catch (error: any) {
+      console.error('Error fetching marketplace listings:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to fetch marketplace listings'
+      });
+    }
+  }
+
+  // GET /api/marketplace/listings/user/:address - Get user's listings
+  if (url.includes('/api/marketplace/listings/user/') && req.method === 'GET') {
+    try {
+      const { marketplaceService } = await import('../lib/api/marketplace-service.js');
+      const userAddress = url.split('/user/')[1]?.split('?')[0];
+      
+      if (!userAddress) {
+        return res.status(400).json({
+          success: false,
+          error: 'User address is required'
+        });
+      }
+
+      const listings = await marketplaceService.getUserListings(userAddress);
+      
+      return res.status(200).json({
+        success: true,
+        listings
+      });
+    } catch (error: any) {
+      console.error('Error fetching user listings:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to fetch user listings'
+      });
+    }
+  }
+
+  // POST /api/marketplace/list - List tokens for sale
+  if (url.includes('/api/marketplace/list') && req.method === 'POST') {
+    try {
+      const { marketplaceService } = await import('../lib/api/marketplace-service.js');
+      const { sellerAddress, tokenAddress, groveName, tokenAmount, pricePerToken, durationDays } = req.body;
+
+      if (!sellerAddress || !tokenAddress || !groveName || !tokenAmount || !pricePerToken || !durationDays) {
+        return res.status(400).json({
+          success: false,
+          error: 'Missing required fields'
+        });
+      }
+
+      const result = await marketplaceService.listTokensForSale(
+        sellerAddress,
+        tokenAddress,
+        groveName,
+        tokenAmount,
+        pricePerToken,
+        durationDays
+      );
+
+      if (!result.success) {
+        return res.status(400).json(result);
+      }
+
+      return res.status(200).json(result);
+    } catch (error: any) {
+      console.error('Error listing tokens:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to list tokens'
+      });
+    }
+  }
+
+  // POST /api/marketplace/purchase/:listingId - Purchase tokens
+  if (url.includes('/api/marketplace/purchase/') && req.method === 'POST') {
+    try {
+      const { marketplaceService } = await import('../lib/api/marketplace-service.js');
+      const listingId = parseInt(url.split('/purchase/')[1]?.split('?')[0] || '0');
+      const { buyerAddress } = req.body;
+
+      if (!buyerAddress || !listingId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Buyer address and listing ID are required'
+        });
+      }
+
+      const result = await marketplaceService.purchaseTokens(buyerAddress, listingId);
+
+      if (!result.success) {
+        return res.status(400).json(result);
+      }
+
+      return res.status(200).json(result);
+    } catch (error: any) {
+      console.error('Error purchasing tokens:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to purchase tokens'
+      });
+    }
+  }
+
+  // POST /api/marketplace/cancel/:listingId - Cancel listing
+  if (url.includes('/api/marketplace/cancel/') && req.method === 'POST') {
+    try {
+      const { marketplaceService } = await import('../lib/api/marketplace-service.js');
+      const listingId = parseInt(url.split('/cancel/')[1]?.split('?')[0] || '0');
+      const { sellerAddress } = req.body;
+
+      if (!sellerAddress || !listingId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Seller address and listing ID are required'
+        });
+      }
+
+      const result = await marketplaceService.cancelListing(sellerAddress, listingId);
+
+      if (!result.success) {
+        return res.status(400).json(result);
+      }
+
+      return res.status(200).json(result);
+    } catch (error: any) {
+      console.error('Error cancelling listing:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to cancel listing'
+      });
+    }
+  }
+
+  // GET /api/marketplace/trades/:address - Get user's trade history
+  if (url.includes('/api/marketplace/trades/') && req.method === 'GET') {
+    try {
+      const { marketplaceService } = await import('../lib/api/marketplace-service.js');
+      const userAddress = url.split('/trades/')[1]?.split('?')[0];
+      
+      if (!userAddress) {
+        return res.status(400).json({
+          success: false,
+          error: 'User address is required'
+        });
+      }
+
+      const trades = await marketplaceService.getUserTrades(userAddress);
+      
+      return res.status(200).json({
+        success: true,
+        trades
+      });
+    } catch (error: any) {
+      console.error('Error fetching trade history:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to fetch trade history'
+      });
+    }
+  }
+
+  // GET /api/marketplace/stats - Get marketplace statistics
+  if (url.includes('/api/marketplace/stats') && req.method === 'GET') {
+    try {
+      const { marketplaceService } = await import('../lib/api/marketplace-service.js');
+      const stats = await marketplaceService.getMarketplaceStats();
+      
+      return res.status(200).json({
+        success: true,
+        stats
+      });
+    } catch (error: any) {
+      console.error('Error fetching marketplace stats:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to fetch marketplace stats'
+      });
+    }
   }
 
   // Harvest history - return empty data

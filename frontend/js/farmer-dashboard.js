@@ -392,6 +392,13 @@ class FarmerDashboard {
         e.preventDefault();
         const formData = new FormData(e.target);
 
+        // Check terms acceptance
+        const termsCheckbox = document.getElementById('termsCheckbox');
+        if (!termsCheckbox || !termsCheckbox.checked) {
+            this.showNotification('You must accept the Terms and Conditions to register a grove', 'error');
+            return;
+        }
+
         // Collect data only from the fields that exist in the form
         const groveData = {
             groveName: formData.get('groveName'),
@@ -402,7 +409,9 @@ class FarmerDashboard {
             coffeeVariety: formData.get('coffeeVariety'),
             expectedYieldPerTree: parseFloat(formData.get('expectedYield')),
             tokensPerTree: parseInt(formData.get('tokensPerTree')) || 10, // Include tokens per tree
-            farmerAddress: window.walletManager?.getAccountId() // Include farmer address
+            farmerAddress: window.walletManager?.getAccountId(), // Include farmer address
+            termsAccepted: true,
+            termsVersion: '1.0'
         };
 
         try {
@@ -2580,7 +2589,7 @@ class FarmerDashboard {
                         `).join('')}
                     </div>
                 `;
-                
+
                 // Add event listeners to distribute buttons
                 setTimeout(() => {
                     document.querySelectorAll('.distribute-revenue-btn').forEach(btn => {
@@ -2670,7 +2679,7 @@ class FarmerDashboard {
                 `).join('')}
             </div>
         `;
-        
+
         // Add event listeners to distribute buttons
         setTimeout(() => {
             document.querySelectorAll('.distribute-revenue-btn').forEach(btn => {
@@ -3245,7 +3254,7 @@ class FarmerDashboard {
             console.error('[Distribution] Error loading preview:', error);
             const friendlyError = window.translateError ? window.translateError(error) : error.message;
             this.showNotification(friendlyError, 'error');
-            
+
             // Re-enable button
             button.disabled = false;
             button.innerHTML = originalButtonHTML;
@@ -3281,9 +3290,9 @@ class FarmerDashboard {
             if (result.success) {
                 // Close modal
                 modal.classList.remove('active');
-                
+
                 this.showNotification('Revenue distributed successfully!', 'success');
-                
+
                 // Update the harvest in local data
                 const harvest = this.harvests.find(h => h.id == harvestId);
                 if (harvest) {
@@ -3399,7 +3408,7 @@ class FarmerDashboard {
         try {
             // Check if HashPack is connected
             const accountId = window.walletManager?.getAccountId();
-            
+
             if (!accountId) {
                 this.showNotification('Please connect your HashPack wallet first', 'warning');
                 return;
@@ -3486,7 +3495,7 @@ class FarmerDashboard {
 
                     // Call backend to check association and transfer tokens
                     try {
-                        const apiUrl = window.location.hostname === 'localhost' 
+                        const apiUrl = window.location.hostname === 'localhost'
                             ? 'http://localhost:3001'
                             : window.location.origin;
                         const response = await fetch(`${apiUrl}/api/farmer/claim-tokens/${groveId}`, {

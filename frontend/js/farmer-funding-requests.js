@@ -334,6 +334,21 @@ async function submitFundingRequest(event) {
         purpose: formData.get('purpose')
     };
     
+    // Get uploaded files
+    const files = window.farmerFunding.getSelectedFiles ? window.farmerFunding.getSelectedFiles() : [];
+    
+    // For MVP: Store file metadata only (actual file upload would require backend changes)
+    if (files.length > 0) {
+        requestData.documents = files.map(file => ({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            note: 'File upload pending - will be implemented in next version'
+        }));
+        
+        showNotification(`Request will be submitted with ${files.length} document(s) noted. Full file upload coming soon!`, 'info');
+    }
+    
     try {
         const response = await fetch('/api/funding/request', {
             method: 'POST',
@@ -351,6 +366,12 @@ async function submitFundingRequest(event) {
         }
         
         showNotification('Funding request submitted successfully!', 'success');
+        
+        // Clear files
+        if (window.farmerFunding.clearFiles) {
+            window.farmerFunding.clearFiles();
+        }
+        
         closeNewRequestModal();
         await loadFarmerRequests();
         
@@ -484,6 +505,117 @@ function setupFundingEventListeners() {
     if (milestoneSelect) {
         milestoneSelect.addEventListener('change', updateAvailableAmount);
     }
+    
+    // File upload handling
+    setupFileUpload();
+}
+
+/**
+ * Setup file upload functionality
+ */
+function setupFileUpload() {
+    const fileInput = document.getElementById('requestDocuments');
+    const fileUploadArea = document.getElementById('fileUploadArea');
+    const fileList = document.getElementById('fileList');
+    
+    if (!fileInput || !fileUploadArea || !fileList) return;
+    
+    // Store selected files
+    let selectedFiles = [];
+    
+    // File input change handler
+    fileInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        handleFiles(files);
+    });
+    
+    // Drag and drop handlers
+    fileUploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        fileUploadArea.classList.add('drag-over');
+    });
+    
+    fileUploadArea.addEventListener('dragleave', () => {
+        fileUploadArea.classList.remove('drag-over');
+    });
+    
+    fileUploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        fileUploadArea.classList.remove('drag-over');
+        const files = Array.from(e.dataTransfer.files);
+        handleFiles(files);
+    });
+    
+    function handleFiles(files) {
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 
+                             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+        
+        files.forEach(file => {
+            // Validate file size
+            if (file.size > maxSize) {
+                showNotification(`File ${file.name} is too large. Maximum size is 10MB.`, 'error');
+                return;
+            }
+            
+            // Validate file type
+            if (!allowedTypes.includes(file.type)) {
+                showNotification(`File ${file.name} has an unsupported type.`, 'error');
+                return;
+            }
+            
+            // Check if file already added
+            if (selectedFiles.find(f => f.name === file.name && f.size === file.size)) {
+                showNotification(`File ${file.name} is already added.`, 'warning');
+                return;
+            }
+            
+            selectedFiles.push(file);
+        });
+        
+        renderFileList();
+    }
+    
+    function renderFileList() {
+        if (selectedFiles.length === 0) {
+            fileList.style.display = 'none';
+            return;
+        }
+        
+        fileList.style.display = 'block';
+        fileList.innerHTML = selectedFiles.map((file, index) => `
+            <div class="file-item">
+                <div class="file-item-info">
+                    <i class="fas fa-file"></i>
+                    <span class="file-item-name">${file.name}</span>
+                    <span class="file-item-size">(${formatFileSize(file.size)})</span>
+                </div>
+                <button type="button" class="file-item-remove" onclick="window.farmerFunding.removeFile(${index})">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+    
+    // Expose functions
+    window.farmerFunding.removeFile = (index) => {
+        selectedFiles.splice(index, 1);
+        renderFileList();
+    };
+    
+    window.farmerFunding.getSelectedFiles = () => selectedFiles;
+    window.farmerFunding.clearFiles = () => {
+        selectedFiles = [];
+        fileInput.value = '';
+        renderFileList();
+    };
 }
 
 /**

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investor Protection Mechanisms - Chai Platform</title>
+    <link rel="icon" href="public/chai.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #1c1e21;
+            line-height: 1.5;
+            padding: 0;
+        }
+
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #dadde1;
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1c1e21;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 24px auto;
+            background: #fff;
+            border-radius: 8px;
+            padding: 32px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #1877f2;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        h2 {
+            color: #1877f2;
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 32px;
+            margin-bottom: 16px;
+        }
+
+        h3 {
+            color: #1877f2;
+            font-size: 20px;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
+        
+        p, li, strong {
+            color: #1c1e21;
+        }
+
+        .protection-layer {
+            background: #e7f5ec;
+            border-left: 4px solid #10B981;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .protection-layer h3 {
+            color: #10B981;
+            margin-top: 0;
+        }
+
+        .highlight-box {
+            background: #f7f8fa;
+            border-left: 4px solid #1877f2;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .highlight-box p, .highlight-box strong {
+            color: #1c1e21;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background: #f0f2f5;
+            color: #1c1e21;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            border: 1px solid #dadde1;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        strong {
+            color: var(--accent);
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--border-glass);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .stat-label {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="javascript:history.back()" class="back-btn">Back</a>
+        
+        <h1>INVESTOR PROTECTION MECHANISMS</h1>
+        
+        <div class="highlight-box">
+            <p><strong>Core Question:</strong> "What happens if an investor buys tokens but the coffee harvest cannot be sold?"</p>
+            <p>This document outlines the comprehensive 10-layer protection system that safeguards investor interests while maintaining transparency and trust.</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">10</div>
+                <div class="stat-label">Protection Layers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">80%+</div>
+                <div class="stat-label">Insurance Coverage</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">&lt;1%</div>
+                <div class="stat-label">Harvest Unsellable Risk</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">90%+</div>
+                <div class="stat-label">Expected Protection</div>
+            </div>
+        </div>
+
+        <div class="protection-layer">
+            <h3>LAYER 1: Pre-Tokenization Verification</h3>
+            <p><strong>Only proven groves with confirmed buyer relationships can be tokenized.</strong></p>
+            <ul>
+                <li>Confirmed buyer agreements required before tokenization</li>
+                <li>Minimum 2-year harvest history verified</li>
+                <li>Quality standards and certifications validated</li>
+                <li>Market demand for coffee variety confirmed</li>
+                <li>Processing infrastructure assessed</li>
+            </ul>
+            <p><strong>Result:</strong> Only groves with proven market access accepted.</p>
+        </div>
+
+        <div class="protection-layer">
+            <h3>LAYER 2: Guaranteed Offtake Agreements</h3>
+            <p><strong>Harvest sales are pre-arranged, not speculative.</strong></p>
+            <ul>
+                <li>Platform establishes buyer partnerships BEFORE onboarding groves</li>
+                <li>Minimum 80% purchase commitments from buyers</li>
+                <li>Floor pricing protections (minimum price guarantees)</li>
+                <li>Multi-buyer strategy reduces dependency</li>
+                <li>Platform acts as aggregator for better pricing</li>
+            </ul>
+            <p><strong>Result:</strong> Buyers committed before investors purchase tokens.</p>
+        </div>
+
+        <div class="protection-layer">
+            <h3>LAYER 3: Insurance & Risk Pooling</h3>
+            <p><strong>Comprehensive coverage protects against most failure scenarios.</strong></p>
+            <ul>
+                <li><strong>Crop Insurance:</strong> Weather-related losses (drought, frost, hail)</li>
+                <li><strong>Parametric Insurance:</strong> Automatic payouts based on weather data</li>
+                <li><strong>Price Floor Insurance:</strong> Protection against market crashes</li>
+                <li><strong>Buyer Default Insurance:</strong> Coverage if buyer fails to pay</li>
+                <li><strong>Platform Reserve Fund:</strong> 5-10% of token sales for emergencies</li>
+            </ul>
+            <p><strong>Coverage:</strong> Up to 80% of expected harvest value.</p>
+        </div>
+
+        <div class="protection-layer">
+            <h3>LAYER 4: Diversification Mechanisms</h3>
+            <p><strong>Individual grove failure doesn't devastate portfolio.</strong></p>
+            <ul>
+                <li>Portfolio diversification tools and guidance</li>
+                <li>Multiple groves across different regions</li>
+                <li>Various coffee varieties and harvest seasons</li>
+                <li>Index tokens (future) for automatic diversification</li>
+                <li>Platform recommends minimum 5-10 grove investments</li>
+            </ul>
+        </div>
+
+        <div class="protection-layer">
+            <h3>LAYER 5: Alternative Revenue Streams</h3>
+            <p><strong>Revenue not solely dependent on coffee sales.</strong></p>
+            <ul>
+                <li><strong>Carbon Credits:</strong> CO2 sequestration payments</li>
+                <li><strong>Ecosystem Services:</strong> Biodiversity and water conservation</li>
+                <li><strong>By-Products:</strong> Coffee pulp, wood, intercropping</li>
+                <li><strong>Agritourism:</strong> Farm visits (select groves)</li>
+                <li><strong>Land Value:</strong> Appreciation of well-maintained groves</li>
+            </ul>
+        </div>
+
+        <div class="protection-layer">
+            <h3>LAYER 6: Smart Contract Safeguards</h3>
+            <p><strong>Automated protection reduces fraud risk.</strong></p>
+            <ul>
+                <li>Funds held in secure escrow until milestones met</li>
+                <li>Milestone-based release (40/30/30) prevents misuse</li>
+                <li>Automatic revenue distribution (no human intervention)</li>
+                <li>Emergency withdrawal mechanisms for failed groves</li>
+                <li>Democratic governance through token holder voting</li>
+            </ul>
+        </div>
+
+        <div class="protection-layer">
+            <h3>LAYER 7: Secondary Market Liquidity</h3>
+            <p><strong>Exit options even if harvest delayed.</strong></p>
+            <ul>
+                <li>Peer-to-peer marketplace for token sales</li>
+                <li>Investors can exit before harvest completion</li>
+                <li>Market-driven pricing</li>
+                <li>Platform buyback program (future)</li>
+                <li>Institutional buyer participation</li>
+            </ul>
+        </div>
+
+        <div class="protection-layer">
+            <h3>LAYER 8: Transparency & Monitoring</h3>
+            <p><strong>Early warning system for problems.</strong></p>
+            <ul>
+                <li>IoT sensor integration for grove health monitoring</li>
+                <li>Satellite imagery for vegetation tracking</li>
+                <li>Third-party annual audits</li>
+                <li>Blockchain transparency for all transactions</li>
+                <li>Dynamic risk scoring (updated weekly)</li>
+            </ul>
+        </div>
+
+        <div class="protection-layer">
+            <h3>LAYER 9: Legal & Regulatory Framework</h3>
+            <p><strong>Legal recourse and regulatory oversight.</strong></p>
+            <ul>
+                <li>Tokens represent legal ownership stake in revenue</li>
+                <li>Enforceable contracts under local law</li>
+                <li>Platform acts as fiduciary for investors</li>
+                <li>Clear dispute resolution process</li>
+                <li>Regulatory compliance (KYC/AML)</li>
+            </ul>
+        </div>
+
+        <div class="protection-layer">
+            <h3>LAYER 10: Community & Cooperative Model</h3>
+            <p><strong>Collective strength supports success.</strong></p>
+            <ul>
+                <li>Platform partners with established cooperatives</li>
+                <li>Peer support networks among farmers</li>
+                <li>Platform agronomist consultations</li>
+                <li>Knowledge sharing and best practices</li>
+                <li>Collective problem-solving</li>
+            </ul>
+        </div>
+
+        <h2>WORST CASE SCENARIO PROTECTION</h2>
+        <div class="highlight-box">
+            <p><strong>If harvest cannot be sold:</strong></p>
+            <ul>
+                <li>Insurance pays 80% of expected value</li>
+                <li>Reserve fund covers additional 10%</li>
+                <li>Investors receive 90% of expected returns</li>
+                <li>Remaining 10% loss spread across diversified portfolio</li>
+            </ul>
+            <p><strong>Historical Context:</strong> Coffee is the 2nd most traded commodity globally ($200B+ market). Complete sales failure is extremely rare (&lt;1%).</p>
+        </div>
+
+        <h2>EXPECTED OUTCOMES</h2>
+        <ul>
+            <li>90%+ of harvests sell successfully</li>
+            <li>95%+ of investors receive expected returns</li>
+            <li>99%+ of investors don't lose principal (with diversification)</li>
+        </ul>
+
+        <div style="text-align: center; margin-top: 40px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+            <p><strong>Platform Commitment:</strong></p>
+            <p style="font-style: italic; color: var(--accent); font-size: 1.1rem;">
+                "We don't eliminate agricultural risk - that's impossible. But we reduce it to levels comparable to traditional investment products, while providing higher returns and social impact."
+            </p>
+            <p style="margin-top: 20px;">
+                <a href="terms.html">View Full Terms & Conditions →</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

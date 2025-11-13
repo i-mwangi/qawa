@@ -698,6 +698,17 @@ class InvestorPortal {
                         </div>
                     </div>
                     
+                    <!-- Funding History Section -->
+                    <div class="detail-section funding-history-section">
+                        <h5>💰 Funding Transparency</h5>
+                        <div id="funding-history-${grove.id}" class="funding-history-container">
+                            <div class="loading">Loading funding history...</div>
+                        </div>
+                        <div class="info-box">
+                            🔍 <strong>Transparency:</strong> See how farmer funding requests are being used to maintain and improve this grove.
+                        </div>
+                    </div>
+                    
                     <div class="modal-actions">
                         <button class="btn btn-secondary modal-close">Close</button>
                         <button class="btn btn-primary" onclick="investorPortal.showPurchaseModal('${grove.id}'); document.body.removeChild(this.closest('.modal'));">
@@ -713,6 +724,9 @@ class InvestorPortal {
             
             // Fetch and display harvest history
             this.loadGroveHistory(grove.id);
+            
+            // Fetch and display funding history
+            this.loadFundingHistory(grove.id);
 
             // Close modal handlers
             modal.querySelectorAll('.modal-close').forEach(btn => {
@@ -871,6 +885,85 @@ class InvestorPortal {
         }
     }
 
+    async showTermsAcceptanceModal() {
+        return new Promise((resolve) => {
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <h3>⚖️ Terms and Conditions</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p style="margin-bottom: 1rem;">
+                            Before making your first investment, you must read and accept our Terms and Conditions.
+                        </p>
+                        
+                        <div style="background: var(--color-background-light); border: 1px solid var(--color-border); border-radius: var(--border-radius-md); padding: 1rem; margin-bottom: 1rem;">
+                            <h4 style="margin-top: 0;">📋 Key Points:</h4>
+                            <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                                <li>You will receive 40% of harvest revenues</li>
+                                <li>Expected returns: 12-18% annually (not guaranteed)</li>
+                                <li>10 layers of investor protection in place</li>
+                                <li>Agricultural investments carry risks</li>
+                                <li>Diversification strongly recommended</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: var(--color-warning-light, #fff3cd); border: 1px solid var(--color-warning, #ffc107); border-radius: var(--border-radius-md); padding: 1rem; margin-bottom: 1rem;">
+                            <strong>⚠️ Risk Warning:</strong> You may lose some or all of your investment. Only invest what you can afford to lose.
+                        </div>
+
+                        <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 1rem;">
+                            <input type="checkbox" id="termsAcceptCheckbox" style="margin: 0 8px 0 0; cursor: pointer;">
+                            <span style="font-size: 13px; color: #65676b; font-style: italic;">
+                                I have read and agree to the 
+                                <a href="terms.html" target="_blank" style="color: #1877f2;">Terms and Conditions</a> 
+                                and 
+                                <a href="investor-protection.html" target="_blank" style="color: #1877f2;">Investor Protection Mechanisms</a>
+                            </span>
+                        </label>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn btn-secondary" id="termsDeclineBtn">Cancel</button>
+                        <button class="btn btn-primary" id="termsAcceptBtn" disabled>Accept & Continue</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            const checkbox = modal.querySelector('#termsAcceptCheckbox');
+            const acceptBtn = modal.querySelector('#termsAcceptBtn');
+            const declineBtn = modal.querySelector('#termsDeclineBtn');
+
+            // Enable accept button when checkbox is checked
+            checkbox.addEventListener('change', () => {
+                acceptBtn.disabled = !checkbox.checked;
+            });
+
+            // Handle accept
+            acceptBtn.addEventListener('click', () => {
+                document.body.removeChild(modal);
+                resolve(true);
+            });
+
+            // Handle decline
+            declineBtn.addEventListener('click', () => {
+                document.body.removeChild(modal);
+                resolve(false);
+            });
+
+            // Handle modal close
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
+                    resolve(false);
+                }
+            });
+        });
+    }
+
     async handleTokenPurchase(groveId, tokenAmount) {
         const investorAddress = window.walletManager.getAccountId();
 
@@ -885,11 +978,23 @@ class InvestorPortal {
             return;
         }
 
+        // Check if this is investor's first purchase
+        const isFirstPurchase = !this.portfolio || !this.portfolio.holdings || this.portfolio.holdings.length === 0;
+        
+        // If first purchase, show terms acceptance modal
+        if (isFirstPurchase) {
+            const accepted = await this.showTermsAcceptanceModal();
+            if (!accepted) {
+                console.log('[InvestorPortal] Terms not accepted, purchase cancelled');
+                return;
+            }
+        }
+
         window.walletManager.showLoading('Processing token purchase...');
 
         try {
             console.log(`[InvestorPortal] Calling API...`);
-            const response = await window.coffeeAPI.purchaseTokens(groveId, tokenAmount, investorAddress);
+            const response = await window.coffeeAPI.purchaseTokens(groveId, tokenAmount, investorAddress, isFirstPurchase);
             console.log(`[InvestorPortal] API Response:`, response);
 
             if (response.success) {
@@ -3358,6 +3463,118 @@ class InvestorPortal {
                 `;
             }
         }
+    }
+
+    async loadFundingHistory(groveId) {
+        try {
+            console.log(`[FundingHistory] Loading funding history for grove ${groveId}`);
+            const response = await fetch(`/api/funding/grove/${groveId}/history`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to load funding history');
+            }
+            
+            const result = await response.json();
+            const container = document.getElementById(`funding-history-${groveId}`);
+            
+            if (!container) return;
+            
+            if (!result.success || !result.data || result.data.requests.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>No funding requests yet</p>
+                        <p class="text-muted">The farmer hasn't requested any funding for this grove.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const { requests, pool } = result.data;
+            
+            // Display funding pool stats
+            const statsHTML = pool ? `
+                <div class="funding-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Investment Pool</div>
+                        <div class="stat-value">$${(pool.totalInvestment / 100).toFixed(2)}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Funds Disbursed</div>
+                        <div class="stat-value">$${((pool.upfront.disbursed + pool.maintenance.disbursed + pool.harvest.disbursed) / 100).toFixed(2)}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Upfront (40%)</div>
+                        <div class="stat-value">$${(pool.upfront.disbursed / 100).toFixed(2)} / $${(pool.upfront.allocated / 100).toFixed(2)}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Maintenance (30%)</div>
+                        <div class="stat-value">$${(pool.maintenance.disbursed / 100).toFixed(2)} / $${(pool.maintenance.allocated / 100).toFixed(2)}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Harvest (30%)</div>
+                        <div class="stat-value">$${(pool.harvest.disbursed / 100).toFixed(2)} / $${(pool.harvest.allocated / 100).toFixed(2)}</div>
+                    </div>
+                </div>
+            ` : '';
+            
+            // Display funding timeline
+            const timelineHTML = `
+                <div class="funding-timeline">
+                    ${requests.map(request => {
+                        const date = new Date(request.createdAt).toLocaleDateString();
+                        const milestoneIcon = {
+                            'upfront': '🌱',
+                            'maintenance': '🔧',
+                            'harvest': '🌾'
+                        }[request.milestoneType] || '💰';
+                        
+                        return `
+                            <div class="timeline-item">
+                                <div class="timeline-content">
+                                    <div class="timeline-date">${date}</div>
+                                    <div class="timeline-title">
+                                        ${milestoneIcon} ${this.formatMilestone(request.milestoneType)} - $${(request.amountApproved / 100).toFixed(2)}
+                                    </div>
+                                    <div class="timeline-description">
+                                        ${request.purpose ? request.purpose.substring(0, 100) + (request.purpose.length > 100 ? '...' : '') : 'No description provided'}
+                                    </div>
+                                    ${request.transactionId ? `
+                                        <div class="timeline-transaction">
+                                            <a href="https://hashscan.io/testnet/transaction/${request.transactionId}" target="_blank" rel="noopener">
+                                                <i class="fas fa-external-link-alt"></i> View Transaction
+                                            </a>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            
+            container.innerHTML = statsHTML + timelineHTML;
+            
+        } catch (error) {
+            console.error('Error loading funding history:', error);
+            const container = document.getElementById(`funding-history-${groveId}`);
+            if (container) {
+                container.innerHTML = `
+                    <div class="error-state">
+                        <p>Failed to load funding history</p>
+                        <p class="text-muted">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    formatMilestone(type) {
+        const map = {
+            'upfront': 'Upfront Operations',
+            'maintenance': 'Maintenance',
+            'harvest': 'Harvest Preparation'
+        };
+        return map[type] || type;
     }
 }
 

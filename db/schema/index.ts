@@ -265,7 +265,10 @@ export const farmers = sqliteTable("farmers", {
     phone: text("phone"),
     location: text("location"),
     verificationStatus: text("verification_status").default("pending"),
-    createdAt: integer("created_at").default(Date.now())
+    createdAt: integer("created_at").default(Date.now()),
+    termsAcceptedAt: integer("terms_accepted_at"),
+    termsVersion: text("terms_version"),
+    termsIpAddress: text("terms_ip_address")
 })
 
 export const marketAlerts = sqliteTable("market_alerts", {
@@ -416,7 +419,10 @@ export const investorProfiles = sqliteTable("investor_profiles", {
     riskTolerance: text("risk_tolerance"),
     investmentPreferences: text("investment_preferences"),
     createdAt: integer("created_at").default(Date.now()),
-    updatedAt: integer("updated_at").default(Date.now())
+    updatedAt: integer("updated_at").default(Date.now()),
+    termsAcceptedAt: integer("terms_accepted_at"),
+    termsVersion: text("terms_version"),
+    termsIpAddress: text("terms_ip_address")
 })
 
 export const userSettings = sqliteTable("user_settings", {

@@ -10,8 +10,8 @@ export class CoffeeTreeAPI {
             if (import.meta.env?.VITE_API_URL) {
                 // Use environment variable (for Render, Vercel, etc.)
                 this.baseURL = import.meta.env.VITE_API_URL;
-            } else if (window.location.hostname.includes('vercel.app') || 
-                       window.location.hostname.includes('chai-project')) {
+            } else if (window.location.hostname.includes('vercel.app') ||
+                window.location.hostname.includes('chai-project')) {
                 // Vercel - use relative URLs (API on same domain)
                 this.baseURL = '';
             } else if (window.location.hostname.includes('onrender.com')) {
@@ -35,7 +35,7 @@ export class CoffeeTreeAPI {
     // Utility method for making HTTP requests with deduplication and better error handling
     async request(endpoint, options = {}) {
         const requestId = `${options.method || 'GET'}:${endpoint}:${JSON.stringify(options.body || '')}`;
-        
+
         // If there's already an active request with the same ID, return that promise
         if (this.activeRequests.has(requestId)) {
             return this.activeRequests.get(requestId);
@@ -45,7 +45,7 @@ export class CoffeeTreeAPI {
         const fetchWithTimeout = (url, cfg, timeout = 60000) => { // Increased from 30000 to 60000 ms (1 minute)
             return new Promise((resolve, reject) => {
                 const timer = setTimeout(() => {
-                    reject(new Error('Request timed out after ' + (timeout/1000) + ' seconds'))
+                    reject(new Error('Request timed out after ' + (timeout / 1000) + ' seconds'))
                 }, timeout)
 
                 fetch(url, cfg).then(res => {
@@ -97,7 +97,7 @@ export class CoffeeTreeAPI {
             try {
                 const timeout = options.timeout || 60000; // Use custom timeout or default to 60 seconds
                 const response = await fetchWithTimeout(url, config, timeout);
-                
+
                 // Handle non-JSON responses
                 const contentType = response.headers.get('content-type');
                 if (contentType && contentType.includes('application/json')) {
@@ -135,7 +135,7 @@ export class CoffeeTreeAPI {
 
         // Store the promise in our active requests map
         this.activeRequests.set(requestId, requestPromise);
-        
+
         return requestPromise;
     }
 
@@ -189,7 +189,7 @@ export class CoffeeTreeAPI {
     async uploadFile(file) {
         const formData = new FormData();
         formData.append('file', file);
-        
+
         return fetch(`${this.baseURL}/api/farmer-verification/upload`, {
             method: 'POST',
             body: formData
@@ -286,7 +286,7 @@ export class CoffeeTreeAPI {
         } catch (error) {
             console.error('Error fetching price history:', error);
         }
-        
+
         // Fallback to mock data if the API call fails
         return { success: false, history: [] };
     }
@@ -377,10 +377,22 @@ export class CoffeeTreeAPI {
         return this.request('/api/investment/available-groves');
     }
 
-    async purchaseTokens(groveId, tokenAmount, investorAddress) {
+    async purchaseTokens(groveId, tokenAmount, investorAddress, isFirstPurchase = false) {
+        const body = {
+            groveId,
+            tokenAmount,
+            investorAddress
+        };
+
+        // Add terms acceptance for first purchase
+        if (isFirstPurchase) {
+            body.termsAccepted = true;
+            body.termsVersion = '1.0';
+        }
+
         return this.request('/api/investment/purchase-tokens', {
             method: 'POST',
-            body: { groveId, tokenAmount, investorAddress }
+            body
         });
     }
 
@@ -393,65 +405,48 @@ export class CoffeeTreeAPI {
         return this.request('/api/marketplace/listings');
     }
 
-    async listTokensForSale(groveId, tokenAmount, pricePerToken, durationDays, sellerAddress) {
-        return this.request('/api/marketplace/list-tokens', {
+    async getUserListings(userAddress) {
+        return this.request(`/api/marketplace/listings/user/${userAddress}`);
+    }
+
+    async listTokensForSale(sellerAddress, tokenAddress, groveName, tokenAmount, pricePerToken, durationDays) {
+        return this.request('/api/marketplace/list', {
             method: 'POST',
             body: {
-                groveId,
+                sellerAddress,
+                tokenAddress,
+                groveName,
                 tokenAmount,
                 pricePerToken,
-                durationDays,
-                sellerAddress
+                durationDays
             }
         });
     }
 
-    async purchaseFromMarketplace(listingId, tokenAmount, buyerAddress) {
-        return this.request('/api/marketplace/purchase', {
+    async purchaseFromMarketplace(listingId, buyerAddress) {
+        return this.request(`/api/marketplace/purchase/${listingId}`, {
             method: 'POST',
             body: {
-                listingId,
-                tokenAmount,
                 buyerAddress
             }
         });
     }
 
     async cancelListing(listingId, sellerAddress) {
-        return this.request('/api/marketplace/cancel-listing', {
+        return this.request(`/api/marketplace/cancel/${listingId}`, {
             method: 'POST',
             body: {
-                listingId,
                 sellerAddress
             }
         });
     }
 
-    async updateListing(listingId, newPrice, newDuration, sellerAddress) {
-        return this.request('/api/marketplace/update-listing', {
-            method: 'POST',
-            body: {
-                listingId,
-                newPrice,
-                newDuration,
-                sellerAddress
-            }
-        });
-    }
-
-    async getTradeHistory(userAddress = null) {
-        const endpoint = userAddress 
-            ? `/api/marketplace/trades?userAddress=${userAddress}`
-            : '/api/marketplace/trades';
-        return this.request(endpoint);
+    async getUserTrades(userAddress) {
+        return this.request(`/api/marketplace/trades/${userAddress}`);
     }
 
     async getMarketplaceStats() {
         return this.request('/api/marketplace/stats');
-    }
-
-    async getUserListings(sellerAddress) {
-        return this.request(`/api/marketplace/user-listings?sellerAddress=${sellerAddress}`);
     }
 
     // Revenue Distribution API
@@ -546,7 +541,7 @@ export class CoffeeTreeAPI {
     }
 
     // User settings (per-account key/value store)
-    
+
     /**
      * Get user settings for a specific account
      * @param {string} accountId - Hedera account ID (e.g., "0.0.123456")
@@ -588,32 +583,32 @@ export class CoffeeTreeAPI {
      */
     async requestWithRetry(endpoint, options = {}, maxRetries = 3) {
         let lastError = null;
-        
+
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
                 return await this.request(endpoint, options);
             } catch (error) {
                 lastError = error;
-                
+
                 // Don't retry on client errors (4xx) except for 429 (rate limit)
                 if (error.status >= 400 && error.status < 500 && error.status !== 429) {
                     throw this.createUserFriendlyError(error, endpoint);
                 }
-                
+
                 // If this was the last attempt, throw the error
                 if (attempt === maxRetries) {
                     throw this.createUserFriendlyError(error, endpoint);
                 }
-                
+
                 // Calculate exponential backoff delay: 100ms, 200ms, 400ms, etc.
                 const delay = Math.min(100 * Math.pow(2, attempt - 1), 2000);
                 console.warn(`Request failed (attempt ${attempt}/${maxRetries}), retrying in ${delay}ms...`, error.message);
-                
+
                 // Wait before retrying
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
         }
-        
+
         // This should never be reached, but just in case
         throw this.createUserFriendlyError(lastError, endpoint);
     }
@@ -626,7 +621,7 @@ export class CoffeeTreeAPI {
      */
     createUserFriendlyError(error, endpoint) {
         let message = 'An unexpected error occurred. Please try again.';
-        
+
         // Network errors
         if (error.message.includes('timed out')) {
             message = 'The request took too long. Please check your connection and try again.';
@@ -651,12 +646,12 @@ export class CoffeeTreeAPI {
         else if (error.message && !error.message.includes('API Error:')) {
             message = error.message;
         }
-        
+
         const userError = new Error(message);
         userError.originalError = error;
         userError.endpoint = endpoint;
         userError.status = error.status;
-        
+
         return userError;
     }
 
@@ -752,7 +747,7 @@ export class CoffeeTreeAPI {
         } catch (error) {
             console.error('Error fetching price history:', error);
         }
-        
+
         // Fallback to mock data if the API call fails
         return { success: false, history: [] };
     }
@@ -879,7 +874,7 @@ export class CoffeeTreeAPI {
     }
 
     // Earnings & Distribution API - New endpoints for automated distribution system
-    
+
     /**
      * Get farmer balance for a specific grove
      * @param {string} farmerAddress - Farmer's wallet address
