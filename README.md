@@ -32,53 +32,18 @@ The Chai Platform connects coffee farmers with investors through blockchain tech
 - **Secure wallet integration** for all platform interactions
 - **Lending system** that allows investors to either provide liquidity to earn interest or take out loans using their coffee tree tokens as collateral
 
-## 🔗 Hedera Integration (Detailed)
+## 🌐 Live Platform
 
-### Hedera Token Service (HTS)
+**Access the platform:** [https://qawa-platform-frontend.onrender.com/](https://qawa-platform-frontend.onrender.com/)
 
-**Why HTS:** We chose Hedera Token Service for tokenizing coffee groves because its native token functionality provides **$0.0001 predictable fees** for token creation and transfers, which is critical for our target market of small-scale farmers in East Africa who operate on razor-thin margins. Traditional blockchain token deployments (e.g., ERC-20 on Ethereum) cost $50-200 per deployment, making them economically unfeasible for farmers earning $2-5 per day.
-
-**Transaction Types:**
-- `TokenCreateTransaction` - Creating grove NFTs and fungible USDC tokens
-- `TokenMintTransaction` - Minting grove ownership tokens
-- `TokenAssociateTransaction` - Associating tokens with investor accounts
-- `TokenTransferTransaction` - Transferring tokens between farmers and investors
-- `TokenBurnTransaction` - Burning tokens during liquidation events
-
-**Economic Justification:** With HTS, we can tokenize a coffee grove for **$0.0001** vs. $50+ on Ethereum. For 500 farmers, this saves **$25,000** in deployment costs alone. The predictable fee structure allows us to offer transparent pricing to farmers, ensuring they know exactly what tokenization will cost before committing.
-
-### Smart Contract Service
-
-**Why Smart Contracts:** We use Hedera's Smart Contract Service (EVM-compatible Solidity contracts) for automated lending pools, revenue distribution, and marketplace escrow because the **3-5 second finality** ensures farmers receive loan disbursements instantly, not hours later. This is crucial for time-sensitive agricultural needs like purchasing fertilizer before planting season.
-
-**Transaction Types:**
-- `ContractCreateTransaction` - Deploying lending pool and marketplace contracts
-- `ContractExecuteTransaction` - Executing loan disbursements, revenue distributions, and token trades
-- `ContractCallQuery` - Querying loan health factors and token prices
-
-**Economic Justification:** Smart contract execution costs **$0.001-0.01** per transaction on Hedera vs. $5-50 on Ethereum. For our projected 10,000 monthly transactions, this represents **$49,900/month in savings**, making the platform financially sustainable without requiring high fees from users.
-
-### Hedera Consensus Service (HCS) - Planned
-
-**Why HCS:** We plan to integrate HCS for immutable logging of harvest reports and revenue distributions because the **$0.0001 per message** cost makes it economically viable to create an auditable trail of every coffee harvest. This transparency is essential for building investor trust and meeting fair-trade certification requirements.
-
-**Planned Transaction Types:**
-- `TopicCreateTransaction` - Creating audit log topics
-- `TopicMessageSubmitTransaction` - Recording harvest events and payments
-
-**Economic Justification:** Recording 1,000 harvest events per month costs **$0.10** on Hedera vs. $1,000+ on Ethereum, enabling complete supply chain transparency without prohibitive costs.
-
-### ABFT Consensus & Finality
-
-**Why Hedera's Consensus:** The **asynchronous Byzantine Fault Tolerant (ABFT)** consensus provides mathematical certainty of transaction finality in 3-5 seconds. For farmers receiving loan disbursements, this means they can immediately use funds without waiting for block confirmations, unlike Bitcoin (60+ minutes) or Ethereum (6-12 minutes).
-
-**Impact:** Instant finality enables same-day lending, which is critical for agricultural financing where timing determines crop success.
-
-### Carbon Negative Network
-
-**Why Sustainability Matters:** Our target users are sustainable coffee farmers. Using a **carbon-negative blockchain** (Hedera) aligns with their values and allows us to market the platform as environmentally responsible, unlike energy-intensive proof-of-work chains.
-
-**Impact:** This alignment with farmer values increases adoption rates and supports our mission of sustainable agriculture financing.
+Features available:
+- ✅ Connect HashPack wallet (Hedera Testnet)
+- ✅ Register and tokenize coffee groves
+- ✅ Browse and invest in tokenized groves
+- ✅ Track earnings and withdraw USDC
+- ✅ Provide liquidity or take out loans
+- ✅ Real-time revenue distribution
+- ✅ Secondary marketplace trading
 
 ---
 
