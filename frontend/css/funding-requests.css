@@ -12,8 +12,8 @@
 }
 
 .funding-quick-stats .stat-card {
-    background: var(--card-bg, #fff);
-    border: 1px solid var(--border-color, #e0e0e0);
+    background: var(--card-bg, #1a1a1a);
+    border: 1px solid var(--border-color, #333);
     border-radius: 8px;
     padding: 1.5rem;
     display: flex;
@@ -87,8 +87,8 @@
 }
 
 .milestone-card {
-    background: var(--card-bg, #fff);
-    border: 1px solid var(--border-color, #e0e0e0);
+    background: var(--card-bg, #1a1a1a);
+    border: 1px solid var(--border-color, #333);
     border-radius: 8px;
     padding: 1.5rem;
     margin-bottom: 1rem;

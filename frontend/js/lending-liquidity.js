@@ -496,36 +496,98 @@ class LendingPoolManager {
      * Calculate loan terms for a given amount
      * @param {string} assetAddress - Asset contract address
      * @param {number} loanAmount - Desired loan amount in USDC
+     * @param {string} collateralTokenId - Optional collateral token ID
+     * @param {number} collateralAmount - Optional collateral amount
      * @returns {Promise<Object>} Loan terms including collateral, liquidation price, repayment
      */
-    async calculateLoanTerms(assetAddress, loanAmount) {
+    async calculateLoanTerms(assetAddress, loanAmount, collateralTokenId = null, collateralAmount = null) {
         this._validateInitialization();
         this._validateAccountId(assetAddress, 'Asset address');
         this._validateAmount(loanAmount, 'Loan amount');
 
-        // Implementation will be added in Task 8.2
-        throw new Error('calculateLoanTerms not yet implemented');
+        try {
+            const result = await this.apiClient.calculateLoanTerms(
+                assetAddress,
+                loanAmount,
+                collateralTokenId,
+                collateralAmount
+            );
+
+            if (!result || !result.success) {
+                const friendlyError = window.translateError ? 
+                    window.translateError(result?.error || 'Failed to calculate loan terms') : 
+                    (result?.error || 'Failed to calculate loan terms');
+                throw new Error(friendlyError);
+            }
+
+            return {
+                success: true,
+                ...result.data
+            };
+
+        } catch (error) {
+            console.error('Error calculating loan terms:', error);
+            const friendlyError = window.translateError ? window.translateError(error) : error.message;
+            throw new Error(friendlyError);
+        }
     }
 
     /**
      * Take out a loan against collateral
      * @param {string} assetAddress - Asset contract address
      * @param {number} loanAmount - Desired loan amount in USDC
+     * @param {string} collateralTokenId - Collateral token ID
+     * @param {number} collateralAmount - Amount of collateral to lock
      * @param {Object} loadingManager - Optional loading state manager instance
      * @returns {Promise<Object>} Loan details and transaction hash
      */
-    async takeOutLoan(assetAddress, loanAmount, loadingManager = null) {
+    async takeOutLoan(assetAddress, loanAmount, collateralTokenId, collateralAmount, loadingManager = null) {
         this._validateInitialization();
+        this._validateWalletConnection();
         this._validateAccountId(assetAddress, 'Asset address');
         this._validateAmount(loanAmount, 'Loan amount');
+        this._validateAmount(collateralAmount, 'Collateral amount');
 
         // Show loading spinner
         const loadingId = loadingManager ?
             loadingManager.showLoading('take-loan', 'Processing loan...') : null;
 
         try {
-            // Implementation will be added in Task 8.2
-            throw new Error('takeOutLoan not yet implemented');
+            const borrowerAddress = this.walletManager.getConnectedAccount();
+            
+            const result = await this.apiClient.takeOutLoan(
+                assetAddress,
+                loanAmount,
+                borrowerAddress,
+                collateralTokenId,
+                collateralAmount
+            );
+
+            if (!result || !result.success) {
+                const friendlyError = window.translateError ? 
+                    window.translateError(result?.error || 'Failed to originate loan') : 
+                    (result?.error || 'Failed to originate loan');
+                throw new Error(friendlyError);
+            }
+
+            // Clear cache to force refresh
+            this.clearCache(null, 'all');
+
+            return {
+                success: true,
+                loanId: result.data.loanId,
+                transactionHash: result.data.transactionHash,
+                blockExplorerUrl: result.data.blockExplorerUrl,
+                repaymentAmount: result.data.repaymentAmount,
+                dueDate: result.data.dueDate,
+                healthFactor: result.data.healthFactor,
+                message: `Successfully borrowed ${loanAmount} USDC`
+            };
+
+        } catch (error) {
+            console.error('Error taking out loan:', error);
+            const friendlyError = window.translateError ? window.translateError(error) : error.message;
+            throw new Error(friendlyError);
         } finally {
             // Hide loading spinner
             if (loadingId && loadingManager) {
@@ -536,21 +598,53 @@ class LendingPoolManager {
 
     /**
      * Repay an outstanding loan
-     * @param {string} assetAddress - Asset contract address
+     * @param {string} loanId - Loan ID to repay
+     * @param {number} paymentAmount - Optional payment amount (defaults to full repayment)
      * @param {Object} loadingManager - Optional loading state manager instance
      * @returns {Promise<Object>} Repayment result and transaction hash
      */
-    async repayLoan(assetAddress, loadingManager = null) {
+    async repayLoan(loanId, paymentAmount = null, loadingManager = null) {
         this._validateInitialization();
-        this._validateAccountId(assetAddress, 'Asset address');
+        this._validateWalletConnection();
 
         // Show loading spinner
         const loadingId = loadingManager ?
             loadingManager.showLoading('repay-loan', 'Repaying loan...') : null;
 
         try {
-            // Implementation will be added in Task 8.2
-            throw new Error('repayLoan not yet implemented');
+            const borrowerAddress = this.walletManager.getConnectedAccount();
+            
+            const result = await this.apiClient.repayLoan(
+                loanId,
+                borrowerAddress,
+                paymentAmount
+            );
+
+            if (!result || !result.success) {
+                const friendlyError = window.translateError ? 
+                    window.translateError(result?.error || 'Failed to repay loan') : 
+                    (result?.error || 'Failed to repay loan');
+                throw new Error(friendlyError);
+            }
+
+            // Clear cache to force refresh
+            this.clearCache(null, 'all');
+
+            return {
+                success: true,
+                loanId: result.data.loanId,
+                paymentAmount: result.data.paymentAmount,
+                collateralReturned: result.data.collateralReturned,
+                transactionHash: result.data.transactionHash,
+                blockExplorerUrl: result.data.blockExplorerUrl,
+                status: result.data.status,
+                message: `Successfully repaid loan`
+            };
+
+        } catch (error) {
+            console.error('Error repaying loan:', error);
+            const friendlyError = window.translateError ? window.translateError(error) : error.message;
+            throw new Error(friendlyError);
         } finally {
             // Hide loading spinner
             if (loadingId && loadingManager) {
@@ -560,18 +654,95 @@ class LendingPoolManager {
     }
 
     /**
-     * Get loan details for a borrower
-     * @param {string} borrowerAddress - Borrower's wallet address
-     * @param {string} assetAddress - Asset contract address
+     * Get loan details by loan ID
+     * @param {string} loanId - Loan ID
      * @returns {Promise<Object>} Loan details object
      */
-    async getLoanDetails(borrowerAddress, assetAddress) {
+    async getLoanDetails(loanId) {
+        this._validateInitialization();
+
+        try {
+            const result = await this.apiClient.getLoanDetails(loanId);
+
+            if (!result || !result.success) {
+                const friendlyError = window.translateError ? 
+                    window.translateError(result?.error || 'Failed to get loan details') : 
+                    (result?.error || 'Failed to get loan details');
+                throw new Error(friendlyError);
+            }
+
+            return {
+                success: true,
+                loan: result.loan
+            };
+
+        } catch (error) {
+            console.error('Error getting loan details:', error);
+            const friendlyError = window.translateError ? window.translateError(error) : error.message;
+            throw new Error(friendlyError);
+        }
+    }
+
+    /**
+     * Get all loans for a borrower
+     * @param {string} borrowerAddress - Borrower's wallet address
+     * @returns {Promise<Array>} Array of loan objects
+     */
+    async getBorrowerLoans(borrowerAddress) {
         this._validateInitialization();
         this._validateAccountId(borrowerAddress, 'Borrower address');
-        this._validateAccountId(assetAddress, 'Asset address');
 
-        // Implementation will be added in Task 8.2
-        throw new Error('getLoanDetails not yet implemented');
+        try {
+            const result = await this.apiClient.getBorrowerLoans(borrowerAddress);
+
+            if (!result || !result.success) {
+                const friendlyError = window.translateError ? 
+                    window.translateError(result?.error || 'Failed to get borrower loans') : 
+                    (result?.error || 'Failed to get borrower loans');
+                throw new Error(friendlyError);
+            }
+
+            return {
+                success: true,
+                loans: result.loans || [],
+                count: result.count || 0
+            };
+
+        } catch (error) {
+            console.error('Error getting borrower loans:', error);
+            const friendlyError = window.translateError ? window.translateError(error) : error.message;
+            throw new Error(friendlyError);
+        }
+    }
+
+    /**
+     * Get loans at risk of liquidation
+     * @returns {Promise<Array>} Array of at-risk loan objects
+     */
+    async getLoansAtRisk() {
+        this._validateInitialization();
+
+        try {
+            const result = await this.apiClient.getLoansAtRisk();
+
+            if (!result || !result.success) {
+                const friendlyError = window.translateError ? 
+                    window.translateError(result?.error || 'Failed to get at-risk loans') : 
+                    (result?.error || 'Failed to get at-risk loans');
+                throw new Error(friendlyError);
+            }
+
+            return {
+                success: true,
+                loans: result.loans || [],
+                count: result.count || 0
+            };
+
+        } catch (error) {
+            console.error('Error getting at-risk loans:', error);
+            const friendlyError = window.translateError ? window.translateError(error) : error.message;
+            throw new Error(friendlyError);
+        }
     }
 }
 

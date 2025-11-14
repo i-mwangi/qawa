@@ -12,15 +12,15 @@
 /* Modal Container */
 .purchase-modal {
     max-width: 800px !important;
-    background: #FFFFFF !important;
+    background: #1a1a1a !important;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Modal Header */
 .purchase-modal .modal-header {
-    background: #FFFFFF;
-    border-bottom: 1px solid #EAEAEA;
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
     padding: 20px 30px;
     display: flex;
     justify-content: space-between;
@@ -56,8 +56,8 @@
 
 /* Modal Body */
 .purchase-modal .modal-body {
-    background: #FFFFFF;
-    color: #24262A;
+    background: #1a1a1a;
+    color: #F5EFE6;
     padding: 30px;
 }
 
@@ -134,8 +134,8 @@
     font-weight: 400;
     border: 1px solid #6C757D;
     border-radius: 4px;
-    background: #FFFFFF;
-    color: #24262A;
+    background: #1a1a1a;
+    color: #F5EFE6;
     transition: border-color 0.2s ease;
     width: 100%;
     box-sizing: border-box;
@@ -189,8 +189,8 @@
 .purchase-modal .modal-actions {
     padding: 20px 30px;
     gap: 15px;
-    background: #FFFFFF;
-    border-top: 1px solid #EAEAEA;
+    background: #1a1a1a;
+    border-top: 1px solid #333;
     display: flex;
     justify-content: flex-end;
 }

@@ -262,7 +262,7 @@ export class LendingAPI {
      */
     async calculateLoanTerms(req: IncomingMessage, res: ServerResponse) {
         try {
-            const { assetAddress, loanAmount } = (req as any).body || {}
+            const { assetAddress, loanAmount, collateralTokenId, collateralAmount } = (req as any).body || {}
 
             if (!assetAddress || !loanAmount) {
                 sendError(res, 400, 'Missing required parameters: assetAddress, loanAmount')
@@ -274,23 +274,40 @@ export class LendingAPI {
                 return
             }
 
-            // Mock calculation - in a real implementation, this would query price oracles
-            const collateralRequired = loanAmount * 1.25 // 125% collateralization
-            const liquidationPrice = 0.90 // 90% of current price
-            const repaymentAmount = loanAmount * 1.10 // 10% interest
-            const interestRate = 0.10 // 10%
-            const maxLoanDuration = 180 // 180 days
+            // Import price oracle
+            const { priceOracleService } = await import('../services/price-oracle-service.js')
+
+            // Get collateral token price if provided
+            let collateralPrice = 10.0; // Default
+            if (collateralTokenId) {
+                collateralPrice = await priceOracleService.getTokenPrice(collateralTokenId)
+            }
+
+            // Calculate terms
+            const collateralizationRatio = 1.25
+            const interestRate = 0.10
+            const liquidationThreshold = 0.90
+            
+            const requiredCollateralValue = loanAmount * collateralizationRatio
+            const requiredCollateralAmount = collateralAmount || (requiredCollateralValue / collateralPrice)
+            const repaymentAmount = loanAmount * (1 + interestRate)
+            const liquidationPrice = loanAmount / (requiredCollateralAmount * liquidationThreshold)
+            const maxLoanDuration = 180 // days
 
             sendResponse(res, 200, {
                 success: true,
                 data: {
                     loanAmount,
-                    collateralRequired,
-                    collateralizationRatio: 1.25,
+                    collateralRequired: requiredCollateralAmount,
+                    collateralPrice,
+                    collateralizationRatio,
                     liquidationPrice,
+                    liquidationThreshold,
                     repaymentAmount,
                     interestRate,
-                    maxLoanDuration
+                    interestAmount: loanAmount * interestRate,
+                    maxLoanDuration,
+                    dueDate: Date.now() + (maxLoanDuration * 24 * 60 * 60 * 1000)
                 }
             })
         } catch (error) {
@@ -300,14 +317,14 @@ export class LendingAPI {
     }
 
     /**
-     * Take out a loan
+     * Take out a loan (REAL IMPLEMENTATION)
      */
     async takeOutLoan(req: IncomingMessage, res: ServerResponse) {
         try {
-            const { assetAddress, loanAmount, borrowerAddress } = (req as any).body || {}
+            const { assetAddress, loanAmount, borrowerAddress, collateralTokenId, collateralAmount } = (req as any).body || {}
 
-            if (!assetAddress || !loanAmount || !borrowerAddress) {
-                sendError(res, 400, 'Missing required parameters: assetAddress, loanAmount, borrowerAddress')
+            if (!assetAddress || !loanAmount || !borrowerAddress || !collateralTokenId || !collateralAmount) {
+                sendError(res, 400, 'Missing required parameters: assetAddress, loanAmount, borrowerAddress, collateralTokenId, collateralAmount')
                 return
             }
 
@@ -316,179 +333,269 @@ export class LendingAPI {
                 return
             }
 
+            if (collateralAmount <= 0) {
+                sendError(res, 400, 'Collateral amount must be positive')
+                return
+            }
+
+            console.log(`[Lending API] Processing loan origination for ${borrowerAddress}`)
+
+            // Import services
+            const { loanManagementService } = await import('../services/loan-management-service.js')
+            const { priceOracleService } = await import('../services/price-oracle-service.js')
+
             // Check if borrower already has an active loan
-            const existingLoanKey = `${borrowerAddress}-${assetAddress}`
-            if (MOCK_LOANS.has(existingLoanKey)) {
-                sendError(res, 400, 'Borrower already has an active loan')
+            const existingLoans = await loanManagementService.getBorrowerLoans(borrowerAddress)
+            const activeLoans = existingLoans.filter(loan => loan.status === 'active')
+            
+            if (activeLoans.length > 0) {
+                sendError(res, 400, 'You already have an active loan. Please repay it before taking a new one.')
                 return
             }
 
-            // Find the pool
-            const pool = MOCK_POOLS.find(p => p.assetAddress === assetAddress)
-            if (!pool) {
-                sendError(res, 404, 'Lending pool not found')
-                return
-            }
+            // Get collateral price
+            const collateralPrice = await priceOracleService.getTokenPrice(collateralTokenId)
 
-            // Check pool liquidity
-            if (loanAmount > pool.availableLiquidity) {
-                sendError(res, 400, 'Insufficient liquidity in pool')
-                return
-            }
-
-            // Calculate loan terms
-            const collateralRequired = loanAmount * 1.25
-            const repaymentAmount = loanAmount * 1.10
-            const liquidationPrice = 0.90
-            const dueDate = new Date()
-            dueDate.setDate(dueDate.getDate() + 180) // 180 days loan term
-
-            // Create loan record
-            const loanId = `loan_${Date.now()}`
-            const loanData = {
-                loanId,
-                borrowerAddress,
+            // Create loan
+            const loan = await loanManagementService.createLoan({
+                borrowerAccount: borrowerAddress,
                 assetAddress,
                 loanAmount,
-                collateralAmount: collateralRequired,
-                repaymentAmount,
-                liquidationPrice,
-                status: 'active',
-                takenAt: new Date().toISOString(),
-                dueDate: dueDate.toISOString()
-            }
-
-            // Store loan
-            MOCK_LOANS.set(existingLoanKey, loanData)
-
-            // Update pool liquidity
-            pool.availableLiquidity -= loanAmount
-            pool.totalBorrowed += loanAmount
-            pool.utilizationRate = pool.totalBorrowed / pool.totalLiquidity
-
-            const transactionHash = '0x' + Math.random().toString(16).substr(2, 10)
+                collateralTokenId,
+                collateralAmount,
+                collateralPrice
+            })
 
             // Record transaction in history
             await transactionRecorder.recordLoan({
                 borrowerAddress,
                 assetAddress,
                 loanAmount,
-                collateralAmount: collateralRequired,
-                transactionHash
+                collateralAmount,
+                transactionHash: loan.transactionHash || ''
             })
 
-            sendResponse(res, 200, {
-                success: true,
-                data: {
-                    ...loanData,
-                    transactionHash
-                }
-            })
-        } catch (error) {
-            console.error('Error taking out loan:', error)
-            sendError(res, 500, 'Failed to take out loan')
-        }
-    }
-
-    /**
-     * Repay a loan
-     */
-    async repayLoan(req: IncomingMessage, res: ServerResponse) {
-        try {
-            const { assetAddress, borrowerAddress } = (req as any).body || {}
-
-            if (!assetAddress || !borrowerAddress) {
-                sendError(res, 400, 'Missing required parameters: assetAddress, borrowerAddress')
-                return
-            }
-
-            // Find the loan
-            const loanKey = `${borrowerAddress}-${assetAddress}`
-            const loan = MOCK_LOANS.get(loanKey)
-            if (!loan) {
-                sendError(res, 404, 'No active loan found')
-                return
-            }
-
-            // Find the pool
-            const pool = MOCK_POOLS.find(p => p.assetAddress === assetAddress)
-            if (!pool) {
-                sendError(res, 404, 'Lending pool not found')
-                return
-            }
-
-            // Process repayment
-            // In a real implementation, this would check USDC balance and transfer funds
-
-            // Remove loan
-            MOCK_LOANS.delete(loanKey)
-
-            // Update pool liquidity
-            pool.availableLiquidity += loan.loanAmount
-            pool.totalBorrowed -= loan.loanAmount
-            pool.utilizationRate = pool.totalBorrowed / pool.totalLiquidity
-
-            const transactionHash = '0x' + Math.random().toString(16).substr(2, 10)
-
-            // Record transaction in history
-            await transactionRecorder.recordLoanRepayment({
-                borrowerAddress,
-                assetAddress,
-                repaymentAmount: loan.repaymentAmount,
-                transactionHash
-            })
+            const blockExplorerUrl = loan.transactionHash 
+                ? `https://hashscan.io/testnet/transaction/${loan.transactionHash}`
+                : undefined
 
             sendResponse(res, 200, {
                 success: true,
                 data: {
                     loanId: loan.loanId,
+                    borrowerAddress: loan.borrowerAccount,
+                    assetAddress: loan.assetAddress,
+                    loanAmount: loan.loanAmountUsdc,
+                    collateralAmount: loan.collateralAmount,
+                    collateralTokenId: loan.collateralTokenId,
                     repaymentAmount: loan.repaymentAmount,
-                    collateralReturned: loan.collateralAmount,
-                    transactionHash,
-                    repaidAt: new Date().toISOString()
+                    interestRate: loan.interestRate,
+                    healthFactor: loan.healthFactor,
+                    liquidationPrice: loan.liquidationPrice,
+                    status: loan.status,
+                    takenAt: loan.takenAt,
+                    dueDate: loan.dueDate,
+                    transactionHash: loan.transactionHash,
+                    blockExplorerUrl
                 }
             })
-        } catch (error) {
-            console.error('Error repaying loan:', error)
-            sendError(res, 500, 'Failed to repay loan')
+        } catch (error: any) {
+            console.error('Error taking out loan:', error)
+            sendError(res, 500, error.message || 'Failed to take out loan')
         }
     }
 
     /**
-     * Get loan details
+     * Repay a loan (REAL IMPLEMENTATION)
      */
-    async getLoanDetails(req: IncomingMessage, res: ServerResponse, borrowerAddress: string, assetAddress: string) {
+    async repayLoan(req: IncomingMessage, res: ServerResponse) {
         try {
-            if (!borrowerAddress || !assetAddress) {
-                sendError(res, 400, 'Missing required parameters: borrowerAddress, assetAddress')
+            const { loanId, borrowerAddress, paymentAmount } = (req as any).body || {}
+
+            if (!loanId || !borrowerAddress) {
+                sendError(res, 400, 'Missing required parameters: loanId, borrowerAddress')
                 return
             }
 
-            // Find the loan
-            const loanKey = `${borrowerAddress}-${assetAddress}`
-            const loan = MOCK_LOANS.get(loanKey)
+            console.log(`[Lending API] Processing loan repayment for ${loanId}`)
+
+            // Import service
+            const { loanManagementService } = await import('../services/loan-management-service.js')
+
+            // Get loan details
+            const loan = await loanManagementService.getLoan(loanId)
             if (!loan) {
-                sendError(res, 404, 'No active loan found')
+                sendError(res, 404, 'Loan not found')
                 return
             }
 
-            // Add health factor calculation for demo
-            const currentPrice = 1.05 // Mock current price
-            const healthFactor = (loan.collateralAmount * currentPrice) / loan.loanAmount
-
-            const loanWithHealth = {
-                ...loan,
-                currentPrice,
-                healthFactor
+            if (loan.status !== 'active') {
+                sendError(res, 400, `Loan is not active. Status: ${loan.status}`)
+                return
             }
+
+            if (loan.borrowerAccount !== borrowerAddress) {
+                sendError(res, 403, 'You are not authorized to repay this loan')
+                return
+            }
+
+            // Use full repayment amount if not specified
+            const actualPaymentAmount = paymentAmount || loan.repaymentAmount
+
+            // Process repayment
+            await loanManagementService.processRepayment({
+                loanId,
+                borrowerAccount: borrowerAddress,
+                paymentAmount: actualPaymentAmount
+            })
+
+            // Get updated loan
+            const updatedLoan = await loanManagementService.getLoan(loanId)
+
+            // Record transaction in history
+            await transactionRecorder.recordLoanRepayment({
+                borrowerAddress,
+                assetAddress: loan.assetAddress,
+                repaymentAmount: actualPaymentAmount,
+                transactionHash: updatedLoan?.transactionHash || ''
+            })
+
+            const blockExplorerUrl = updatedLoan?.transactionHash 
+                ? `https://hashscan.io/testnet/transaction/${updatedLoan.transactionHash}`
+                : undefined
 
             sendResponse(res, 200, {
                 success: true,
-                loan: loanWithHealth
+                data: {
+                    loanId: loan.loanId,
+                    paymentAmount: actualPaymentAmount,
+                    repaymentAmount: loan.repaymentAmount,
+                    collateralReturned: loan.collateralAmount,
+                    collateralTokenId: loan.collateralTokenId,
+                    status: updatedLoan?.status || 'repaid',
+                    transactionHash: updatedLoan?.transactionHash,
+                    blockExplorerUrl,
+                    repaidAt: updatedLoan?.repaidAt || Date.now()
+                }
+            })
+        } catch (error: any) {
+            console.error('Error repaying loan:', error)
+            sendError(res, 500, error.message || 'Failed to repay loan')
+        }
+    }
+
+    /**
+     * Get loan details (REAL IMPLEMENTATION)
+     */
+    async getLoanDetails(req: IncomingMessage, res: ServerResponse, loanId: string) {
+        try {
+            if (!loanId) {
+                sendError(res, 400, 'Missing required parameter: loanId')
+                return
+            }
+
+            console.log(`[Lending API] Fetching loan details for ${loanId}`)
+
+            // Import services
+            const { loanManagementService } = await import('../services/loan-management-service.js')
+            const { priceOracleService } = await import('../services/price-oracle-service.js')
+
+            // Get loan
+            const loan = await loanManagementService.getLoan(loanId)
+            if (!loan) {
+                sendError(res, 404, 'Loan not found')
+                return
+            }
+
+            // Get current collateral price
+            const currentPrice = await priceOracleService.getTokenPrice(loan.collateralTokenId)
+
+            // Calculate current health factor
+            const currentCollateralValue = loan.collateralAmount * currentPrice
+            const currentHealthFactor = (currentCollateralValue * loan.liquidationThreshold) / loan.loanAmountUsdc
+
+            // Get collateral details
+            const { lendingLoanCollateral } = await import('../../db/schema/index.js')
+            const { eq } = await import('drizzle-orm')
+            
+            const collateral = await db.select()
+                .from(lendingLoanCollateral)
+                .where(eq(lendingLoanCollateral.loanId, loanId))
+                .limit(1)
+
+            const blockExplorerUrl = loan.transactionHash 
+                ? `https://hashscan.io/testnet/transaction/${loan.transactionHash}`
+                : undefined
+
+            sendResponse(res, 200, {
+                success: true,
+                loan: {
+                    ...loan,
+                    currentPrice,
+                    currentHealthFactor,
+                    currentCollateralValue,
+                    collateralDetails: collateral[0] || null,
+                    blockExplorerUrl,
+                    isAtRisk: currentHealthFactor < 1.1,
+                    daysUntilDue: Math.ceil((loan.dueDate - Date.now()) / (24 * 60 * 60 * 1000))
+                }
             })
         } catch (error) {
             console.error('Error fetching loan details:', error)
             sendError(res, 500, 'Failed to fetch loan details')
+        }
+    }
+
+    /**
+     * Get all loans for a borrower
+     */
+    async getBorrowerLoans(req: IncomingMessage, res: ServerResponse, borrowerAddress: string) {
+        try {
+            if (!borrowerAddress) {
+                sendError(res, 400, 'Missing required parameter: borrowerAddress')
+                return
+            }
+
+            console.log(`[Lending API] Fetching loans for borrower ${borrowerAddress}`)
+
+            // Import service
+            const { loanManagementService } = await import('../services/loan-management-service.js')
+
+            // Get loans
+            const loans = await loanManagementService.getBorrowerLoans(borrowerAddress)
+
+            sendResponse(res, 200, {
+                success: true,
+                loans,
+                count: loans.length
+            })
+        } catch (error) {
+            console.error('Error fetching borrower loans:', error)
+            sendError(res, 500, 'Failed to fetch borrower loans')
+        }
+    }
+
+    /**
+     * Get loans at risk of liquidation
+     */
+    async getLoansAtRisk(req: IncomingMessage, res: ServerResponse) {
+        try {
+            console.log('[Lending API] Fetching loans at risk')
+
+            // Import service
+            const { loanManagementService } = await import('../services/loan-management-service.js')
+
+            // Get at-risk loans
+            const loans = await loanManagementService.getLoansAtRisk()
+
+            sendResponse(res, 200, {
+                success: true,
+                loans,
+                count: loans.length
+            })
+        } catch (error) {
+            console.error('Error fetching loans at risk:', error)
+            sendError(res, 500, 'Failed to fetch loans at risk')
         }
     }
 
@@ -627,6 +734,128 @@ export class LendingAPI {
                 demoMode: true,
                 message: 'Demo Mode: Showing sample liquidity positions for demonstration'
             });
+        }
+    }
+
+    /**
+     * Get liquidation history
+     * GET /api/lending/liquidations
+     */
+    async getLiquidationHistory(req: IncomingMessage, res: ServerResponse) {
+        try {
+            const { limit } = (req as any).query || {};
+            
+            console.log('[Lending API] Fetching liquidation history');
+
+            // Import liquidation service
+            const { liquidationService } = await import('../services/liquidation-service.js');
+
+            // Get liquidation history
+            const liquidations = await liquidationService.getLiquidationHistory(
+                limit ? parseInt(limit) : 50
+            );
+
+            sendResponse(res, 200, {
+                success: true,
+                liquidations,
+                count: liquidations.length
+            });
+
+        } catch (error) {
+            console.error('[Lending API] Error fetching liquidation history:', error);
+            sendError(res, 500, 'Failed to fetch liquidation history');
+        }
+    }
+
+    /**
+     * Get liquidations for a borrower
+     * GET /api/lending/liquidations/borrower/:account
+     */
+    async getBorrowerLiquidations(req: IncomingMessage, res: ServerResponse, borrowerAccount: string) {
+        try {
+            if (!borrowerAccount) {
+                sendError(res, 400, 'Missing required parameter: borrowerAccount');
+                return;
+            }
+
+            console.log(`[Lending API] Fetching liquidations for borrower: ${borrowerAccount}`);
+
+            // Import liquidation service
+            const { liquidationService } = await import('../services/liquidation-service.js');
+
+            // Get borrower liquidations
+            const liquidations = await liquidationService.getBorrowerLiquidations(borrowerAccount);
+
+            sendResponse(res, 200, {
+                success: true,
+                liquidations,
+                count: liquidations.length
+            });
+
+        } catch (error) {
+            console.error('[Lending API] Error fetching borrower liquidations:', error);
+            sendError(res, 500, 'Failed to fetch borrower liquidations');
+        }
+    }
+
+    /**
+     * Manually trigger liquidation (admin only)
+     * POST /api/lending/liquidations/execute
+     */
+    async executeLiquidation(req: IncomingMessage, res: ServerResponse) {
+        try {
+            const { loanId } = (req as any).body || {};
+
+            if (!loanId) {
+                sendError(res, 400, 'Missing required parameter: loanId');
+                return;
+            }
+
+            console.log(`[Lending API] Manually executing liquidation for: ${loanId}`);
+
+            // Import liquidation service
+            const { liquidationService } = await import('../services/liquidation-service.js');
+
+            // Execute liquidation
+            const result = await liquidationService.executeLiquidation(loanId);
+
+            if (result.success) {
+                sendResponse(res, 200, {
+                    success: true,
+                    data: result
+                });
+            } else {
+                sendError(res, 400, result.error || 'Liquidation failed');
+            }
+
+        } catch (error: any) {
+            console.error('[Lending API] Error executing liquidation:', error);
+            sendError(res, 500, error.message || 'Failed to execute liquidation');
+        }
+    }
+
+    /**
+     * Get liquidation monitoring status
+     * GET /api/lending/liquidations/status
+     */
+    async getLiquidationStatus(req: IncomingMessage, res: ServerResponse) {
+        try {
+            console.log('[Lending API] Fetching liquidation monitoring status');
+
+            // Import liquidation service
+            const { liquidationService } = await import('../services/liquidation-service.js');
+
+            // Get status
+            const status = liquidationService.getMonitoringStatus();
+
+            sendResponse(res, 200, {
+                success: true,
+                status
+            });
+
+        } catch (error) {
+            console.error('[Lending API] Error fetching liquidation status:', error);
+            sendError(res, 500, 'Failed to fetch liquidation status');
         }
     }
 }

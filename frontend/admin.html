@@ -23,7 +23,7 @@
         .admin-container {
             max-width: 1400px;
             margin: 0 auto;
-            background: white;
+            background: #1a1a1a;
             border-radius: 16px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             padding: 40px;
@@ -171,8 +171,8 @@
 
         /* Funding Request Styles */
         .request-card {
-            background: white;
-            border: 1px solid #e0e0e0;
+            background: #1a1a1a;
+            border: 1px solid #333;
             border-radius: 12px;
             padding: 24px;
             margin-bottom: 16px;
@@ -310,7 +310,7 @@
         }
 
         .modal-content {
-            background: white;
+            background: #1a1a1a;
             border-radius: 16px;
             padding: 32px;
             max-width: 600px;
@@ -723,7 +723,7 @@
             currentRequestId = requestId;
             document.getElementById('approveModalBody').innerHTML = `
                 <p>Are you sure you want to approve this funding request?</p>
-                <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin: 16px 0;">
+                <div style="background: #242424; padding: 16px; border-radius: 8px; margin: 16px 0;">
                     <strong>Grove:</strong> ${groveName}<br>
                     <strong>Amount:</strong> $${amount.toFixed(2)}<br>
                     <strong>Platform Fee (3%):</strong> $${(amount * 0.03).toFixed(2)}<br>
@@ -777,7 +777,7 @@
             currentRequestId = requestId;
             document.getElementById('rejectModalBody').innerHTML = `
                 <p>Please provide a reason for rejecting this request:</p>
-                <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin: 16px 0;">
+                <div style="background: #242424; padding: 16px; border-radius: 8px; margin: 16px 0;">
                     <strong>Grove:</strong> ${groveName}
                 </div>
                 <div class="form-group">

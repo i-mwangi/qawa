@@ -60,11 +60,11 @@ turso-db-snapshots/
 *.tmp
 *.temp
 
-# Environment files (except example)
+# Environment files 
 .env*
 !.env.example
 
-# Lock files (if using different package managers)
+# Lock files 
 yarn.lock
 package-lock.json
 
@@ -87,9 +87,9 @@ debug/
 .parcel-cache/
 vite.config.ts.timestamp-*
 
-# ============================================
+
 # Test & Development Files
-# ============================================
+
 
 # Test directories
 tests/
@@ -139,21 +139,40 @@ frontend/index.html.bak
 frontend/*.backup
 frontend/*.bak
 
-# Development scripts (keep essential migration scripts)
+
+# Test & Development Scripts 
+# Test scripts
 scripts/test-*.ts
 scripts/test-*.mjs
+scripts/test-*.js
+scripts/comprehensive-*.ts
+scripts/quick-*.ts
+
+# Check/validation scripts
 scripts/check-*.ts
 scripts/check-*.mjs
 scripts/validate-*.ts
 scripts/verify-*.ts
 scripts/verify-*.mjs
+
+# Fix/manual operation scripts
 scripts/fix-*.ts
 scripts/fix-*.mjs
-scripts/clean-*.mjs
-scripts/retry-*.mjs
-scripts/complete-*.mjs
 scripts/manual-*.ts
 scripts/manual-*.mjs
+scripts/manually-*.ts
+scripts/simple-*.ts
+
+# Database setup scripts 
+scripts/create-test-*.ts
+scripts/create-all-tables-turso.ts
+scripts/create-missing-tables.ts
+scripts/create-lending-tables.ts
+scripts/create-farmer-grove-balance.ts
+scripts/sync-*.ts
+scripts/push-*.ts
+
+# Token/transfer test scripts
 scripts/transfer-grove-*.ts
 scripts/transfer-grove-*.mjs
 scripts/transfer-tokens-*.ts
@@ -162,29 +181,23 @@ scripts/mint-usdc-*.mjs
 scripts/mint-usdc-*.ts
 scripts/create-platform-usdc.mjs
 scripts/create-lp-usdc-token.mjs
-scripts/create-test-*.ts
-scripts/create-all-tables-turso.ts
-scripts/create-missing-tables.ts
-scripts/create-lending-tables.ts
-scripts/create-farmer-grove-balance.ts
+
+# Schema modification scripts 
 scripts/add-*.ts
-scripts/apply-*.ts
-scripts/sync-*.ts
-scripts/push-*.ts
 scripts/initialize-*.ts
 scripts/list-*.ts
 scripts/enable-*.ts
-scripts/manually-*.ts
-scripts/simple-*.ts
-scripts/test-*.md
+
+# Cleanup/utility scripts
+scripts/clean-*.mjs
+scripts/retry-*.mjs
+scripts/complete-*.mjs
 scripts/nuke-and-reload/
 scripts/*.cjs
 scripts/compile.sh
+scripts/test-*.md
 
-# Keep these essential production scripts (NOT ignored):
-# !scripts/trigger-distribution.ts
-# !scripts/distribute-harvest-revenue.ts
-# !scripts/run-migration.ts
+
 
 # Development servers
 api/dev-server.ts
@@ -193,37 +206,35 @@ api/dev-server.ts
 temp/
 tmp/
 
-# Documentation files (keep README and LICENSE)
+
 docs/
 .kiro/
 CHANGELOG.md
 CODE_OF_CONDUCT.md
 SECURITY.md
 TOKENIZATION-QUICK-START.md
+LENDING-QUICK-START.md
+MARKETPLACE-QUICK-START.md
+QA-CHECKLIST.md
 RENDER_DEPLOYMENT.md
 TROUBLESHOOTING.md
 DEPLOYMENT_GUIDE.md
-DEPLOYMENT_GUIDE.md.bak
-DEPLOYMENT_GUIDE.md.backup
-DEPLOYMENT_GUIDE.md.bak.backup
+*.md.bak
+*.md.backup
 
-# Render ignore file (not needed in git)
-.renderignore
 
-# Production exclude documentation
-docs/PRODUCTION-EXCLUDE-FILES.md
-docs/DEVELOPMENT-AND-TEST-FILES.md
-
-# Build-only configuration files (not needed at runtime)
-# vite.config.js - NEEDED for Render build
 tsup.config.ts
+drizzle.config.ts
 drizzle-orm.d.ts
 
-# Platform-specific deployment files (Vercel not used on Render)
+
+
 .vercelignore
 vercel.json
+.renderignore
+render.dev.yaml
+render.staging.yaml
 
-# Cleanup scripts
 remove-tracked-files.bat
 remove-tracked-files.sh
 remove-unnecessary-production-files.bat

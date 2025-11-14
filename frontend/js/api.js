@@ -691,37 +691,43 @@ export class CoffeeTreeAPI {
     }
 
     // Lending Pool API - Loan Management
-    async calculateLoanTerms(assetAddress, loanAmount) {
+    async calculateLoanTerms(assetAddress, loanAmount, collateralTokenId = null, collateralAmount = null) {
         return this.request('/api/lending/calculate-loan-terms', {
             method: 'POST',
-            body: { assetAddress, loanAmount }
+            body: { assetAddress, loanAmount, collateralTokenId, collateralAmount }
         });
     }
 
-    async takeOutLoan(assetAddress, loanAmount) {
-        const borrowerAddress = window.walletManager?.getAccountId();
+    async takeOutLoan(assetAddress, loanAmount, borrowerAddress, collateralTokenId, collateralAmount) {
         if (!borrowerAddress) {
             throw new Error('Please connect your wallet to continue');
         }
-        return this.request('/api/lending/take-loan', {
+        return this.request('/api/lending/loans/originate', {
             method: 'POST',
-            body: { assetAddress, loanAmount, borrowerAddress }
+            body: { assetAddress, loanAmount, borrowerAddress, collateralTokenId, collateralAmount }
         });
     }
 
-    async repayLoan(assetAddress) {
-        const borrowerAddress = window.walletManager?.getAccountId();
+    async repayLoan(loanId, borrowerAddress, paymentAmount = null) {
         if (!borrowerAddress) {
             throw new Error('Please connect your wallet to continue');
         }
-        return this.request('/api/lending/repay-loan', {
+        return this.request(`/api/lending/loans/${loanId}/repay`, {
             method: 'POST',
-            body: { assetAddress, borrowerAddress }
+            body: { loanId, borrowerAddress, paymentAmount }
         });
     }
 
-    async getLoanDetails(borrowerAddress, assetAddress) {
-        return this.request(`/api/lending/loan-details?borrowerAddress=${borrowerAddress}&assetAddress=${assetAddress}`);
+    async getLoanDetails(loanId) {
+        return this.request(`/api/lending/loans/${loanId}`);
+    }
+
+    async getBorrowerLoans(borrowerAddress) {
+        return this.request(`/api/lending/loans/borrower/${borrowerAddress}`);
+    }
+
+    async getLoansAtRisk() {
+        return this.request('/api/lending/loans/at-risk');
     }
 
     // Price Oracle API - Price Fetching

@@ -206,12 +206,12 @@ export const harvestRecords = sqliteTable("harvest_records", {
 
 export const tokenHoldings = sqliteTable("token_holdings", {
     id: integer("id").primaryKey({ autoIncrement: true }),
-    holderAddress: text("holder_address").notNull(),
-    groveId: integer("grove_id").notNull().references(() => coffeeGroves.id),
-    tokenAmount: integer("token_amount").notNull(),
-    purchasePrice: integer("purchase_price").notNull(),
-    purchaseDate: integer("purchase_date").notNull(),
-    isActive: integer("is_active", { mode: 'boolean' }).default(true)
+    holderAddress: text("holderAddress").notNull(),
+    groveId: integer("groveId").notNull().references(() => coffeeGroves.id),
+    tokenAmount: integer("tokenAmount").notNull(),
+    purchasePrice: integer("purchasePrice").notNull(),
+    purchaseDate: integer("purchaseDate").notNull(),
+    isActive: integer("isActive", { mode: 'boolean' }).default(true)
 }, (table) => {
     return {
         holderAddressIdx: index("token_holdings_holder_address_idx").on(table.holderAddress),
@@ -639,5 +639,139 @@ export const platformFees = sqliteTable("platform_fees", {
         requestIdx: index("platform_fees_request_idx").on(table.requestId),
         groveIdx: index("platform_fees_grove_idx").on(table.groveId),
         dateIdx: index("platform_fees_date_idx").on(table.collectedAt)
+    }
+});
+
+
+// ============================================
+// ENHANCED LENDING SYSTEM TABLES
+// ============================================
+
+export const lendingLoans = sqliteTable("lending_loans", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    loanId: text("loan_id").unique().notNull(),
+    borrowerAccount: text("borrower_account").notNull(),
+    assetAddress: text("asset_address").notNull(),
+    loanAmountUsdc: real("loan_amount_usdc").notNull(),
+    collateralAmount: real("collateral_amount").notNull(),
+    collateralTokenId: text("collateral_token_id").notNull(),
+    repaymentAmount: real("repayment_amount").notNull(),
+    interestRate: real("interest_rate").notNull().default(0.10),
+    collateralizationRatio: real("collateralization_ratio").notNull().default(1.25),
+    liquidationThreshold: real("liquidation_threshold").notNull().default(0.90),
+    liquidationPrice: real("liquidation_price"),
+    healthFactor: real("health_factor").notNull().default(1.0),
+    status: text("status").notNull().default('active'), // 'active', 'repaid', 'liquidated', 'defaulted'
+    takenAt: integer("taken_at").notNull(),
+    dueDate: integer("due_date").notNull(),
+    repaidAt: integer("repaid_at"),
+    liquidatedAt: integer("liquidated_at"),
+    transactionHash: text("transaction_hash"),
+    createdAt: integer("created_at").default(Date.now()),
+    updatedAt: integer("updated_at").default(Date.now())
+}, (table) => {
+    return {
+        borrowerIdx: index("lending_loans_borrower_idx").on(table.borrowerAccount),
+        statusIdx: index("lending_loans_status_idx").on(table.status),
+        dueDateIdx: index("lending_loans_due_date_idx").on(table.dueDate),
+        healthFactorIdx: index("lending_loans_health_factor_idx").on(table.healthFactor),
+        takenAtIdx: index("lending_loans_taken_at_idx").on(table.takenAt)
+    }
+});
+
+export const lendingLoanCollateral = sqliteTable("lending_loan_collateral", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    loanId: text("loan_id").notNull(),
+    tokenId: text("token_id").notNull(),
+    amount: real("amount").notNull(),
+    initialPrice: real("initial_price").notNull(),
+    currentPrice: real("current_price"),
+    lockedAt: integer("locked_at").notNull(),
+    unlockedAt: integer("unlocked_at"),
+    lockTransactionHash: text("lock_transaction_hash"),
+    unlockTransactionHash: text("unlock_transaction_hash"),
+    createdAt: integer("created_at").default(Date.now())
+}, (table) => {
+    return {
+        loanIdIdx: index("lending_collateral_loan_id_idx").on(table.loanId),
+        tokenIdIdx: index("lending_collateral_token_id_idx").on(table.tokenId)
+    }
+});
+
+export const lendingLoanPayments = sqliteTable("lending_loan_payments", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    paymentId: text("payment_id").unique().notNull(),
+    loanId: text("loan_id").notNull(),
+    borrowerAccount: text("borrower_account").notNull(),
+    paymentAmount: real("payment_amount").notNull(),
+    paymentType: text("payment_type").notNull(), // 'partial', 'full', 'interest_only', 'principal'
+    remainingBalance: real("remaining_balance").notNull(),
+    paidAt: integer("paid_at").notNull(),
+    transactionHash: text("transaction_hash"),
+    createdAt: integer("created_at").default(Date.now())
+}, (table) => {
+    return {
+        loanIdIdx: index("lending_payments_loan_id_idx").on(table.loanId),
+        borrowerIdx: index("lending_payments_borrower_idx").on(table.borrowerAccount),
+        paidAtIdx: index("lending_payments_paid_at_idx").on(table.paidAt)
+    }
+});
+
+export const lendingLiquidations = sqliteTable("lending_liquidations", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    liquidationId: text("liquidation_id").unique().notNull(),
+    loanId: text("loan_id").notNull(),
+    borrowerAccount: text("borrower_account").notNull(),
+    collateralTokenId: text("collateral_token_id").notNull(),
+    collateralAmount: real("collateral_amount").notNull(),
+    collateralValueAtLiquidation: real("collateral_value_at_liquidation").notNull(),
+    usdcRecovered: real("usdc_recovered").notNull(),
+    liquidationPenalty: real("liquidation_penalty").notNull().default(0.05),
+    liquidationPrice: real("liquidation_price").notNull(),
+    healthFactorAtLiquidation: real("health_factor_at_liquidation").notNull(),
+    liquidatedAt: integer("liquidated_at").notNull(),
+    liquidatorAccount: text("liquidator_account"),
+    liquidatorReward: real("liquidator_reward"),
+    transactionHash: text("transaction_hash"),
+    createdAt: integer("created_at").default(Date.now())
+}, (table) => {
+    return {
+        loanIdIdx: index("lending_liquidations_loan_id_idx").on(table.loanId),
+        borrowerIdx: index("lending_liquidations_borrower_idx").on(table.borrowerAccount),
+        liquidatedAtIdx: index("lending_liquidations_liquidated_at_idx").on(table.liquidatedAt)
+    }
+});
+
+export const lendingLoanHealthHistory = sqliteTable("lending_loan_health_history", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    loanId: text("loan_id").notNull(),
+    healthFactor: real("health_factor").notNull(),
+    collateralPrice: real("collateral_price").notNull(),
+    collateralValue: real("collateral_value").notNull(),
+    checkedAt: integer("checked_at").notNull()
+}, (table) => {
+    return {
+        loanIdIdx: index("lending_health_loan_id_idx").on(table.loanId),
+        checkedAtIdx: index("lending_health_checked_at_idx").on(table.checkedAt)
+    }
+});
+
+export const lendingPoolStats = sqliteTable("lending_pool_stats", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    assetAddress: text("asset_address").unique().notNull(),
+    totalLiquidity: real("total_liquidity").notNull().default(0),
+    availableLiquidity: real("available_liquidity").notNull().default(0),
+    totalBorrowed: real("total_borrowed").notNull().default(0),
+    totalLpTokens: real("total_lp_tokens").notNull().default(0),
+    utilizationRate: real("utilization_rate").notNull().default(0),
+    currentApy: real("current_apy").notNull().default(0),
+    totalInterestEarned: real("total_interest_earned").notNull().default(0),
+    totalLoansOriginated: integer("total_loans_originated").notNull().default(0),
+    totalLoansRepaid: integer("total_loans_repaid").notNull().default(0),
+    totalLiquidations: integer("total_liquidations").notNull().default(0),
+    updatedAt: integer("updated_at").default(Date.now())
+}, (table) => {
+    return {
+        assetIdx: index("lending_pool_stats_asset_idx").on(table.assetAddress)
     }
 });
