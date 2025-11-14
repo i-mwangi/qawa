@@ -222,6 +222,13 @@ DEPLOYMENT_GUIDE.md
 *.md.bak
 *.md.backup
 
+# Internal demo/video scripts
+VIDEO-SCRIPT-PLATFORM-DEMO.md
+
+# User uploaded files
+uploads/
+!uploads/.gitkeep
+
 
 tsup.config.ts
 drizzle.config.ts
