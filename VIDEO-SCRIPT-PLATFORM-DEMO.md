@@ -25,7 +25,7 @@
 
 *Can we do something about this? Yes. With your help, we can make a change.*
 
-*Chai Project decided to go back to where it all started: the birthplace of coffee. We're partnering with coffee milling and roasting factories in Kenya, expanding to Ethiopia and Uganda, where we tokenize rigorously verified coffee groves on the blockchain.*
+*Chai Project decided to go back to where it all started: the birthplace of coffee. We're partnering with coffee milling and roasting factories in Kenya, expanding to Ethiopia and Uganda, where we tokenize rigorously verified coffee groves on the onchain
 
 *This is what we call a revolution in a cup. Let me show you how it works."*
 
