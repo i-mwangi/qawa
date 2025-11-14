@@ -13,10 +13,6 @@
 - [Quick Start](#-quick-start)
 - [Architecture](#-architecture-diagram)
 - [Deployed Hedera IDs](#-deployed-hedera-ids)
-- [Setup Instructions](#-setup-instructions)
-- [Security & Credentials](#-security--credentials)
-
----
 
 Chai Platform is a decentralized coffee tree tokenization platform built on the Hedera network. It enables farmers to tokenize their coffee groves and allows investors to purchase tokens representing ownership in coffee production, creating a transparent and efficient marketplace for sustainable coffee investment.
 
