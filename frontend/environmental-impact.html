@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Environmental Impact - Forest & CO2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #1a1a1a;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .forest-showcase {
+            max-width: 100%;
+            margin: 0 auto 60px auto;
+            padding: 0;
+        }
+
+        .forest-image-container {
+            position: relative;
+            min-height: 500px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(76, 175, 80, 0.4);
+        }
+
+        .forest-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            filter: brightness(0.6);
+        }
+
+        .forest-text-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.3) 0%, rgba(56, 142, 60, 0.3) 100%);
+        }
+
+        .forest-text-overlay h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.7);
+            margin-bottom: 20px;
+            max-width: 900px;
+        }
+
+        .forest-text-overlay p {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+            max-width: 800px;
+            line-height: 1.6;
+        }
+
+        .intro-section {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 60px;
+        }
+
+        .intro-section h2 {
+            font-size: 2.2rem;
+            color: #4CAF50;
+            margin-bottom: 30px;
+        }
+
+        .intro-section p {
+            font-size: 1.1rem;
+            color: #d0d0d0;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .metric-card {
+            background: #4CAF50;
+            padding: 40px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(76, 175, 80, 0.3);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(76, 175, 80, 0.5);
+        }
+
+        .counter {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 20px 0;
+            display: block;
+        }
+
+        .metric-label {
+            font-size: 1.1rem;
+            color: #1a1a1a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .metric-description {
+            font-size: 0.95rem;
+            color: #2a2a2a;
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+
+        .impact-section {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 60px;
+        }
+
+        .impact-section h2 {
+            font-size: 2rem;
+            color: #4CAF50;
+            margin-bottom: 30px;
+            border-left: none;
+            padding-left: 0;
+        }
+
+        .impact-section h3 {
+            font-size: 1.5rem;
+            color: #4CAF50;
+            margin: 30px 0 15px 0;
+        }
+
+        .impact-section p {
+            font-size: 1.05rem;
+            color: #d0d0d0;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .highlight-box {
+            background: transparent;
+            border-left: none;
+            padding: 0;
+            margin: 30px 0;
+        }
+
+        .highlight-box p {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #4CAF50;
+            font-weight: 600;
+            font-style: italic;
+        }
+
+        .achievement-item {
+            margin-bottom: 50px;
+        }
+
+        .achievement-item h4 {
+            font-size: 1.4rem;
+            color: #4CAF50;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .achievement-item p {
+            font-size: 1.05rem;
+            color: #d0d0d0;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .counter {
+                font-size: 2.5rem;
+            }
+
+            .intro-section, .impact-section {
+                padding: 40px 25px;
+            }
+
+            .forest-showcase {
+                margin: 0 auto 40px auto;
+            }
+
+            .forest-image-container {
+                min-height: 400px;
+            }
+
+            .forest-text-overlay h1 {
+                font-size: 2rem;
+            }
+
+            .forest-text-overlay p {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="forest-showcase">
+        <div class="forest-image-container">
+            <img src="public/co2.png" alt="Sustainable Agriculture and Forest Conservation" class="forest-image">
+            <div class="forest-text-overlay">
+                <h1>OUR ENVIRONMENTAL IMPACT</h1>
+                <p>Climate-Positive Agriculture Through Tokenization</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="intro-section">
+            <h2>LET'S FIX THE FUTURE!</h2>
+            <p>We see a future threatened by climate change, deforestation, and environmental degradation. Traditional agricultural systems contribute to these problems rather than solving them. One thing is clear: we need better business models designed to heal the planet, not harm it.</p>
+            <p>Our tokenization platform is built around Economic, Social and Environmental impact. By incentivizing sustainable farming practices and protecting natural forests, we're creating a model where profitability and environmental stewardship go hand in hand.</p>
+            <div class="highlight-box">
+                <p>Our goal: Build a climate-positive agricultural platform where every tokenized grove contributes to carbon sequestration and forest conservation.</p>
+            </div>
+        </div>
+
+        <h2 style="text-align: center; font-size: 2.5rem; color: #4CAF50; margin-bottom: 20px;">LET'S TALK NUMBERS!</h2>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Target Carbon Offset</div>
+                <span class="counter" data-target="500" data-suffix=" tons">0</span>
+                <div class="metric-description">Projected annual CO2 absorption from 2,000 tokenized groves using agroforestry practices by 2026.</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">Agroforestry Groves</div>
+                <span class="counter" data-target="2000" data-suffix="">0</span>
+                <div class="metric-description">Target groves managed using sustainable agroforestry methods that protect biodiversity and sequester carbon.</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">Tree Planting Initiative</div>
+                <span class="counter" data-target="50000" data-suffix="+">0</span>
+                <div class="metric-description">Trees to be planted through our grove rejuvenation program, increasing yields while absorbing CO2.</div>
+            </div>
+        </div>
+
+        <div class="impact-section">
+            <h2>IMPACT EXPLAINED</h2>
+            
+            <h3>The Climate Crisis in Agriculture</h3>
+            <p>Agriculture is both a victim and contributor to climate change. Deforestation for farmland releases massive amounts of CO2. Synthetic fertilizers and pesticides degrade soil health. Monoculture farming destroys biodiversity. The cycle continues because farmers trapped in poverty have no choice but to maximize short-term yields at the expense of long-term sustainability.</p>
+
+            <h3>Breaking the Vicious Circle</h3>
+            <p>At the heart of deforestation and climate change is poverty. When farmers can't earn sustainable incomes from environmentally-friendly practices, they're forced to clear forests for cattle or food crops that can feed their children. This is the great conundrum of global agriculture.</p>
+            
+            <p>Our platform breaks this cycle by making sustainable farming profitable. Through tokenization, farmers can access capital to invest in agroforestry, organic practices, and grove rejuvenation. Through fair revenue sharing, farmers earn enough to support their families without destroying forests.</p>
+
+            <div class="highlight-box">
+                <p>WE'RE BUILDING A PLATFORM WHERE ENVIRONMENTAL STEWARDSHIP IS REWARDED, NOT PUNISHED.</p>
+            </div>
+
+            <h3>Agroforestry: The Solution</h3>
+            <p>Agroforestry combines agriculture with forest conservation. Instead of clearing land for monoculture crops, farmers grow crops under natural tree canopy. This approach:</p>
+            <p>• Sequesters more carbon than conventional farming<br>
+            • Protects biodiversity and natural habitats<br>
+            • Improves soil health and water retention<br>
+            • Provides shade that protects crops from climate extremes<br>
+            • Creates multiple income streams for farmers</p>
+
+            <p>Our tokenization model incentivizes agroforestry by making it financially viable. Investors support sustainable practices. Farmers earn sustainable incomes. The planet benefits from carbon sequestration and forest protection.</p>
+        </div>
+
+        <div class="impact-section">
+            <h2>KEY INITIATIVES</h2>
+            
+            <div class="achievement-item">
+                <h4>1. START OF THE TREE PLANTING REVOLUTION</h4>
+                <p>As we've discussed earlier in this report, poverty and deforestation go hand in hand. Which raises the question: can you tackle both problems simultaneously? This is precisely what we're attempting to do with our Tree Planting Revolution, a campaign focused on planting 50,000+ new trees in our farming communities.</p>
+                <p>In addition to combatting deforestation and absorbing an estimated 100+ tons of CO2 from the air, the new trees could also potentially double the income of our farmers on average. We're growing seedlings in local nurseries, seedlings that will be ready to be planted with the help of a highly engaging consumer campaign.</p>
+            </div>
+
+            <div class="achievement-item">
+                <h4>2. SUSTAINABLE GROVE STANDARDS</h4>
+                <p>We're developing certification standards for tokenized groves that prioritize agroforestry, organic practices, and biodiversity protection. Groves meeting these standards will receive premium valuations, incentivizing environmental stewardship.</p>
+                <p>Not only does this create value for investors, but it also ensures that farmers are rewarded for sustainable practices. Our standards go beyond traditional certifications by incorporating blockchain verification and real-time monitoring of environmental impact.</p>
+            </div>
+
+            <div class="achievement-item">
+                <h4>3. CARBON CREDIT INTEGRATION</h4>
+                <p>We're exploring integration with carbon credit markets, allowing farmers to earn additional income from the CO2 their groves sequester. This creates a direct financial incentive for environmental protection.</p>
+                <p>By monetizing carbon sequestration, we're proving that environmental stewardship can be profitable. Farmers who maintain healthy, biodiverse groves will earn from both harvests and carbon credits, making sustainable farming economically superior to conventional methods.</p>
+            </div>
+
+            <div class="achievement-item">
+                <h4>4. BLOCKCHAIN TRANSPARENCY</h4>
+                <p>Every grove's environmental practices are recorded on blockchain, providing transparent proof of sustainable farming. Investors can verify that their capital supports climate-positive agriculture.</p>
+                <p>This transparency builds trust and accountability. Farmers can prove their environmental impact. Investors can verify their contributions. Regulators can monitor compliance. Everyone benefits from radical transparency.</p>
+            </div>
+
+            <div class="achievement-item">
+                <h4>5. ORGANIC FARMING SUPPORT</h4>
+                <p>We're partnering with cooperatives to provide training and resources for organic farming methods. By reducing synthetic fertilizer use, we lower the carbon footprint of agriculture while improving soil health.</p>
+                <p>Organic farming isn't just better for the environment—it's better for farmers' long-term profitability. Healthier soil produces better yields. Lower input costs increase margins. Biodiversity protects against pests and disease. Sustainable farming is smart farming.</p>
+            </div>
+
+            <div class="achievement-item">
+                <h4>6. FOREST PROTECTION COMMITMENT</h4>
+                <p>Our platform includes commitments from farmers to protect existing forest areas on their land. Tokenization provides the income security that makes forest protection economically viable.</p>
+                <p>When farmers earn sustainable incomes from agroforestry, they don't need to clear forests for cattle or monoculture crops. Our model proves that protecting forests and earning a living income aren't mutually exclusive—they're complementary.</p>
+            </div>
+        </div>
+
+        <div class="impact-section">
+            <h2>WHY THIS MATTERS</h2>
+            
+            <h3>The True Cost of Agriculture</h3>
+            <p>Traditional economic models ignore environmental costs—what economists call "negative externalities." The carbon emissions, deforestation, and biodiversity loss caused by conventional agriculture aren't reflected in crop prices. These costs are passed to society and the planet.</p>
+
+            <p>Our platform aims to internalize these externalities. By rewarding sustainable practices and making environmental stewardship profitable, we're creating a business model that generates positive externalities instead of negative ones.</p>
+
+            <h3>Climate Activism Through Business</h3>
+            <p>We've become climate activists out of necessity. The farmers we work with are on the frontline of climate change. Their livelihoods depend on stable weather patterns and healthy ecosystems. By helping farmers prosper through sustainable practices, we're fighting climate change while fighting poverty.</p>
+
+            <div class="highlight-box">
+                <p>Our goal is to prove that agriculture can be climate-positive, profitable, and scalable—all at the same time.</p>
+            </div>
+        </div>
+
+        <div class="impact-section">
+            <h2>OUR ENVIRONMENTAL ROADMAP</h2>
+            
+            <p><strong>Achieve climate-positive operations</strong> by ensuring our platform sequesters more CO2 than it emits through sustainable grove management.</p>
+            
+            <p><strong>Plant 50,000+ trees</strong> through our grove rejuvenation program, increasing farmer incomes while absorbing CO2.</p>
+            
+            <p><strong>Certify 1,000+ groves</strong> under our sustainable agriculture standards, proving that tokenization can scale environmental stewardship.</p>
+            
+            <p><strong>Integrate carbon credits</strong> into our revenue model, allowing farmers to earn from both harvests and carbon sequestration.</p>
+            
+            <p><strong>Partner with environmental organizations</strong> to measure and verify our climate impact using rigorous scientific methods.</p>
+            
+            <p><strong>Create a blueprint</strong> for climate-positive agriculture that other platforms can adopt, scaling impact beyond our own operations.</p>
+            
+            <div class="highlight-box">
+                <p>We believe tokenization can transform agriculture from a climate problem into a climate solution. Join us in fixing the future.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function animateCounter(element, target, prefix = '', suffix = '') {
+            let count = 0;
+            const duration = 2000;
+            const increment = target / (duration / 16);
+            
+            const updateCounter = () => {
+                if (count < target) {
+                    count += increment;
+                    const displayValue = Math.floor(count);
+                    element.innerText = prefix + displayValue.toLocaleString() + suffix;
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.innerText = prefix + target.toLocaleString() + suffix;
+                }
+            };
+            
+            updateCounter();
+        }
+
+        const observerOptions = {
+            threshold: 0.5,
+            rootMargin: '0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
+                    const counter = entry.target;
+                    const target = parseInt(counter.getAttribute('data-target'));
+                    const prefix = counter.getAttribute('data-prefix') || '';
+                    const suffix = counter.getAttribute('data-suffix') || '';
+                    
+                    animateCounter(counter, target, prefix, suffix);
+                    counter.classList.add('animated');
+                }
+            });
+        }, observerOptions);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const counters = document.querySelectorAll('.counter');
+            counters.forEach(counter => observer.observe(counter));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Economic Impact - FairChain Agriculture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #1a1a1a;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .intro-section {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 60px;
+        }
+
+        .intro-section h2 {
+            font-size: 2.2rem;
+            color: #F5A623;
+            margin-bottom: 30px;
+        }
+
+        .intro-section p {
+            font-size: 1.1rem;
+            color: #d0d0d0;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .metric-card {
+            background: #F5A623;
+            padding: 40px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(245, 166, 35, 0.3);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(245, 166, 35, 0.5);
+        }
+
+        .counter {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 20px 0;
+            display: block;
+        }
+
+        .metric-label {
+            font-size: 1.1rem;
+            color: #1a1a1a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .metric-description {
+            font-size: 0.95rem;
+            color: #2a2a2a;
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+
+        .impact-section {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 60px;
+        }
+
+        .impact-section h2 {
+            font-size: 2rem;
+            color: #F5A623;
+            margin-bottom: 30px;
+            border-left: none;
+            padding-left: 0;
+        }
+
+        .impact-section h3 {
+            font-size: 1.5rem;
+            color: #F5A623;
+            margin: 30px 0 15px 0;
+        }
+
+        .impact-section p {
+            font-size: 1.05rem;
+            color: #d0d0d0;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .highlight-box {
+            background: transparent;
+            border-left: none;
+            padding: 0;
+            margin: 30px 0;
+        }
+
+        .highlight-box p {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #F5A623;
+            font-weight: 600;
+            font-style: italic;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .achievement-item {
+            margin-bottom: 50px;
+        }
+
+        .achievement-item h4 {
+            font-size: 1.4rem;
+            color: #F5A623;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .achievement-item p {
+            font-size: 1.05rem;
+            color: #d0d0d0;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .factory-showcase {
+            max-width: 100%;
+            margin: 0 auto 60px auto;
+            padding: 0;
+        }
+
+        .factory-image-container {
+            position: relative;
+            min-height: 500px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(245, 166, 35, 0.4);
+        }
+
+        .factory-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            filter: brightness(0.6);
+        }
+
+        .factory-text-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, rgba(245, 166, 35, 0.3) 0%, rgba(255, 140, 0, 0.3) 100%);
+        }
+
+        .factory-text-overlay h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.7);
+            margin-bottom: 20px;
+            max-width: 900px;
+        }
+
+        .factory-text-overlay p {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+            max-width: 800px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .counter {
+                font-size: 2.5rem;
+            }
+
+            .intro-section, .impact-section {
+                padding: 40px 25px;
+            }
+
+            .factory-showcase {
+                margin: 0 auto 40px auto;
+            }
+
+            .factory-image-container {
+                min-height: 400px;
+            }
+
+            .factory-text-overlay h1 {
+                font-size: 2rem;
+            }
+
+            .factory-text-overlay p {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="factory-showcase">
+        <div class="factory-image-container">
+            <img src="public/factory.png" alt="Agricultural Processing Factory" class="factory-image">
+            <div class="factory-text-overlay">
+                <h1>OUR ECONOMIC IMPACT</h1>
+                <p>Valuable Opportunities and a Proud Future for Farmers Without the Need for Development Aid</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="intro-section">
+            <h2>LET'S FIX THE FUTURE!</h2>
+            <p>Traditional agricultural financing leaves farmers trapped in poverty while middlemen and corporations capture most of the value. Only a tiny fraction of profits reach the people who actually grow the crops.</p>
+            <p>By tokenizing agricultural assets and connecting farmers directly with global investors, we're building a platform around Economic, Social and Environmental impact. We're creating a new model where farmers retain ownership, investors earn fair returns, and communities prosper through trade, not aid.</p>
+            <div class="highlight-box">
+                <p>Currently, smallholder farmers capture less than 10% of the final value of their crops. By tokenizing groves and enabling direct investment, we help farmers access capital without predatory loans, retain ownership of their land, and earn 5x more income compared to traditional models.</p>
+            </div>
+        </div>
+
+        <h2 style="text-align: center; font-size: 2.5rem; color: #2c5f2d; margin-bottom: 20px;">LET'S TALK NUMBERS!</h2>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Groves To Be Tokenized</div>
+                <span class="counter" data-target="2000" data-suffix="">0</span>
+                <div class="metric-description">Target by Q2 2026. Each tokenized grove represents real farmland owned by real farmers who now have access to capital markets.</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">Farmers On pilot</div>
+                <span class="counter" data-target="200" data-suffix="+">0</span>
+                <div class="metric-description">Smallholder farmers with direct access to global capital, ownership of tokenized assets, and transparent revenue tracking.</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">Cooperatives Partnered</div>
+                <span class="counter" data-target="10" data-suffix="">0</span>
+                <div class="metric-description">Farmer cooperatives working together to pool resources, negotiate better terms, and scale sustainable practices.</div>
+            </div>
+        </div>
+
+        <div class="impact-section">
+            <h2>IMPACT EXPLAINED</h2>
+            
+            <h3>The Importance of Direct Investment</h3>
+            <p>Traditional agricultural lending traps farmers in debt cycles with interest rates exceeding 20%. Our tokenization model eliminates middlemen and connects farmers directly with investors who share in harvest success. No more predatory loans. No more exploitation. Just fair partnerships.</p>
+
+            <h3>From Charity to Equity</h3>
+            <p>We're not offering handouts or microloans. We're offering farmers what they deserve: the ability to tokenize their assets, raise capital, and share profits fairly. Investors aren't donors—they're partners who earn returns when farmers succeed. This is trade, not aid.</p>
+
+            <div class="highlight-box">
+                <p>50% Innovative Finance + 50% Social Impact = 100% The Future of Agriculture</p>
+            </div>
+
+            <p>Our platform is both a voice and a fist against a system where development aid subsidizes corporations that refuse to share wealth with farmers. Why should farmers remain poor while agricultural corporations profit? Why can't farming be profitable in its own right? Why can't investors earn fair returns while empowering communities?</p>
+
+            <p><strong>The answer: they can.</strong></p>
+        </div>
+
+        <div class="impact-section">
+            <h2>KEY ACHIEVEMENTS</h2>
+            
+            <div class="achievement-item">
+                <h4>1. BLOCKCHAIN TRANSPARENCY</h4>
+                <p>Every transaction is recorded on Hedera blockchain. Investors can trace their capital from investment to harvest to revenue distribution. Farmers can prove their creditworthiness with immutable payment history.</p>
+                <p>This radical transparency builds trust between all parties. Investors see exactly where their money goes. Farmers have proof of their reliability. Regulators can verify compliance. Everyone benefits from open, verifiable records.</p>
+            </div>
+
+            <div class="achievement-item">
+                <h4>2. CREDIT SCORING FOR THE UNBANKED</h4>
+                <p>We've built a credit scoring system that evaluates farmers based on actual performance, not arbitrary bank requirements. Farmers improve their scores with each successful harvest, unlocking better terms and more opportunities.</p>
+                <p>Traditional banks have written off smallholder farmers as "unbankable." We're proving them wrong by creating a credit system based on what matters: consistent performance and reliable harvests.</p>
+            </div>
+
+            <div class="achievement-item">
+                <h4>3. AUTOMATED REVENUE DISTRIBUTION</h4>
+                <p>Smart contracts automatically distribute harvest revenues according to token ownership. No delays, no disputes, no corruption. When a harvest is recorded, payments flow automatically.</p>
+                <p>This automation eliminates the middlemen who traditionally capture value. Farmers get paid faster. Investors receive returns immediately. The system runs itself with perfect accuracy.</p>
+            </div>
+
+            <div class="achievement-item">
+                <h4>4. INVESTOR PROTECTION WITH FARMER EMPOWERMENT</h4>
+                <p>Our liquidation mechanisms protect investors while giving farmers maximum flexibility. Farmers retain ownership unless they default, and even then, they receive fair market value for their groves.</p>
+                <p>We've designed a system that balances risk and reward. Investors are protected from total loss. Farmers maintain control of their land. Both parties benefit from aligned incentives.</p>
+            </div>
+
+            <div class="achievement-item">
+                <h4>5. COMMUNITY-DRIVEN GROWTH</h4>
+                <p>Our platform grows through word-of-mouth among farming communities. Farmers who succeed bring their neighbors. Investors who earn returns bring their networks. This is sustainable, scalable impact.</p>
+                <p>We're not spending millions on marketing. We're letting results speak for themselves. When farmers prosper, they tell their communities. When investors earn returns, they tell their networks. Organic growth is the best growth.</p>
+            </div>
+
+            <div class="achievement-item">
+                <h4>6. COOPERATIVE PARTNERSHIPS</h4>
+                <p>By partnering with 10 established cooperatives, we leverage existing trust networks and agricultural expertise. Cooperatives provide training, quality control, and collective bargaining power for their members.</p>
+                <p>These partnerships allow us to scale quickly while maintaining quality. Cooperatives know their farmers and their land. We provide the technology and capital access. Together, we're stronger.</p>
+            </div>
+        </div>
+
+        <div class="impact-section">
+            <h2>OUR ECONOMIC ROADMAP</h2>
+            <p><strong>Scale to 2,000 tokenized groves by Q2 2026</strong> across multiple countries, proving that tokenized agriculture works at scale.</p>
+            <p><strong>Enable secondary markets</strong> where investors can trade grove tokens, creating liquidity while farmers retain operational control.</p>
+            <p><strong>Expand to multiple crop types</strong> beyond coffee and cacao to demonstrate the universal applicability of our model.</p>
+            <p><strong>Build farmer cooperatives</strong> where groups of farmers can pool resources and negotiate better terms collectively.</p>
+            <p><strong>Champion the Fourth Wave of agricultural finance</strong>—moving from charity to microloans to direct investment to tokenized ownership. Our model will inspire other platforms to follow our lead.</p>
+            
+            <div class="highlight-box">
+                <p>Before you say we're crazy, think of how DeFi is transforming finance and how tokenization is transforming real estate. We're doing this for agriculture. The farmers who feed the world deserve nothing less.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function animateCounter(element, target, suffix = '') {
+            let count = 0;
+            const duration = 2000; // 2 seconds
+            const increment = target / (duration / 16); // 60fps
+            
+            const updateCounter = () => {
+                if (count < target) {
+                    count += increment;
+                    const displayValue = Math.floor(count);
+                    element.innerText = displayValue.toLocaleString() + suffix;
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.innerText = target.toLocaleString() + suffix;
+                }
+            };
+            
+            updateCounter();
+        }
+
+        // Intersection Observer to trigger animation when counters are visible
+        const observerOptions = {
+            threshold: 0.5,
+            rootMargin: '0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
+                    const counter = entry.target;
+                    const target = parseInt(counter.getAttribute('data-target'));
+                    const suffix = counter.getAttribute('data-suffix') || '';
+                    
+                    animateCounter(counter, target, suffix);
+                    counter.classList.add('animated');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all counters
+        document.addEventListener('DOMContentLoaded', () => {
+            const counters = document.querySelectorAll('.counter');
+            counters.forEach(counter => observer.observe(counter));
+        });
+    </script>
+</body>
+</html>

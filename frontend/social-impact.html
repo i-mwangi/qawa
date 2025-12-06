@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Social Impact - Farmers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #1a1a1a;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .farmer-showcase {
+            max-width: 100%;
+            margin: 0 auto 60px auto;
+            padding: 0;
+        }
+
+        .farmer-image-container {
+            position: relative;
+            min-height: 500px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(245, 166, 35, 0.4);
+        }
+
+        .farmer-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            filter: brightness(0.6);
+        }
+
+        .farmer-text-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, rgba(245, 166, 35, 0.3) 0%, rgba(255, 140, 0, 0.3) 100%);
+        }
+
+        .farmer-text-overlay h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.7);
+            margin-bottom: 20px;
+            max-width: 900px;
+        }
+
+        .farmer-text-overlay p {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+            max-width: 800px;
+            line-height: 1.6;
+        }
+
+        .intro-section {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 60px;
+        }
+
+        .intro-section h2 {
+            font-size: 2.2rem;
+            color: #F5A623;
+            margin-bottom: 30px;
+        }
+
+        .intro-section p {
+            font-size: 1.1rem;
+            color: #d0d0d0;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .metric-card {
+            background: #F5A623;
+            padding: 40px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(245, 166, 35, 0.3);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(245, 166, 35, 0.5);
+        }
+
+        .counter {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 20px 0;
+            display: block;
+        }
+
+        .metric-label {
+            font-size: 1.1rem;
+            color: #1a1a1a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .metric-description {
+            font-size: 0.95rem;
+            color: #2a2a2a;
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+
+        .impact-section {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 60px;
+        }
+
+        .impact-section h2 {
+            font-size: 2rem;
+            color: #F5A623;
+            margin-bottom: 30px;
+            border-left: none;
+            padding-left: 0;
+        }
+
+        .impact-section h3 {
+            font-size: 1.5rem;
+            color: #F5A623;
+            margin: 30px 0 15px 0;
+        }
+
+        .impact-section p {
+            font-size: 1.05rem;
+            color: #d0d0d0;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .highlight-box {
+            background: transparent;
+            border-left: none;
+            padding: 0;
+            margin: 30px 0;
+        }
+
+        .highlight-box p {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #F5A623;
+            font-weight: 600;
+            font-style: italic;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .achievement-item {
+            margin-bottom: 50px;
+        }
+
+        .achievement-item h4 {
+            font-size: 1.4rem;
+            color: #F5A623;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .achievement-item p {
+            font-size: 1.05rem;
+            color: #d0d0d0;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .counter {
+                font-size: 2.5rem;
+            }
+
+            .intro-section, .impact-section {
+                padding: 40px 25px;
+            }
+
+            .farmer-showcase {
+                margin: 0 auto 40px auto;
+            }
+
+            .farmer-image-container {
+                min-height: 400px;
+            }
+
+            .farmer-text-overlay h1 {
+                font-size: 2rem;
+            }
+
+            .farmer-text-overlay p {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="farmer-showcase">
+        <div class="farmer-image-container">
+            <img src="public/society.png" alt="Smallholder Farmers" class="farmer-image">
+            <div class="farmer-text-overlay">
+                <h1>OUR SOCIAL IMPACT</h1>
+                <p>A Sustainable Income as a Foundation for Thriving Communities</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="intro-section">
+            <h2>LET'S FIX THE FUTURE!</h2>
+            <p>We see a future where smallholder farmers are no longer trapped in cycles of poverty and debt. Traditional agricultural systems have failed farmers for generations, leaving them with insufficient income despite their hard work feeding the world.</p>
+            <p>With our tokenization platform, we're building a system around Economic, Social and Environmental impact. We're not just offering better prices—we're creating pathways to sustainable livelihoods through grove ownership, transparent revenue sharing, and access to capital markets.</p>
+            <div class="highlight-box">
+                <p>Our mission: Help farmers achieve sustainable incomes not through charity, but through ownership, transparency, and fair profit-sharing in the agricultural value chain.</p>
+            </div>
+        </div>
+
+        <h2 style="text-align: center; font-size: 2.5rem; color: #F5A623; margin-bottom: 20px;">LET'S TALK NUMBERS!</h2>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Pilot Farmers Onboarded</div>
+                <span class="counter" data-target="25" data-suffix="">0</span>
+                <div class="metric-description">Early-stage farmers participating in our pilot program, testing tokenization and transparent revenue distribution systems.</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">Target by Q2 2026</div>
+                <span class="counter" data-target="200" data-suffix="+">0</span>
+                <div class="metric-description">Projected farmers to be enrolled in our sustainable income program with full access to tokenization, credit scoring, and fair revenue splits.</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">Projected Income Increase</div>
+                <span class="counter" data-target="300" data-suffix="%">0</span>
+                <div class="metric-description">Expected income increase for farmers who tokenize their groves compared to traditional agricultural financing models.</div>
+            </div>
+        </div>
+
+        <div class="impact-section">
+            <h2>IMPACT EXPLAINED</h2>
+            
+            <h3>Sustainable Income Through Tokenization</h3>
+            <p>A sustainable income is defined as sufficient income generated by a household to afford a decent standard of living. This includes: nutritious food, clean water, decent housing, education, healthcare, and savings for unexpected events.</p>
+            <p>We started by offering farmers access to capital through tokenization. But we quickly realized that access to capital alone wasn't enough. Farmers needed ownership, transparent revenue tracking, and fair profit-sharing to truly escape poverty.</p>
+
+            <h3>From Charity to Ownership</h3>
+            <p>Traditional agricultural aid and microloans keep farmers dependent. Our model gives farmers something revolutionary: ownership of tokenized assets that generate ongoing revenue. When investors buy grove tokens, farmers retain ownership while gaining capital. When harvests generate revenue, farmers receive their fair share automatically through smart contracts.</p>
+
+            <div class="highlight-box">
+                <p>WE ARE THE ONLY PLATFORM THAT PLACES FARMER OWNERSHIP AND SUSTAINABLE INCOME AT THE CORE OF AGRICULTURAL TOKENIZATION.</p>
+            </div>
+
+            <p>The road to sustainable income isn't straight. We invest in multiple activities: blockchain-based payment systems, credit scoring for the unbanked, transparent revenue distribution, and grove tokenization. Higher revenues are only part of the solution—farmers also need lower costs, better yields, and access to markets.</p>
+
+            <h3>Real Progress, Real Impact</h3>
+            <p>Many farmers in our target regions earn less than $500 annually from their crops. Through tokenization and fair revenue sharing, our model projects farmers can triple their income. We're currently piloting with 25 early-stage farmers to validate our approach. Our goal is to help every farmer achieve a sustainable income that supports their family's needs and builds generational wealth.</p>
+        </div>
+
+        <div class="impact-section">
+            <h2>KEY ACHIEVEMENTS</h2>
+            
+            <div class="achievement-item">
+                <h4>1. PILOT PROGRAM LAUNCH</h4>
+                <p>When it comes to impact, scale matters. We've launched with 25 pilot farmers to test and refine our model. Our target is 200+ smallholders by Q2 2026. These farmers are among the smallest and poorest in their regions, living in poverty for generations.</p>
+                <p>Our platform is their best—and often only—chance to build lasting wealth. By starting small, we can perfect our model before scaling to thousands of farmers across multiple regions.</p>
+            </div>
+
+            <div class="achievement-item">
+                <h4>2. BLOCKCHAIN INFRASTRUCTURE READY</h4>
+                <p>We've built our platform on Hedera blockchain for farmer payments. Every harvest distribution will be recorded on-chain, giving farmers transparent proof of their earnings. This isn't just about transparency—it's about building credit history for farmers who have been written off as "unbankable."</p>
+                <p>Blockchain provides immutable records that farmers can use to prove their reliability to lenders, cooperatives, and investors. This is the foundation of financial inclusion.</p>
+            </div>
+
+            <div class="achievement-item">
+                <h4>3. CREDIT SCORING SYSTEM BUILT</h4>
+                <p>Our platform is designed to track every farmer transaction, building credit scores based on actual performance rather than arbitrary bank requirements. Farmers who consistently deliver quality harvests will improve their scores, unlocking better terms and more opportunities.</p>
+                <p>This is financial inclusion in action. No more discrimination based on lack of collateral or formal banking history. Performance is the only metric that matters.</p>
+            </div>
+
+            <div class="achievement-item">
+                <h4>4. DIGITAL WALLET INTEGRATION</h4>
+                <p>Our platform integrates with digital wallets to help farmers access banking services, many for the first time. This will empower farmers—especially women—by giving them direct control over their earnings.</p>
+                <p>No more middlemen taking cuts. No more delayed payments. Just direct, transparent transfers. Digital wallets put financial power directly in farmers' hands.</p>
+            </div>
+
+            <div class="achievement-item">
+                <h4>5. COOPERATIVE PARTNERSHIPS SECURED</h4>
+                <p>We've secured partnerships with 10 established cooperatives, leveraging existing trust networks and agricultural expertise. Cooperatives will provide training, quality control, and collective bargaining power, while our platform provides access to global capital markets.</p>
+                <p>These partnerships allow us to scale quickly while maintaining quality standards. Cooperatives know their farmers and their land—we provide the technology and capital access.</p>
+            </div>
+
+            <div class="achievement-item">
+                <h4>6. SMART CONTRACT SYSTEM DEPLOYED</h4>
+                <p>Our smart contracts are designed to automatically distribute harvest revenues according to token ownership. When a harvest is recorded, payments will flow automatically—no delays, no disputes, no corruption.</p>
+                <p>Farmers will see exactly what they've earned and when they'll receive it. Transparency and automation build trust between farmers and investors.</p>
+            </div>
+        </div>
+
+        <div class="impact-section">
+            <h2>OUR SOCIAL ROADMAP</h2>
+            <p>We're learning by doing. This is new territory, but we know where we're heading. By 2026, we aim to have 1,000+ farmers on a credible path to sustainable income while proving that our first wave of farmers has indeed closed the poverty gap.</p>
+            
+            <p><strong>Scale to 1,000+ farmers</strong> enrolled in our sustainable income program across multiple countries and crop types.</p>
+            
+            <p><strong>Launch secondary markets</strong> where farmers can trade their own grove tokens, creating liquidity while maintaining operational control.</p>
+            
+            <p><strong>Introduce micro-loans</strong> powered by blockchain credit scores, giving farmers access to capital for equipment, seeds, and grove improvements.</p>
+            
+            <p><strong>Create farmer dashboards</strong> that provide real-time visibility into earnings, credit scores, and token performance—building direct relationships between farmers and investors.</p>
+            
+            <p><strong>Expand value-adding activities</strong> like processing facilities owned by farmer cooperatives, creating additional income streams beyond raw crop sales.</p>
+            
+            <div class="highlight-box">
+                <p>Our ultimate goal: Prove that tokenization can replace development aid in agricultural regions. We want other platforms to adopt our open-source methodology and put thousands more farmers on the road to sustainable income.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function animateCounter(element, target, prefix = '', suffix = '') {
+            let count = 0;
+            const duration = 2000;
+            const increment = target / (duration / 16);
+            
+            const updateCounter = () => {
+                if (count < target) {
+                    count += increment;
+                    const displayValue = Math.floor(count);
+                    element.innerText = prefix + displayValue.toLocaleString() + suffix;
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.innerText = prefix + target.toLocaleString() + suffix;
+                }
+            };
+            
+            updateCounter();
+        }
+
+        const observerOptions = {
+            threshold: 0.5,
+            rootMargin: '0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
+                    const counter = entry.target;
+                    const target = parseInt(counter.getAttribute('data-target'));
+                    const prefix = counter.getAttribute('data-prefix') || '';
+                    const suffix = counter.getAttribute('data-suffix') || '';
+                    
+                    animateCounter(counter, target, prefix, suffix);
+                    counter.classList.add('animated');
+                }
+            });
+        }, observerOptions);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const counters = document.querySelectorAll('.counter');
+            counters.forEach(counter => observer.observe(counter));
+        });
+    </script>
+</body>
+</html>
